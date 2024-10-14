@@ -15,7 +15,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Prescription {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     String note;

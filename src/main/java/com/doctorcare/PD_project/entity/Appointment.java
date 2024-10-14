@@ -17,7 +17,7 @@ import java.util.List;
 @Table(name = "Appointment")
 public class Appointment {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "appointment_id")
     String id;
 
@@ -37,7 +37,7 @@ public class Appointment {
     Date date;
 
     @Column(name = "status")
-    AppointmentStatus status;
+    String status;
 
     @ManyToOne
     @JoinColumn(name = "schedule_id")

@@ -9,8 +9,7 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -18,7 +17,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "id")
     String id;
 
     String name;
@@ -40,7 +40,7 @@ public class User {
     @Column(name = "profile_img")
     String img;
 
-    Roles roles;
+    String role;
 
     boolean isEnable;
 

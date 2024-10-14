@@ -14,10 +14,11 @@ import java.util.List;
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "like_type")
+@Table(name = "like_status")
+@DiscriminatorColumn(name = "type")
 public class Like  {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     boolean status;
