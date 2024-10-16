@@ -1,6 +1,6 @@
 package com.doctorcare.PD_project.service;
 
-import com.doctorcare.PD_project.dto.request.UserRequest;
+import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
@@ -20,7 +20,7 @@ public class UserService{
     UserResponsitory userResponsitory;
     DoctorRepository doctorResponsitory;
     UserMapper userMapper;
-    public ApiResponse<UserResponse> CreateUser(UserRequest userRequest) {
+    public ApiResponse<UserResponse> CreateUser(CreateUserRequest userRequest) {
 
         Doctor doctor = userMapper.toDoctor(userRequest);
         doctor.setRole(Roles.DOCTOR.name());

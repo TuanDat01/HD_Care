@@ -1,7 +1,7 @@
 package com.doctorcare.PD_project.mapping;
 
-import com.doctorcare.PD_project.dto.request.DoctorRequest;
-import com.doctorcare.PD_project.dto.request.UserRequest;
+import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
+import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
@@ -9,7 +9,6 @@ import com.doctorcare.PD_project.entity.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.factory.Mappers;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -17,10 +16,11 @@ public interface UserMapper {
     UserResponse toUserResponse(User user);
     @Mapping(source = "password",target = "pwd")
 
-    Doctor toDoctor(UserRequest userRequest);
+    Doctor toDoctor(CreateUserRequest userRequest);
 
 
-    void updateDoctor(DoctorRequest doctorRequest, @MappingTarget Doctor doctor);
+    void updateDoctor(UpdateDoctorRequest doctorRequest, @MappingTarget Doctor doctor);
+    @Mapping(target = "id", ignore = true)
 
     DoctorResponse toDoctorResponse(Doctor doctor);
 }

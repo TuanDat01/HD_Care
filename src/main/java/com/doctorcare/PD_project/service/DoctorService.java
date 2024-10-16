@@ -1,7 +1,6 @@
 package com.doctorcare.PD_project.service;
 
-import com.doctorcare.PD_project.dto.request.DoctorRequest;
-import com.doctorcare.PD_project.dto.response.ApiResponse;
+import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.mapping.UserMapper;
@@ -11,8 +10,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
-import javax.print.Doc;
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -21,7 +20,18 @@ public class DoctorService {
     DoctorRepository doctorRepository;
     UserMapper userMapper;
 
-    public DoctorResponse UpdateInfo(String id, DoctorRequest doctorRequest) {
+    public List<DoctorResponse> TransformDoctorResponse(List<Doctor> doctors){
+        Stream<Doctor> doctorStream = doctors.stream();
+        List<DoctorResponse> doctorResponses = doctorStream.map(userMapper::toDoctorResponse).toList();
+        for (int i=0;i<doctorResponses.size();i++){
+            Doctor doctor = doctors.get(i);
+            DoctorResponse doctorResponse = doctorResponses.get(i);
+            doctorResponse.setId(doctor.getId());
+        }
+        return doctorResponses;
+    }
+
+    public DoctorResponse UpdateInfo(String id, UpdateDoctorRequest doctorRequest) {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(()-> new RuntimeException("Not found doctor"));
         userMapper.updateDoctor(doctorRequest,doctor);
         return userMapper.toDoctorResponse(doctorRepository.save(doctor));
@@ -29,22 +39,32 @@ public class DoctorService {
 
     public List<DoctorResponse> FilterByProvince(String province) {
         List<Doctor> doctors = doctorRepository.findByLocation(province);
-        return doctors.stream().map(userMapper::toDoctorResponse).toList();
+        return TransformDoctorResponse(doctors);
     }
 
     public List<DoctorResponse> FilterByName(String name) {
         List<Doctor> doctors = doctorRepository.findByNameContaining(name);
-        return doctors.stream().map(userMapper::toDoctorResponse).toList();
+        return TransformDoctorResponse(doctors);
     }
 
     public List<DoctorResponse> OrderPriceAsc() {
         List<Doctor> doctors = doctorRepository.findAllByOrderByPriceAsc();
-        return doctors.stream().map(userMapper::toDoctorResponse).toList();
+        return TransformDoctorResponse(doctors);
     }
 
     public List<DoctorResponse> OrderPriceDesc() {
         List<Doctor> doctors = doctorRepository.findAllByOrderByPriceDesc();
-        return doctors.stream().map(userMapper::toDoctorResponse).toList();
+        return TransformDoctorResponse(doctors);
+    }
+
+    public List<DoctorResponse> GetAll(){
+        List<Doctor> doctors = doctorRepository.findAll();
+        return TransformDoctorResponse(doctors);
+    }
+
+    public DoctorResponse FindDoctorById(String id)
+    {
+        return userMapper.toDoctorResponse(doctorRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found doctor")));
     }
 
 

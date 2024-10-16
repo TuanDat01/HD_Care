@@ -22,6 +22,7 @@ public class Doctor extends User {
 
     long price;
 
+    @Lob
     String description;
 
     double avgRating;
