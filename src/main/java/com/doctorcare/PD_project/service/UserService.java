@@ -1,13 +1,14 @@
 package com.doctorcare.PD_project.service;
 
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
-import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
+import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
-import com.doctorcare.PD_project.responsitory.UserResponsitory;
+import com.doctorcare.PD_project.responsitory.PatientRepository;
+import com.doctorcare.PD_project.responsitory.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,14 +18,23 @@ import org.springframework.stereotype.Service;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 public class UserService{
-    UserResponsitory userResponsitory;
-    DoctorRepository doctorResponsitory;
+    UserRepository userResponsitory;
+    DoctorRepository doctorRepository;
+    PatientRepository patientRepository;
     UserMapper userMapper;
-    public ApiResponse<UserResponse> CreateUser(CreateUserRequest userRequest) {
+    public UserResponse CreateDoctor(CreateUserRequest userRequest) {
 
         Doctor doctor = userMapper.toDoctor(userRequest);
         doctor.setRole(Roles.DOCTOR.name());
-        Doctor savedDoctor = doctorResponsitory.save(doctor);
-        return ApiResponse.<UserResponse>builder().result(userMapper.toUserResponse(savedDoctor)).build();
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        return userMapper.toUserResponse(savedDoctor);
+    }
+
+    public UserResponse CreatePatient(CreateUserRequest userRequest) {
+
+        Patient patient = userMapper.toPatient(userRequest);
+        patient.setRole(Roles.PATIENT.name());
+        Patient patientSaved = patientRepository.save(patient);
+        return userMapper.toUserResponse(patientSaved);
     }
 }

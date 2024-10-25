@@ -25,7 +25,7 @@ public class Prescription {
     LocalDate timestamp;
 
     @OneToMany
-    @JoinColumn(name = "medicine_detail_id")
+    @JoinColumn(name = "prescription_id")
     List<MedicineDetail> medicineDetails;
 
 

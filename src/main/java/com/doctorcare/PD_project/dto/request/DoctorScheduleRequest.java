@@ -3,20 +3,20 @@ package com.doctorcare.PD_project.dto.request;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UpdateDoctorRequest {
-    String district;
+public class DoctorScheduleRequest {
+    String id;
+    String name;
+    String profile_img;
+    String email;
+    LocalDateTime startTime;
+    LocalDateTime endTime;
 
-    String specialization;
-
-    String experience;
-
-    long price;
-
-    String description;
 
 }

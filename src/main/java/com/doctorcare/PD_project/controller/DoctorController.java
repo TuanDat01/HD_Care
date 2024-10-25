@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.controller;
 
+import com.doctorcare.PD_project.dto.request.CreateScheduleRequest;
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
@@ -23,11 +24,10 @@ public class DoctorController {
     UserService userService;
     DoctorService doctorService;
 
-    @PostMapping("/create")
+    @PostMapping
     public ApiResponse<UserResponse> CreateUser(@RequestBody CreateUserRequest userRequest) {
-        return userService.CreateUser(userRequest);
+        return ApiResponse.<UserResponse>builder().result(userService.CreateDoctor(userRequest)).build();
     }
-
     @GetMapping("/{id}")
     public ApiResponse<DoctorResponse> FindDoctor(@PathVariable String id) {
         return ApiResponse.<DoctorResponse>builder().result(doctorService.FindDoctorById(id)).build();
@@ -37,25 +37,11 @@ public class DoctorController {
         return ApiResponse.<DoctorResponse>builder().result(doctorService.UpdateInfo(id, doctorRequest)).build();
     }
 
-    @GetMapping("/filter/{province}")
-    public ApiResponse<List<DoctorResponse>> FilterByProvince(@PathVariable String province, @RequestParam(name = "name", required = false) String name) {
-        List<DoctorResponse> doctorResponses = doctorService.FilterByProvince(province);
-        if (name != null) {
-            List<DoctorResponse> doctorResponseList = doctorResponses.stream()
-                    .filter(doctor -> doctor.getName().contains(name)).toList();
-            return ApiResponse.<List<DoctorResponse>>builder().result(doctorResponseList).build();
-        } else
-            return ApiResponse.<List<DoctorResponse>>builder().result(doctorResponses).build();
-    }
 
-    @GetMapping("/filter/")
-    public ApiResponse<List<DoctorResponse>> FilterByProvince(@RequestParam(name = "name", required = false) String name) {
-        return ApiResponse.<List<DoctorResponse>>builder().result(doctorService.FilterByName(name)).build();
+    @GetMapping
+    public ApiResponse<List<DoctorResponse>> getAll(@RequestParam(name = "name", required = false) String name,@RequestParam(name = "district", required = false) String district,@RequestParam(name = "city",required = false) String city, @RequestParam(name = "page",required = false) String page) {
+       return ApiResponse.<List<DoctorResponse>>builder().result(doctorService.GetAll(district, name, city,page)).build();
     }
 
 
-    @GetMapping("/all")
-    public ApiResponse<List<DoctorResponse>> GetAll() {
-        return ApiResponse.<List<DoctorResponse>>builder().result(doctorService.GetAll()).build();
-    }
 }

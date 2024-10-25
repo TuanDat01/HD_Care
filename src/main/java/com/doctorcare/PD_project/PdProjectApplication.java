@@ -7,7 +7,14 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class PdProjectApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(PdProjectApplication.class, args);
+		Runnable task = () -> {
+			System.out.println("Task executed by: " + Thread.currentThread().getName());
+		};
+		Thread thread = new Thread(task);
+		thread.start(); // Tạo và khởi chạy một luồng mới
+
+		SpringApplication.run(PdProjectApplication.class, args
+		);
 	}
 
 }

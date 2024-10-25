@@ -1,15 +1,24 @@
 package com.doctorcare.PD_project.service;
 
+import com.doctorcare.PD_project.dto.request.CreateScheduleRequest;
+import com.doctorcare.PD_project.dto.request.DoctorPageRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.entity.Doctor;
+import com.doctorcare.PD_project.entity.Patient;
+import com.doctorcare.PD_project.entity.Schedule;
+import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
+import com.doctorcare.PD_project.responsitory.ScheduleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -19,6 +28,8 @@ import java.util.stream.Stream;
 public class DoctorService {
     DoctorRepository doctorRepository;
     UserMapper userMapper;
+    ScheduleMapper scheduleMapper;
+    ScheduleRepository scheduleRepository;
 
     public List<DoctorResponse> TransformDoctorResponse(List<Doctor> doctors){
         Stream<Doctor> doctorStream = doctors.stream();
@@ -30,35 +41,30 @@ public class DoctorService {
         }
         return doctorResponses;
     }
-
+    @Transactional
     public DoctorResponse UpdateInfo(String id, UpdateDoctorRequest doctorRequest) {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(()-> new RuntimeException("Not found doctor"));
         userMapper.updateDoctor(doctorRequest,doctor);
         return userMapper.toDoctorResponse(doctorRepository.save(doctor));
     }
 
-    public List<DoctorResponse> FilterByProvince(String province) {
-        List<Doctor> doctors = doctorRepository.findByLocation(province);
-        return TransformDoctorResponse(doctors);
-    }
+    public List<DoctorResponse> GetAll(String district, String name, String city, String p) {
+        List<Doctor> doctors = null;
+        System.out.println(LocalDateTime.now());
 
-    public List<DoctorResponse> FilterByName(String name) {
-        List<Doctor> doctors = doctorRepository.findByNameContaining(name);
-        return TransformDoctorResponse(doctors);
-    }
-
-    public List<DoctorResponse> OrderPriceAsc() {
-        List<Doctor> doctors = doctorRepository.findAllByOrderByPriceAsc();
-        return TransformDoctorResponse(doctors);
-    }
-
-    public List<DoctorResponse> OrderPriceDesc() {
-        List<Doctor> doctors = doctorRepository.findAllByOrderByPriceDesc();
-        return TransformDoctorResponse(doctors);
-    }
-
-    public List<DoctorResponse> GetAll(){
-        List<Doctor> doctors = doctorRepository.findAll();
+        int limit = 3;
+        DoctorPageRequest doctorPageRequest = null;
+        if (p==null){
+            System.out.println("inn");
+            doctorPageRequest = new DoctorPageRequest(limit,0);
+        }
+        else if (district == null && name == null && city == null) {
+            doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
+            Page<Doctor> pageDoctor = doctorRepository.findAll(doctorPageRequest);
+            doctors = pageDoctor.getContent();
+            return TransformDoctorResponse(doctors);
+        }
+        doctors = doctorRepository.filterDoctor(district,name,city,doctorPageRequest).getContent();
         return TransformDoctorResponse(doctors);
     }
 
@@ -66,6 +72,20 @@ public class DoctorService {
     {
         return userMapper.toDoctorResponse(doctorRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found doctor")));
     }
+    @Transactional
+    public DoctorResponse createSchedule(CreateScheduleRequest scheduleRequest, String id){
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new RuntimeException("not found"));
+        Schedule schedule = scheduleMapper.toSchedule(scheduleRequest);
+        schedule.setAvailable(true);
+        doctor.addSchedule(schedule);
+        return userMapper.toDoctorResponse(doctor);
+    }
+
+
+
+
+
+
 
 
 }

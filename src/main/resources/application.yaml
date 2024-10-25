@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: PD_project
+  datasource:
+    url: jdbc:mysql://localhost:3306/doctor_care
+    username: root
+    password: 12022003b
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  main:
+    banner-mode: off
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: tuandatt2003@gmail.com
+    password: szcz gctp hskm wqql
+    properties:
+      mail:
+        smtp:
+          auth : true
+          starttls:
+            enable:  true
+
+logging:
+  level:
+    root: WARN
+    org:
+      hibernate:
+        SQL: TRACE
+        type:
+          descriptor:
+            sql:
+              BasicBinder: TRACE
+        orm:
+          jdbc:
+          bind: TRACE
+
+server:
+  port: 8082
+  servlet:
+    context-path: "/api/v1"
+
+
+

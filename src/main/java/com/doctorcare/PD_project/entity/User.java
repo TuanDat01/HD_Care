@@ -9,7 +9,8 @@ import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
@@ -49,4 +50,22 @@ public class User {
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<Post> posts;
 
+    @Override
+    public String toString() {
+        return "User{" +
+                "id='" + id + '\'' +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", pwd='" + pwd + '\'' +
+                ", phone='" + phone + '\'' +
+                ", gender='" + gender + '\'' +
+                ", dob=" + dob +
+                ", img='" + img + '\'' +
+                ", role='" + role + '\'' +
+                ", isEnable=" + isEnable +
+                ", isBlocked=" + isBlocked +
+                ", posts=" + posts +
+                '}';
+    }
 }
