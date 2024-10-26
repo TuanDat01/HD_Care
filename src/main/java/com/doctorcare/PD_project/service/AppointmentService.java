@@ -24,6 +24,8 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 public class AppointmentService {
+    Doctor doctor = new Doctor();
+
     DoctorRepository doctorRepository;
     PatientRepository patientRepository;
     ScheduleRepository scheduleRepository;

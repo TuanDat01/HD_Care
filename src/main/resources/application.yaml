@@ -2,7 +2,7 @@ spring:
   application:
     name: PD_project
   datasource:
-    url: jdbc:mysql://localhost:3306/doctor_care
+    url: jdbc:mysql://localhost:3306/doctor
     username: root
     password: 12022003b
   jpa:
@@ -41,6 +41,9 @@ server:
   port: 8082
   servlet:
     context-path: "/api/v1"
+
+jwt:
+  signerKey: "xxiZx4S9K4jCse8UI89bTPGihA9MXjHSob+hfnckRMo7yRlIO7xheltlc/+dKFv4"
 
 
 

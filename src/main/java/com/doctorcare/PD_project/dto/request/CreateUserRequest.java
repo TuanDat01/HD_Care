@@ -15,5 +15,5 @@ public class CreateUserRequest {
     String password; // Bạn có thể để lại tên này hoặc đổi thành password
     String phone;
     String gender;
-    // Không cần thêm birthday, profileImg, role nếu không cần thiết
+    // Không cần thêm birthday, profileImg, roles nếu không cần thiết
 }

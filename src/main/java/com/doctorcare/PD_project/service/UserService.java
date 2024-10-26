@@ -8,24 +8,24 @@ import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
 import com.doctorcare.PD_project.responsitory.PatientRepository;
-import com.doctorcare.PD_project.responsitory.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
+import java.util.Collections;
+
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 public class UserService{
-    UserRepository userResponsitory;
     DoctorRepository doctorRepository;
     PatientRepository patientRepository;
     UserMapper userMapper;
     public UserResponse CreateDoctor(CreateUserRequest userRequest) {
 
         Doctor doctor = userMapper.toDoctor(userRequest);
-        doctor.setRole(Roles.DOCTOR.name());
+        doctor.setRoles(Collections.singletonList(Roles.DOCTOR.name()));
         Doctor savedDoctor = doctorRepository.save(doctor);
         return userMapper.toUserResponse(savedDoctor);
     }
@@ -33,7 +33,7 @@ public class UserService{
     public UserResponse CreatePatient(CreateUserRequest userRequest) {
 
         Patient patient = userMapper.toPatient(userRequest);
-        patient.setRole(Roles.PATIENT.name());
+        patient.setRoles(Collections.singletonList(Roles.PATIENT.name()));
         Patient patientSaved = patientRepository.save(patient);
         return userMapper.toUserResponse(patientSaved);
     }
