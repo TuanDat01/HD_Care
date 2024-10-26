@@ -32,7 +32,7 @@ public class ApplicationInitConfig {
                 roles.add(Roles.ADMIN.name());
 
                 User user = new User();
-                user.setName("admin");
+                user.setUsername("admin");
                 user.setRoles(roles);
                 user.setPwd(passwordEncoder.encode("admin"));
                 userRepository.save(user);

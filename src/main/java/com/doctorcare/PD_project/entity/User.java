@@ -38,7 +38,7 @@ public class User {
 
     @Column(name = "profile_img")
     String img;
-
+    @ElementCollection
     List<String> roles;
 
     boolean isEnable;

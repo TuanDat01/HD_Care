@@ -66,7 +66,7 @@ public class AuthenticationService {
                 .expirationTime(new Date(
                         Instant.now().plus(1, ChronoUnit.DAYS).toEpochMilli()
                 ))
-                .claim("scope", buildScope(user))
+                .claim("roles", buildScope(user))
                 .claim("id", user.getId())
                 .build();
 
