@@ -15,26 +15,25 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+
     @Mapping(source = "pwd",target = "password")
     UserResponse toUserResponse(User user);
-    @Mapping(source = "password",target = "pwd")
 
+    @Mapping(source = "password",target = "pwd")
     Doctor toDoctor(CreateUserRequest userRequest);
-    @Mapping(source = "password",target = "pwd")
 
+    @Mapping(source = "password",target = "pwd")
     Patient toPatient(CreateUserRequest userRequest);
 
-
     void updateDoctor(UpdateDoctorRequest doctorRequest, @MappingTarget Doctor doctor);
-    @Mapping(target = "id", ignore = true)
 
+    @Mapping(target = "id", ignore = true)
     DoctorResponse toDoctorResponse(Doctor doctor);
 
     PatientRequest tPatientRequest(Patient patient);
+
     @Mapping(target = "id",ignore = true)
     void updatePatient(@MappingTarget Patient patient, PatientRequest updatePatient);
-
-
 
     PatientRequest toPatientRequest(AppointmentRequest appointmentRequest);
 }

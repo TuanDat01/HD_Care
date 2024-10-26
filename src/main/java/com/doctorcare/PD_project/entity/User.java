@@ -1,12 +1,10 @@
 package com.doctorcare.PD_project.entity;
 
-import com.doctorcare.PD_project.enums.Roles;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
-import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -41,7 +39,7 @@ public class User {
     @Column(name = "profile_img")
     String img;
 
-    String role;
+    List<String> roles;
 
     boolean isEnable;
 
@@ -62,7 +60,7 @@ public class User {
                 ", gender='" + gender + '\'' +
                 ", dob=" + dob +
                 ", img='" + img + '\'' +
-                ", role='" + role + '\'' +
+                ", roles='" + roles + '\'' +
                 ", isEnable=" + isEnable +
                 ", isBlocked=" + isBlocked +
                 ", posts=" + posts +
