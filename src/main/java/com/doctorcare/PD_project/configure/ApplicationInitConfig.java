@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 
 @Configuration
@@ -28,12 +27,9 @@ public class ApplicationInitConfig {
     ApplicationRunner applicationRunner(UserRepository userRepository) {
         return args -> {
             if (userRepository.findByUsername("admin").isEmpty()) {
-                List<String> roles = new ArrayList<>();
-                roles.add(Roles.ADMIN.name());
-
                 User user = new User();
                 user.setUsername("admin");
-                user.setRoles(roles);
+                user.setRole(Roles.ADMIN.name());
                 user.setPwd(passwordEncoder.encode("admin"));
                 userRepository.save(user);
                 userRepository.save(user);

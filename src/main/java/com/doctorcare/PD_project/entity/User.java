@@ -38,8 +38,8 @@ public class User {
 
     @Column(name = "profile_img")
     String img;
-    @ElementCollection
-    List<String> roles;
+
+    String role;
 
     boolean isEnable;
 
@@ -60,7 +60,7 @@ public class User {
                 ", gender='" + gender + '\'' +
                 ", dob=" + dob +
                 ", img='" + img + '\'' +
-                ", roles='" + roles + '\'' +
+                ", roles='" + role + '\'' +
                 ", isEnable=" + isEnable +
                 ", isBlocked=" + isBlocked +
                 ", posts=" + posts +

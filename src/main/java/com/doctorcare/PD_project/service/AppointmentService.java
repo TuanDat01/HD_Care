@@ -5,6 +5,8 @@ import com.doctorcare.PD_project.dto.request.AppointmentV2Request;
 import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
+import com.doctorcare.PD_project.enums.ErrorCode;
+import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.AppointmentMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.AppointmentRepository;
@@ -21,12 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@FieldDefaults(level = AccessLevel.PRIVATE)
+@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 public class AppointmentService {
-
-
-
     DoctorRepository doctorRepository;
     PatientRepository patientRepository;
     ScheduleRepository scheduleRepository;
@@ -43,26 +42,15 @@ public class AppointmentService {
         patientRequest.setId(idPatient);
         appointmentV2Request.setPatientRequest(patientRequest);
         appointmentV2Request.setDoctorScheduleRequest(scheduleRepository.getInfoSchedule(idSchedule,idDoctor));
-        //        Appointment appointment = new Appointment();
-//        appointment.setPatient(patient1);
-//        appointment.setSchedule();
-//        System.out.println(appointment);
         return appointmentV2Request;
     }
 
     @Transactional
-    public AppointmentRequest createAppointment(AppointmentRequest appointmentRequest) throws MessagingException {
-        // Lấy patient từ database
-//        Patient patient = patientRepository.findById(appointmentRequest.getIdPatient())
-//                .orElseThrow(() -> new RuntimeException("Patient not found"));
-//        Patient updatedPatient = userMapper.toPatient(appointmentRequest);
-//        System.out.println(patient.getEmail());
-//        System.out.println(updatedPatient.getEmail());
-//        updatePatientInfo(patient, updatedPatient);
+    public AppointmentRequest createAppointment(AppointmentRequest appointmentRequest) throws MessagingException, AppException {
         Patient patient = patientService.updatePatient(appointmentRequest);
         patientRepository.save(patient);
         Schedule schedule = scheduleRepository.findById(appointmentRequest.getScheduleId())
-                .orElseThrow(() -> new RuntimeException("Schedule not found"));
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
         Appointment appointment = appointmentMapper.toAppointment(appointmentRequest);
         System.out.println(schedule.getId());
         Doctor doctor = doctorRepository.findDoctorBySchedules(schedule.getId());
@@ -73,8 +61,8 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.PENDING.toString());
         appointment.setPrescription(prescription);
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        emailService.sendAppointmentConfirmation(appointment);
-        return appointmentMapper.toAppointmentRequest(appointment);
+        emailService.sendAppointmentConfirmation(savedAppointment);
+        return appointmentMapper.toAppointmentRequest(savedAppointment);
     }
 
 

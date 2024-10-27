@@ -1,13 +1,13 @@
 package com.doctorcare.PD_project.controller;
 
-import com.doctorcare.PD_project.dto.request.CreateScheduleRequest;
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
+import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.DoctorService;
-import com.doctorcare.PD_project.service.UserService;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,19 +21,18 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 public class DoctorController {
-    UserService userService;
     DoctorService doctorService;
 
     @PostMapping
-    public ApiResponse<UserResponse> CreateUser(@RequestBody CreateUserRequest userRequest) {
-        return ApiResponse.<UserResponse>builder().result(userService.CreateDoctor(userRequest)).build();
+    public ApiResponse<UserResponse> CreateDoctor(@Valid @RequestBody CreateUserRequest userRequest) {
+        return ApiResponse.<UserResponse>builder().result(doctorService.CreateDoctor(userRequest)).build();
     }
     @GetMapping("/{id}")
-    public ApiResponse<DoctorResponse> FindDoctor(@PathVariable String id) {
+    public ApiResponse<DoctorResponse> FindDoctor(@PathVariable String id) throws AppException {
         return ApiResponse.<DoctorResponse>builder().result(doctorService.FindDoctorById(id)).build();
     }
     @PutMapping("/{id}")
-    public ApiResponse<DoctorResponse> UpdateInfo(@PathVariable String id, @RequestBody UpdateDoctorRequest doctorRequest) {
+    public ApiResponse<DoctorResponse> UpdateInfo(@PathVariable String id, @RequestBody UpdateDoctorRequest doctorRequest) throws AppException {
         return ApiResponse.<DoctorResponse>builder().result(doctorService.UpdateInfo(id, doctorRequest)).build();
     }
 
