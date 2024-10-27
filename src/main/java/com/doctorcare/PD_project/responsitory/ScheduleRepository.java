@@ -20,10 +20,10 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String> {
             "where d.id = :doctorId and s.id = :scheduleId")
     DoctorScheduleRequest getInfoSchedule(@Param("doctorId") String doctorId, @Param("scheduleId") String scheduleId);
 
-    @Query(value = "select * from schedule where schedule.doctor_id = :doctorId",nativeQuery = true)
-    List<Schedule> findSchedule(@Param("doctorId") String doctorId);
-
-
-
+    @Query("select s from Doctor d" +
+            " join d.schedules s where" +
+            " (:date IS NULL or Function('Date',s.start) =:date and Function('Date',s.end) =:date)" +
+            " and d.id = :doctorId")
+    List<Schedule> findSchedule(@Param("doctorId") String doctorId,@Param("date") String date);
 
 }

@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.dto.request;
 
+import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,8 +13,8 @@ public class CreateUserRequest {
     String name;
     String email;
     String username;
-    String password; // Bạn có thể để lại tên này hoặc đổi thành password
+    @Size(min = 8,message = "PASSWORD_SIZE")
+    String password;
     String phone;
     String gender;
-    // Không cần thêm birthday, profileImg, roles nếu không cần thiết
 }

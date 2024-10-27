@@ -1,10 +1,10 @@
 package com.doctorcare.PD_project.service;
 
-import com.doctorcare.PD_project.dto.request.CreateScheduleRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
-import com.doctorcare.PD_project.dto.response.FindScheduleResponse;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Schedule;
+import com.doctorcare.PD_project.enums.ErrorCode;
+import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
@@ -22,18 +22,11 @@ import java.util.List;
 @FieldDefaults(makeFinal = true,level = AccessLevel.PRIVATE)
 public class ScheduleService {
     DoctorRepository doctorRepository;
-    ScheduleMapper scheduleMapper;
     UserMapper userMapper;
     ScheduleRepository scheduleRepository;
     @Transactional
-    public DoctorResponse createSchedule(List<Schedule> scheduleRequest, String id){
-        Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new RuntimeException("not found"));
-//        List<Schedule> schedules = scheduleRequest.stream().map((scheduled)->{
-//            Schedule schedule = scheduleMapper.toSchedule(scheduled);
-//            schedule.setAvailable(true);
-//            return schedule;
-//        }).toList();
-//        System.out.println(schedules+"++++++++++");
+    public DoctorResponse createSchedule(List<Schedule> scheduleRequest, String id) throws AppException {
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_DOCTOR));
         scheduleRequest.forEach((schedule -> {
             schedule.setAvailable(true);
             doctor.addSchedule(schedule);
@@ -41,25 +34,28 @@ public class ScheduleService {
         return userMapper.toDoctorResponse(doctor);
     }
 
-    public List<Schedule> getSchedule(String id){
-        return scheduleRepository.findSchedule(id);
+    public List<Schedule> getSchedule(String id,String date){
+        return scheduleRepository.findSchedule(id , date);
     }
 
     @Transactional
-    public DoctorResponse getScheduleUnactive(List<Schedule> scheduleRequest, String id){
-        Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new RuntimeException("not found"));
-        System.out.println("inn");
+    public DoctorResponse getScheduleInactive(List<Schedule> scheduleRequest, String id) throws AppException {
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_DOCTOR));
         scheduleRequest.forEach((schedule -> {
-                schedule.setAvailable(false);
-                System.out.println(schedule);
-                doctor.addSchedule(schedule);
+            Schedule schedule1 = null;
+            try {
+                schedule1 = scheduleRepository.findById(schedule.getId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
+            } catch (AppException e) {
+                throw new RuntimeException(e);
+            }
+            schedule1.setAvailable(false);
         }));
         return userMapper.toDoctorResponse(doctor);
     }
 
-    public CreateScheduleRequest getScheduleById(String id){
-        Schedule schedule = scheduleRepository.findById(id).orElseThrow(()-> new RuntimeException("no find schedule"));
-        return scheduleMapper.toScheduleRequest(schedule);
+    public Schedule getScheduleById(String id){
+        return scheduleRepository.findById(id).orElseThrow(()-> new RuntimeException("no find schedule"));
     }
+
 
 }

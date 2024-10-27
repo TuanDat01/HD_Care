@@ -21,7 +21,13 @@ public enum ErrorCode {
     PASSWORD_NOT_BLANK(1014, "Password cannot be blank", HttpStatus.BAD_REQUEST),
     PASSWORD_SIZE(1015, "Password must be at least 8 characters", HttpStatus.BAD_REQUEST),
     PASSWORD_PATTERN(1016, "Password must contain at least one digit, one lowercase, one uppercase, and one special character", HttpStatus.BAD_REQUEST),
-    UNAUTHENTICATED(1017,"No authenticated" , HttpStatus.UNAUTHORIZED );
+    UNAUTHENTICATED(1017,"No authenticated" , HttpStatus.UNAUTHORIZED ),
+    DATE_INVALID(1017, "Input schedule no valid",HttpStatus.BAD_REQUEST),
+    TIME_INVALID(1018, "start time must before end time",HttpStatus.BAD_REQUEST),
+    NOT_FOUND_SCHEDULE(1019, "not found schedule",HttpStatus.NOT_FOUND),
+    NOT_FOUND_DOCTOR(1020, "not found doctor",HttpStatus.NOT_FOUND),
+    NOT_FOUND_PATIENT(1021, "not found patient",HttpStatus.NOT_FOUND)
+    ;
 
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;

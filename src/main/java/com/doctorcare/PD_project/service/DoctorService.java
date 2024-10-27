@@ -1,23 +1,22 @@
 package com.doctorcare.PD_project.service;
 
-import com.doctorcare.PD_project.dto.request.CreateScheduleRequest;
+import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.DoctorPageRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
-import com.doctorcare.PD_project.entity.Patient;
-import com.doctorcare.PD_project.entity.Schedule;
-import com.doctorcare.PD_project.mapping.ScheduleMapper;
+import com.doctorcare.PD_project.enums.ErrorCode;
+import com.doctorcare.PD_project.enums.Roles;
+import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
-import com.doctorcare.PD_project.responsitory.ScheduleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Stream;
@@ -28,8 +27,14 @@ import java.util.stream.Stream;
 public class DoctorService {
     DoctorRepository doctorRepository;
     UserMapper userMapper;
-    ScheduleMapper scheduleMapper;
-    ScheduleRepository scheduleRepository;
+
+    public UserResponse CreateDoctor(CreateUserRequest userRequest) {
+
+        Doctor doctor = userMapper.toDoctor(userRequest);
+        doctor.setRole(Roles.DOCTOR.name());
+        Doctor savedDoctor = doctorRepository.save(doctor);
+        return userMapper.toUserResponse(savedDoctor);
+    }
 
     public List<DoctorResponse> TransformDoctorResponse(List<Doctor> doctors){
         Stream<Doctor> doctorStream = doctors.stream();
@@ -42,8 +47,8 @@ public class DoctorService {
         return doctorResponses;
     }
     @Transactional
-    public DoctorResponse UpdateInfo(String id, UpdateDoctorRequest doctorRequest) {
-        Doctor doctor = doctorRepository.findById(id).orElseThrow(()-> new RuntimeException("Not found doctor"));
+    public DoctorResponse UpdateInfo(String id, UpdateDoctorRequest doctorRequest) throws AppException {
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
         userMapper.updateDoctor(doctorRequest,doctor);
         return userMapper.toDoctorResponse(doctorRepository.save(doctor));
     }
@@ -68,9 +73,8 @@ public class DoctorService {
         return TransformDoctorResponse(doctors);
     }
 
-    public DoctorResponse FindDoctorById(String id)
-    {
-        return userMapper.toDoctorResponse(doctorRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found doctor")));
+    public DoctorResponse FindDoctorById(String id) throws AppException {
+        return userMapper.toDoctorResponse(doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR)));
     }
 
 }

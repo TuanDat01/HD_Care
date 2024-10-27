@@ -6,6 +6,7 @@ import com.doctorcare.PD_project.dto.request.DoctorScheduleRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
+import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.AppointmentService;
 import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
@@ -27,7 +28,7 @@ public class AppointmentController {
         return ApiResponse.<AppointmentV2Request>builder().result(appointmentService.getInfo(idPatient,idSchedule,idDoctor)).build();
     }
     @PostMapping
-    public ApiResponse<AppointmentRequest> create(@RequestBody AppointmentRequest appointmentRequest) throws MessagingException {
+    public ApiResponse<AppointmentRequest> create(@RequestBody AppointmentRequest appointmentRequest) throws MessagingException, AppException {
         return ApiResponse.<AppointmentRequest>builder().result(appointmentService.createAppointment(appointmentRequest)).build();
     }
 
