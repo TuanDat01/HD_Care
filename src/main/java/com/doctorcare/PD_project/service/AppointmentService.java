@@ -21,10 +21,11 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-@FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @RequiredArgsConstructor
 public class AppointmentService {
-    Doctor doctor = new Doctor();
+
+
 
     DoctorRepository doctorRepository;
     PatientRepository patientRepository;
@@ -34,6 +35,7 @@ public class AppointmentService {
     UserMapper userMapper;
     PatientService patientService;
     SendEmailService emailService;
+
     public AppointmentV2Request getInfo(String idPatient, String idDoctor, String idSchedule){
         Patient patient1 = patientRepository.findById(idPatient).orElseThrow(()-> new RuntimeException("not found patient"));
         AppointmentV2Request appointmentV2Request = new AppointmentV2Request();
