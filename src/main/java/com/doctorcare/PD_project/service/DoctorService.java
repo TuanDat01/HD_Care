@@ -72,20 +72,5 @@ public class DoctorService {
     {
         return userMapper.toDoctorResponse(doctorRepository.findById(id).orElseThrow(() -> new RuntimeException("Not found doctor")));
     }
-    @Transactional
-    public DoctorResponse createSchedule(CreateScheduleRequest scheduleRequest, String id){
-        Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new RuntimeException("not found"));
-        Schedule schedule = scheduleMapper.toSchedule(scheduleRequest);
-        schedule.setAvailable(true);
-        doctor.addSchedule(schedule);
-        return userMapper.toDoctorResponse(doctor);
-    }
-
-
-
-
-
-
-
 
 }

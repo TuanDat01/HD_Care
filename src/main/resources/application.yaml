@@ -2,9 +2,9 @@ spring:
   application:
     name: PD_project
   datasource:
-    url: jdbc:mysql://localhost:3306/doctor
+    url: jdbc:mysql://localhost:3306/doctor_care
     username: root
-    password: 12022003b
+    password: 123456@
   jpa:
     hibernate:
       ddl-auto: update
