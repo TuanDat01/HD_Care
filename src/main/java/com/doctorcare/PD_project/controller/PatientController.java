@@ -3,6 +3,8 @@ package com.doctorcare.PD_project.controller;
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
+import com.doctorcare.PD_project.entity.Patient;
+import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.PatientService;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +21,11 @@ public class PatientController {
     @PostMapping
     public ApiResponse<UserResponse> CreatePatient(@RequestBody CreateUserRequest userRequest) {
         return ApiResponse.<UserResponse>builder().result(patientService.CreatePatient(userRequest)).build();
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<Patient> getPatientById(@PathVariable String id) throws AppException {
+        return ApiResponse.<Patient>builder().result(patientService.getPatientById(id)).build();
     }
 
 }

@@ -3,6 +3,7 @@ package com.doctorcare.PD_project.service;
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.request.AppointmentV2Request;
 import com.doctorcare.PD_project.dto.request.PatientRequest;
+import com.doctorcare.PD_project.dto.request.UpdateStatusAppointment;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.enums.ErrorCode;
@@ -61,12 +62,35 @@ public class AppointmentService {
         appointment.setStatus(AppointmentStatus.PENDING.toString());
         appointment.setPrescription(prescription);
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        emailService.sendAppointmentConfirmation(savedAppointment);
+        System.out.println(appointment.toString());
+        //emailService.sendAppointmentConfirmation(savedAppointment);
         return appointmentMapper.toAppointmentRequest(savedAppointment);
     }
 
 
-    public List<Appointment> findAllByPatientId(String id) {
-        return appointmentRepository.findAllByPatientId(id);
+    public List<AppointmentRequest> findAllByPatientId(String id) {
+        List<Appointment> appointmentList =  appointmentRepository.findAllByPatientId(id);
+        return appointmentList.stream().map(appointmentMapper::toAppointmentRequest).toList();
     }
+    public AppointmentRequest getAppointmentById(String id) throws AppException {
+        return appointmentMapper.toAppointmentRequest(appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT)));
+    }
+    public List<AppointmentRequest> getAppointmentByDoctor(String id,String date,String status) {
+        List<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status);
+        System.out.println(id);
+        return appointmentList.stream().map(appointmentMapper::toAppointmentRequest).toList();
+    }
+    @Transactional
+    public AppointmentRequest getAppointmentByDoctorAndId(String id, UpdateStatusAppointment updateStatusAppointment) throws AppException { //idDoctor
+        Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT));
+        if (!appointment.getDoctor().getId().equals(updateStatusAppointment.getIdDoctor())) {
+            throw new AppException(ErrorCode.NOT_FOUND_DOCTOR);
+        }
+        appointment.setStatus(updateStatusAppointment.getStatus());
+        return appointmentMapper.toAppointmentRequest(appointment);
+    }
+
+//    public List<AppointmentRequest> findAppointment(String idDoctor,String id) {
+//        Appointment appointment = appointmentRepository.findAllByDoctorId(idDoctor);
+//    }
 }

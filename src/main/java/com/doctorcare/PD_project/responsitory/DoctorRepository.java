@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.responsitory;
 
+import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Schedule;
@@ -28,6 +29,7 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
             "join d.schedules s " +
             "where s.id = :scheduleId ")
     Doctor findDoctorBySchedules(@Param("scheduleId") String id);
+
 
 
 

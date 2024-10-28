@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,15 +19,10 @@ public class Prescription {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
-    String note;
 
     String result;
 
     LocalDate timestamp;
-
-    @OneToMany
-    @JoinColumn(name = "prescription_id")
-    List<MedicineDetail> medicineDetails;
 
 
 }

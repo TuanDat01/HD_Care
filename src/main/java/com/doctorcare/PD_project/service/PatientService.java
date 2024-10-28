@@ -5,6 +5,7 @@ import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Patient;
+import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.exception.AppException;
@@ -38,5 +39,9 @@ public class PatientService {
         userMapper.updatePatient(patient,updatePatient);
         System.out.println(patient);
         return patientRepository.save(patient);
+    }
+
+    public Patient getPatientById(String id) throws AppException {
+        return patientRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
     }
 }
