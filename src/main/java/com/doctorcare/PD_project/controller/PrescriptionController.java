@@ -35,4 +35,5 @@ public class PrescriptionController {
     public ApiResponse<List<MedicineDetail>> getMedicineByPrescription(@PathVariable String id) throws AppException {
         return ApiResponse.<List<MedicineDetail>>builder().result(prescriptionService.getMedicineByPrescription(id)).build();
     }
+
 }

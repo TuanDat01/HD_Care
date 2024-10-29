@@ -28,7 +28,8 @@ public enum ErrorCode {
     NOT_FOUND_DOCTOR(1020, "not found doctor",HttpStatus.NOT_FOUND),
     NOT_FOUND_PATIENT(1021, "not found patient",HttpStatus.NOT_FOUND),
     NOT_FOUND_APPOINTMENT(1022, "not found appointment",HttpStatus.NOT_FOUND),
-    NOT_FOUND_MEDICINE(1023, "not found appointment",HttpStatus.NOT_FOUND)
+    NOT_FOUND_MEDICINE(1023, "not found medicine",HttpStatus.NOT_FOUND),
+    NOT_FOUND_PRESCRIPTION(1024, "not found prescription",HttpStatus.NOT_FOUND)
     ;
 
     ErrorCode(int code, String message, HttpStatus status) {

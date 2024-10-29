@@ -9,12 +9,17 @@ import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.AppointmentService;
+import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.ByteArrayOutputStream;
 import java.util.List;
 
 @RestController
@@ -57,7 +62,23 @@ public class AppointmentController {
         return ApiResponse.<AppointmentRequest>builder().result(appointmentService.getAppointmentByDoctorAndId(id, updateStatusAppointment)).build();
 
     }
+    @PostMapping("/pdf")
+    public ResponseEntity<byte[]> exportToPdf(@RequestBody AppointmentRequest appointmentRequest) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            appointmentService.createPdf(appointmentRequest,outputStream);
 
+            byte[] pdfData = outputStream.toByteArray();
+
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", appointmentRequest.getName()+".pdf");
+
+            return ResponseEntity.ok().headers(headers).body(pdfData);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return ResponseEntity.status(500).build();
+        }
+    }
 
 
 }

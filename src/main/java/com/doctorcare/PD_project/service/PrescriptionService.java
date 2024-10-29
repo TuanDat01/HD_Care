@@ -3,6 +3,8 @@ package com.doctorcare.PD_project.service;
 import com.doctorcare.PD_project.dto.request.CreatePrescriptionRequest;
 import com.doctorcare.PD_project.entity.MedicineDetail;
 import com.doctorcare.PD_project.entity.Prescription;
+import com.doctorcare.PD_project.enums.ErrorCode;
+import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.responsitory.MedicineResponsitory;
 import com.doctorcare.PD_project.responsitory.PrescriptionRepository;
 import lombok.AccessLevel;
@@ -33,5 +35,11 @@ public class PrescriptionService {
     }
     public List<MedicineDetail> getMedicineByPrescription(String id) {
         return medicineResponsitory.findByPrescriptionId(id);
+    }
+
+
+    public Prescription getPrescriptionById(String prescriptionId) throws AppException {
+
+        return prescriptionRepository.findById(prescriptionId).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_PRESCRIPTION));
     }
 }
