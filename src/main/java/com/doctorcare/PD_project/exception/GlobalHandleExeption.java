@@ -32,6 +32,7 @@ public class GlobalHandleExeption {
     public ResponseEntity<ApiResponse> handle(ConstraintViolationException ex){
         ApiResponse apiResponse = new ApiResponse();
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
+        System.out.println(ex.getConstraintViolations().stream().findFirst().get().getMessageTemplate());
         try {
             String key = ex.getConstraintViolations().stream().findFirst().get().getMessageTemplate();
             System.out.println(key);
@@ -45,20 +46,21 @@ public class GlobalHandleExeption {
         return new ResponseEntity<>(apiResponse,errorCode.getStatus());
     }
 
-    @ExceptionHandler(value = RuntimeException.class)
-    public ResponseEntity<ApiResponse> handle(RuntimeException ex) {
-        ApiResponse apiResponse = new ApiResponse();
-        ErrorCode errorCode = ErrorCode.INVALID_KEY;
-        System.out.println(ex.getMessage());
-        try {
-            errorCode = ErrorCode.valueOf(ex.getMessage());
-        } catch (IllegalArgumentException e) {
-            System.out.println("kh co enum");
-        }
-        apiResponse.setCode(errorCode.getCode());
-        apiResponse.setMessage(errorCode.getMessage());
-        return new ResponseEntity<>(apiResponse, errorCode.getStatus());
-    }
+//    @ExceptionHandler(value = RuntimeException.class)
+//    public ResponseEntity<ApiResponse> handle(RuntimeException ex) {
+//        ApiResponse apiResponse = new ApiResponse();
+//        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+//        System.out.println(ex.getMessage());
+//        try {
+//            System.out.println(ex.getMessage());
+//            errorCode = ErrorCode.valueOf(ex.getMessage());
+//        } catch (IllegalArgumentException e) {
+//            System.out.println("kh co enum");
+//        }
+//        apiResponse.setCode(errorCode.getCode());
+//        apiResponse.setMessage(errorCode.getMessage());
+//        return new ResponseEntity<>(apiResponse, errorCode.getStatus());
+//    }
 
     @ExceptionHandler(value = AppException.class)
     public ResponseEntity<ApiResponse> handle(AppException ex) {

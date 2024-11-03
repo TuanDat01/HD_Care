@@ -34,7 +34,7 @@ public class Doctor extends User {
     List<Schedule> schedules;
 
     @OneToMany
-    @JoinColumn(name = "review_id")
+    @JoinColumn(name = "doctor_id")
     List<Review> reviews;
 
     public void addSchedule(Schedule schedule){
