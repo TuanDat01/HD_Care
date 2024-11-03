@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,6 +35,11 @@ public class Review  {
     @OneToMany
     @JoinColumn(name = "comment_id")
     List<Comment> comments;
+    public void addImg(String image){
+        if (img == null)
+            img = new ArrayList<>();
+        img.add(image);
+    }
 
 
 }

@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.ByteArrayOutputStream;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -61,6 +62,11 @@ public class AppointmentController {
     public ApiResponse<AppointmentRequest> getAppointmentByDoctorAndId(@PathVariable String id, @RequestBody UpdateStatusAppointment updateStatusAppointment) throws AppException {
         return ApiResponse.<AppointmentRequest>builder().result(appointmentService.getAppointmentByDoctorAndId(id, updateStatusAppointment)).build();
 
+    }
+
+    @GetMapping("/doctor-appointment/time")
+    public ApiResponse<List<AppointmentRequest>> filterAppointment(@RequestParam (name = "doctorId") String id, @RequestParam (name = "week", required = false) String week, @RequestParam(name = "month",required = false) String month){
+        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.filterAppointment(id,week,month)).build();
     }
     @PostMapping("/pdf")
     public ResponseEntity<byte[]> exportToPdf(@RequestBody AppointmentRequest appointmentRequest) {

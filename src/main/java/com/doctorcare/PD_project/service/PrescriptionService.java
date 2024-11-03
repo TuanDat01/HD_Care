@@ -13,6 +13,7 @@ import lombok.experimental.FieldDefaults;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,7 +26,7 @@ public class PrescriptionService {
         CreatePrescriptionRequest createPrescriptionRequest = new CreatePrescriptionRequest();
         Prescription prescription1 = prescriptionRepository.findById(id).orElseThrow();
         prescription1.setResult(prescription.getResult());
-        prescription1.setTimestamp(LocalDate.now());
+        prescription1.setTimestamp(LocalDateTime.now());
         createPrescriptionRequest.setResult(prescription1.getResult());
         createPrescriptionRequest.setTimestamp(prescription1.getTimestamp());
         List<MedicineDetail> medicineDetails = medicineResponsitory.findByPrescriptionId(id);
