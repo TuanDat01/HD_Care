@@ -4,7 +4,10 @@ import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.ReviewResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
+import com.doctorcare.PD_project.entity.Doctor;
+import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.DoctorService;
 import jakarta.validation.Valid;
@@ -17,7 +20,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/doctor")
-@CrossOrigin(origins = "http://localhost:3000") // Chỉ cho phép localhost:3000 truy cập
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 public class DoctorController {
@@ -29,7 +31,7 @@ public class DoctorController {
     }
     @GetMapping("/{id}")
     public ApiResponse<DoctorResponse> FindDoctor(@PathVariable String id) throws AppException {
-        return ApiResponse.<DoctorResponse>builder().result(doctorService.FindDoctorById(id)).build();
+        return ApiResponse.<DoctorResponse>builder().result(doctorService.FindDoctorResponseById(id)).build();
     }
     @PutMapping("/{id}")
     public ApiResponse<DoctorResponse> UpdateInfo(@PathVariable String id, @RequestBody UpdateDoctorRequest doctorRequest) throws AppException {
@@ -38,9 +40,24 @@ public class DoctorController {
 
 
     @GetMapping
-    public ApiResponse<List<DoctorResponse>> getAll(@RequestParam(name = "name", required = false) String name,@RequestParam(name = "district", required = false) String district,@RequestParam(name = "city",required = false) String city, @RequestParam(name = "page",required = false) String page) {
+    public ApiResponse<List<DoctorResponse>> getAll(@RequestParam(name = "name", required = false) String name,
+                                                    @RequestParam(name = "district", required = false) String district,
+                                                    @RequestParam(name = "city",required = false) String city,
+                                                    @RequestParam(name = "page",required = false) String page) {
        return ApiResponse.<List<DoctorResponse>>builder().result(doctorService.GetAll(district, name, city,page)).build();
     }
+
+    @GetMapping("{id}/review")
+    public ApiResponse<ReviewResponse> getListReview(@PathVariable String id) throws AppException {
+        Doctor doctor = doctorService.findDoctorById(id);
+        ReviewResponse reviewResponse = new ReviewResponse();
+        List<Review> reviewList = doctor.getReviews();
+        reviewResponse.setReviewList(reviewList);
+        reviewResponse.setCountReview(reviewList);
+        reviewResponse.setCountAvg(reviewList);
+        return ApiResponse.<ReviewResponse>builder().result(reviewResponse).build();
+    }
+
 
 
 }

@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -15,6 +16,10 @@ public class CreateUserRequest {
     String username;
     @Size(min = 8,message = "PASSWORD_SIZE")
     String password;
+    @Size(min = 10, message = "PHONE_NUMBER_PATTERN")
     String phone;
     String gender;
+    boolean isEnable;
+    String img;
+
 }

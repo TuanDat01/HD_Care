@@ -58,12 +58,13 @@ public class DoctorService {
         System.out.println(LocalDateTime.now());
 
         int limit = 3;
-        DoctorPageRequest doctorPageRequest = null;
-        if (p==null){
-            System.out.println("inn");
-            doctorPageRequest = new DoctorPageRequest(limit,0);
-        }
-        else if (district == null && name == null && city == null) {
+        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
+//        if (p==null){
+//            long countDoctor = doctorRepository.count();
+//            System.out.println(countDoctor);
+//            doctorPageRequest = new DoctorPageRequest((int) countDoctor,0);
+//        }
+        if (district == null && name == null && city == null) {
             doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
             Page<Doctor> pageDoctor = doctorRepository.findAll(doctorPageRequest);
             doctors = pageDoctor.getContent();
@@ -73,8 +74,18 @@ public class DoctorService {
         return TransformDoctorResponse(doctors);
     }
 
-    public DoctorResponse FindDoctorById(String id) throws AppException {
+    public DoctorResponse FindDoctorResponseById(String id) throws AppException {
         return userMapper.toDoctorResponse(doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR)));
     }
 
+    public Doctor findDoctorById(String id) throws AppException {
+        return doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+    }
+    public Doctor findDoctorBySchedules(String id){
+        return doctorRepository.findDoctorBySchedules(id);
+    }
+
+    public void update(Doctor doctor) {
+
+    }
 }

@@ -1,6 +1,7 @@
 package com.doctorcare.PD_project.dto.response;
 
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
+import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.entity.Schedule;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -22,5 +23,6 @@ public class DoctorResponse {
     long price;
     String description;
     List<Schedule> schedules;
+    List<Review> reviews;
 
 }

@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class PatientRequest {
     String id;
     String name;
-    String email;
+    String dob;
     String gender;
     String phone;
     String address;

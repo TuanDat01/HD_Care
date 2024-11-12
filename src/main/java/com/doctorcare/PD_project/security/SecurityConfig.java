@@ -3,7 +3,6 @@ package com.doctorcare.PD_project.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -26,13 +25,21 @@ public class SecurityConfig {
 
     @Value("${jwt.signerKey}")
     private String signerKey;
+    private static final String[] PUBLIC_URL = {
+////            "/auth/login",
+////            "/auth/introspect",
+//            "/appointment/patient-appointment",
+//            "/doctor/*",
+//            "/patient/*",
 
+    };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity.authorizeHttpRequests(request -> request
+                .requestMatchers(PUBLIC_URL).authenticated()
                 .anyRequest().permitAll());
 
-        httpSecurity
+        httpSecurity.cors().and()
                 .csrf(AbstractHttpConfigurer::disable)
                 .oauth2ResourceServer(oauth2 -> oauth2
                     .jwt(jwtConfigurer -> jwtConfigurer
@@ -47,6 +54,7 @@ public class SecurityConfig {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
         jwtGrantedAuthoritiesConverter.setAuthorityPrefix("ROLE_");
 
         JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();

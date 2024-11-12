@@ -2,7 +2,7 @@ package com.doctorcare.PD_project.responsitory;
 
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
-import com.doctorcare.PD_project.entity.Appointment;
+import com.doctorcare.PD_project.entity.*;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -28,4 +28,14 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             "where FUNCTION('DATE', s.start) between FUNCTION('DATE', :startDate) and FUNCTION('DATE', :endDate) " +
             "and d.id = :doctorId")
     List<Appointment> filterAppointment(@Param("doctorId") String id, @Param("startDate") String startDate,@Param("endDate") String endDate);
+
+    List<Appointment> findAppointmentBySchedule(Schedule schedule);
+
+    Appointment findAppointmentByPrescription(Prescription prescription);
+
+
+//    @Query("select a from Appointment a where" +
+//            " a.doctor = :doctor and" +
+//            " a.status = :status")
+//    List<Appointment> findAppointmentByStatus(@Param("status") String status, @Param("doctor")Doctor doctor);
 }

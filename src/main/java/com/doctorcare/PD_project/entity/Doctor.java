@@ -33,7 +33,7 @@ public class Doctor extends User {
     @JsonIgnore
     List<Schedule> schedules;
 
-    @OneToMany
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
     List<Review> reviews;
 
@@ -42,6 +42,13 @@ public class Doctor extends User {
             schedules = new ArrayList<>();
         }
         schedules.add(schedule);
+    }
+
+    public void addReview(Review review){
+        if(reviews == null){
+            reviews = new ArrayList<>();
+        }
+        reviews.add(review);
     }
 
 }

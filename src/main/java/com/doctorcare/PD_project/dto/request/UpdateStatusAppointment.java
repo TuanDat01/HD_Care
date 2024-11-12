@@ -11,4 +11,5 @@ import lombok.experimental.FieldDefaults;
 public class UpdateStatusAppointment {
     String idDoctor;
     String status;
+    String note;
 }

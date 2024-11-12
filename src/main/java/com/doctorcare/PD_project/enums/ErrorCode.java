@@ -29,8 +29,13 @@ public enum ErrorCode {
     NOT_FOUND_PATIENT(1021, "not found patient",HttpStatus.NOT_FOUND),
     NOT_FOUND_APPOINTMENT(1022, "not found appointment",HttpStatus.NOT_FOUND),
     NOT_FOUND_MEDICINE(1023, "not found medicine",HttpStatus.NOT_FOUND),
-    NOT_FOUND_PRESCRIPTION(1024, "not found prescription",HttpStatus.NOT_FOUND)
-    ;
+    NOT_FOUND_PRESCRIPTION(1024, "not found prescription",HttpStatus.NOT_FOUND),
+    EMAIL_EXISTED(1025, "Email existed", HttpStatus.CONFLICT),
+    TOKEN_EXPIRED(1026, "Token expired", HttpStatus.UNAUTHORIZED),
+    PASSWORD_EXIST(1027, "password is exit", HttpStatus.BAD_REQUEST),
+    NO_ACTIVE(1028,"Account no active please check email to active" ,HttpStatus.BAD_REQUEST ),
+    UPDATE_STATUS(1029, "Please update status is confirmed to prescription", HttpStatus.BAD_REQUEST);
+
 
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;
