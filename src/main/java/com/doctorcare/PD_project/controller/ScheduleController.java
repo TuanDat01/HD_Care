@@ -35,7 +35,7 @@ public class ScheduleController {
         return scheduleService.deleteSchedule(id,schedule);
     }
     @GetMapping("/{id}")
-    public ApiResponse<Schedule> getScheduleById(@PathVariable String id){
+    public ApiResponse<Schedule> getScheduleById(@PathVariable String id) throws AppException {
         return ApiResponse.<Schedule>builder().result(scheduleService.getScheduleById(id)).build();
     }
 

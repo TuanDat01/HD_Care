@@ -1,4 +1,4 @@
-package com.doctorcare.PD_project.security;
+package com.doctorcare.PD_project.configure;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -26,18 +26,33 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     private String signerKey;
     private static final String[] PUBLIC_URL = {
-////            "/auth/login",
-////            "/auth/introspect",
-//            "/appointment/patient-appointment",
-//            "/doctor/*",
-//            "/patient/*",
+            "/appointment/pdf",
+            "/auth/*",
+            "/patient",
+            "/patient/verify"
+    };
 
+    private static final String[] DOCTOR_URL = {
+            "/doctor/*",
+            "/doctor-schedule/*",
+            "/medicine/*",
+            "/prescription/*",
+            "/appointment/doctor-appointment/*",
+            "/appointment/doctor-appointments"
     };
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
-        httpSecurity.authorizeHttpRequests(request -> request
-                .requestMatchers(PUBLIC_URL).authenticated()
-                .anyRequest().permitAll());
+        httpSecurity.authorizeHttpRequests(request -> {
+            try {
+                request
+                        .requestMatchers(DOCTOR_URL).authenticated()
+                        .requestMatchers(PUBLIC_URL).permitAll()
+                        .anyRequest().authenticated()
+                ;
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        });
 
         httpSecurity.cors().and()
                 .csrf(AbstractHttpConfigurer::disable)
@@ -46,6 +61,7 @@ public class SecurityConfig {
                             .decoder(jwtDecoder()) // Để cho phép truy cập khi cung cấp đúng token
                             .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                             .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
+//                        .accessDeniedHandler(new customerHandle())
         );
 
         return httpSecurity.build();

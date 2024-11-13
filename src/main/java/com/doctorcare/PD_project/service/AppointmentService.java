@@ -5,6 +5,7 @@ import com.doctorcare.PD_project.dto.request.AppointmentV2Request;
 import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.dto.request.UpdateStatusAppointment;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
+import com.doctorcare.PD_project.dto.response.ManagePatient;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.enums.ErrorCode;
@@ -39,9 +40,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -95,19 +95,19 @@ public class AppointmentService {
         return savedAppointmentRequest;
     }
 
-
-    public List<AppointmentRequest> findAllByPatientId(String id) {
-        List<Appointment> appointmentList =  appointmentRepository.findAllByPatientId(id);
+    public List<AppointmentRequest> findAllByPatientId(String id,String date, String month) {
+        Map<String,String> date1 = convertDate(date,month);
+        List<Appointment> appointmentList =  appointmentRepository.findAllByPatientId(id, date1!=null?date1.get("start"):null, date1!=null?date1.get("end"):null);
         System.out.println(appointmentList);
-        List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
-            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
-                appointment.setStatus(AppointmentStatus.PENDING.toString());
-                appointmentRepository.save(appointment);
-
-            }
-        }).toList();
-        System.out.println(appointmentsFilter);
-        return changeToListRequest(appointmentsFilter);
+//        List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
+//            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
+//                appointment.setStatus(AppointmentStatus.PENDING.toString());
+//                appointmentRepository.save(appointment);
+//
+//            }
+//        }).toList();
+//        System.out.println(appointmentsFilter);
+        return changeToListRequest(appointmentList);
     }
     public List<Appointment> getAppointBySchedule(Schedule schedule){
         return appointmentRepository.findAppointmentBySchedule(schedule);
@@ -118,6 +118,13 @@ public class AppointmentService {
     public List<AppointmentRequest> getAppointmentByDoctor(String id,String date,String status) {
         System.out.println(id);
         List<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status);
+        List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
+            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
+                appointment.setStatus(AppointmentStatus.COMPLETED.toString());
+                appointmentRepository.save(appointment);
+
+            }
+        }).toList();
         return changeToListRequest(appointmentList);
     }
     @Transactional
@@ -130,6 +137,9 @@ public class AppointmentService {
         appointment.setNote(updateStatusAppointment.getNote());
         System.out.println(appointment);
         return appointment;
+    }
+    public List<ManagePatient> getPatientOfDoctor (String id){
+        return appointmentRepository.getPatientOfDoctor(id);
     }
 
     public void createPdf(AppointmentRequest appointmentRequest, ByteArrayOutputStream outputStream) throws AppException {
@@ -214,15 +224,10 @@ public class AppointmentService {
             throw new RuntimeException("Có lỗi xảy ra khi tạo PDF: " + e.getMessage(), e);
         }
     }
-    public Appointment findByPrescription(Prescription prescription){
-        return appointmentRepository.findAppointmentByPrescription(prescription);
-    }
-
-    public List<AppointmentRequest> filterAppointment(String id, String date,String month) {
+    public Map<String,String> convertDate(String date, String month){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Map<String,String> dat1e = new HashMap<>();
         LocalDate start, end;
-
-        try {
             if (date != null) {
                 LocalDate givenWeek = LocalDate.parse(date, formatter);
                 // Lấy ngày bắt đầu và kết thúc tuần
@@ -237,9 +242,16 @@ public class AppointmentService {
             } else {
                 // Nếu cả date và month đều null
                 System.out.println("Date or month must be provided.");
-                return List.of(); // Hoặc xử lý lỗi theo yêu cầu
+                return null;
             }
-            List<Appointment> appointmentList = appointmentRepository.filterAppointment(id, start.toString(), end.toString());
+            dat1e.put("start",start.toString());
+            dat1e.put("end",end.toString());
+            return dat1e;
+    }
+    public List<AppointmentRequest> filterAppointment(String id, String date,String month) {
+        try {
+            Map<String,String> date1 = convertDate(date, month);
+            List<Appointment> appointmentList = appointmentRepository.filterAppointment(id, date1!=null?date1.get("start"):null, date1!=null?date1.get("end"):null);
             return changeToListRequest(appointmentList);
 
         } catch (DateTimeParseException e) {

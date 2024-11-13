@@ -18,6 +18,7 @@ import com.doctorcare.PD_project.responsitory.ScheduleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,9 +62,9 @@ public class ScheduleService {
         }));
         return userMapper.toDoctorResponse(doctor);
     }
-
-    public Schedule getScheduleById(String id){
-        return scheduleRepository.findById(id).orElseThrow(()-> new RuntimeException("no find schedule"));
+    @PreAuthorize("hasRole('DOCTOR')")
+    public Schedule getScheduleById(String id) throws AppException {
+        return scheduleRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
     }
     public DoctorScheduleRequest getInfoSchedule(String idSchedule,String idDoctor)
     {

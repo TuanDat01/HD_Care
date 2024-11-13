@@ -3,7 +3,7 @@ package com.doctorcare.PD_project.enums;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
-@Getter
+    @Getter
 public enum ErrorCode {
     INVALID_KEY(1001, "Invalid key", HttpStatus.BAD_REQUEST),
     FULL_NAME_NOT_BLANK(1002, "Full name cannot be blank", HttpStatus.BAD_REQUEST),
@@ -31,7 +31,9 @@ public enum ErrorCode {
     NOT_FOUND_MEDICINE(1023, "not found medicine",HttpStatus.NOT_FOUND),
     NOT_FOUND_PRESCRIPTION(1024, "not found prescription",HttpStatus.NOT_FOUND),
     EMAIL_EXISTED(1025, "Email existed", HttpStatus.CONFLICT),
+    INVALID_FORMAT(1030, "Email Invalid email format", HttpStatus.CONFLICT),
     TOKEN_EXPIRED(1026, "Token expired", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(1026, "you do not permission to access", HttpStatus.FORBIDDEN),
     PASSWORD_EXIST(1027, "password is exit", HttpStatus.BAD_REQUEST),
     NO_ACTIVE(1028,"Account no active please check email to active" ,HttpStatus.BAD_REQUEST ),
     UPDATE_STATUS(1029, "Please update status is confirmed to prescription", HttpStatus.BAD_REQUEST);

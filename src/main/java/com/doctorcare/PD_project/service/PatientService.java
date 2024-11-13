@@ -82,11 +82,7 @@ public class PatientService {
     }
     public UserResponse getPatient() throws AppException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println(username);
-        User user = userRepository.findByEmail(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
-        System.out.println(user.getUsername());
         Patient patient  = patientRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
-        System.out.println(patient);
         UserResponse userResponse = userMapper.toUserResponse(patient);
         userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
         return userResponse;

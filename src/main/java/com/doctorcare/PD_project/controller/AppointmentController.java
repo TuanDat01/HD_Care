@@ -5,6 +5,7 @@ import com.doctorcare.PD_project.dto.request.AppointmentV2Request;
 import com.doctorcare.PD_project.dto.request.DoctorScheduleRequest;
 import com.doctorcare.PD_project.dto.request.UpdateStatusAppointment;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
+import com.doctorcare.PD_project.dto.response.ManagePatient;
 import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
@@ -50,9 +51,12 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient-appointment")
-    public ApiResponse<List<AppointmentRequest>> getAppointmentByPatient(@RequestParam(name = "patientId") String id){
+    public ApiResponse<List<AppointmentRequest>> getAppointmentByPatient(@RequestParam(name = "patientId") String id,
+                                                                         @RequestParam(name = "date",required = false) String date,
+                                                                         @RequestParam(name = "month",required = false) String month)
+    {
         System.out.println(id);
-        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.findAllByPatientId(id)).build();
+        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.findAllByPatientId(id,date,month)).build();
     }
 
     @GetMapping("/{id}")
@@ -78,7 +82,10 @@ public class AppointmentController {
     public ApiResponse<List<AppointmentRequest>> filterAppointment(@RequestParam (name = "doctorId") String id, @RequestParam (name = "week", required = false) String week, @RequestParam(name = "month",required = false) String month){
         return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.filterAppointment(id,week,month)).build();
     }
-    @GetMapping
+    @GetMapping("/doctor-appointment/manage-patient")
+    public ApiResponse<List<ManagePatient>> getPatientOfDoctor(@RequestParam(name = "doctorId")String id){
+        return ApiResponse.<List<ManagePatient>>builder().result(appointmentService.getPatientOfDoctor(id)).build();
+    }
     @PostMapping("/pdf")
     public ResponseEntity<byte[]> exportToPdf(@RequestBody AppointmentRequest appointmentRequest,@RequestParam("status") String status) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -89,7 +96,6 @@ public class AppointmentController {
             headers.setContentType(MediaType.APPLICATION_PDF);
             headers.setContentDispositionFormData("inline", appointmentRequest.getName()+".pdf");
             if (Objects.equals(appointmentRequest.getStatus(), AppointmentStatus.PENDING.toString())){
-                System.out.println("inn");
                 throw new AppException(ErrorCode.UPDATE_STATUS);
             }
             if (Objects.equals(status, "Gửi"))

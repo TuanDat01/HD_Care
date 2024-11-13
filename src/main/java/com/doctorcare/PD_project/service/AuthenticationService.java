@@ -76,7 +76,7 @@ public class AuthenticationService {
         boolean authenticate = passwordEncoder.matches(request.getPassword(), user.getPwd());
         if (!authenticate)
             throw new RuntimeException("Username or password is incorrect");
-        if (!user.isEnable() || !user.isBlocked()) {
+        if (!user.isEnable() ) {
             applicationEventPublisher.publishEvent(new OnRegisterEvent(user, "http://localhost:8082/api/v1/patient", Locale.ENGLISH));
             throw new AppException(ErrorCode.NO_ACTIVE);
         }

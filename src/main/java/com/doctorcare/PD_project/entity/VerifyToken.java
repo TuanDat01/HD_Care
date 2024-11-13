@@ -8,8 +8,11 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
+
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
@@ -21,7 +24,7 @@ public class VerifyToken {
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
     String token;
-    @OneToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)
     User user;
     Date expiryDate;
@@ -32,7 +35,8 @@ public class VerifyToken {
         return calendar.getTime();
     }
 
-    public VerifyToken(String token, User user)
+
+    public VerifyToken(String token,User user)
     {
         this.token = token;
         this.user = user;
