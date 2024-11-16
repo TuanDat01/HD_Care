@@ -47,9 +47,18 @@ server:
   port: 8082
   servlet:
     context-path: "/api/v1"
+outbound:
+  identity:
+    client-id : "1065779364851-u3g3011gttldhdvmbchtpha59j9vv5df.apps.googleusercontent.com"
+    client_secret : "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"
+    redirect-uri: "http://localhost:3000/authenticate"
+    grant-type : "authorization_code"
 
 jwt:
   signerKey: "xxiZx4S9K4jCse8UI89bTPGihA9MXjHSob+hfnckRMo7yRlIO7xheltlc/+dKFv4"
+token:
+  accessToken : "1"
+  refreshToken : "5"
 
 
 

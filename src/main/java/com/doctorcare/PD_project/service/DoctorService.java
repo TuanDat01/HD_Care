@@ -4,11 +4,14 @@ import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.DoctorPageRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
+import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.exception.AppException;
+import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
 import lombok.AccessLevel;
@@ -16,8 +19,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,7 +32,8 @@ import java.util.stream.Stream;
 public class DoctorService {
     DoctorRepository doctorRepository;
     UserMapper userMapper;
-
+    ScheduleMapper scheduleMapper;
+    @Transactional
     public UserResponse CreateDoctor(CreateUserRequest userRequest) {
 
         Doctor doctor = userMapper.toDoctor(userRequest);
@@ -38,7 +44,16 @@ public class DoctorService {
 
     public List<DoctorResponse> TransformDoctorResponse(List<Doctor> doctors){
         Stream<Doctor> doctorStream = doctors.stream();
-        List<DoctorResponse> doctorResponses = doctorStream.map(userMapper::toDoctorResponse).toList();
+        List<DoctorResponse> doctorResponses = doctorStream.map(doctor -> {
+            List<ScheduleResponse> scheduleResponses = new ArrayList<>();
+            for (Schedule s:doctor.getSchedules()
+                 ) {
+                scheduleResponses.add(scheduleMapper.toScheduleResponse(s));
+            }
+            DoctorResponse doctorResponse = userMapper.toDoctorResponse(doctor);
+            doctorResponse.setSchedules(scheduleResponses);
+            return  doctorResponse;
+        }).toList();
         for (int i=0;i<doctorResponses.size();i++){
             Doctor doctor = doctors.get(i);
             DoctorResponse doctorResponse = doctorResponses.get(i);
@@ -58,12 +73,13 @@ public class DoctorService {
         System.out.println(LocalDateTime.now());
 
         int limit = 3;
-        DoctorPageRequest doctorPageRequest = null;
-        if (p==null){
-            System.out.println("inn");
-            doctorPageRequest = new DoctorPageRequest(limit,0);
-        }
-        else if (district == null && name == null && city == null) {
+        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
+//        if (p==null){
+//            long countDoctor = doctorRepository.count();
+//            System.out.println(countDoctor);
+//            doctorPageRequest = new DoctorPageRequest((int) countDoctor,0);
+//        }
+        if (district == null && name == null && city == null) {
             doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
             Page<Doctor> pageDoctor = doctorRepository.findAll(doctorPageRequest);
             doctors = pageDoctor.getContent();
@@ -73,8 +89,18 @@ public class DoctorService {
         return TransformDoctorResponse(doctors);
     }
 
-    public DoctorResponse FindDoctorById(String id) throws AppException {
+    public DoctorResponse FindDoctorResponseById(String id) throws AppException {
         return userMapper.toDoctorResponse(doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR)));
     }
 
+    public Doctor findDoctorById(String id) throws AppException {
+        return doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+    }
+    public Doctor findDoctorBySchedules(String id){
+        return doctorRepository.findDoctorBySchedules(id);
+    }
+
+    public void update(Doctor doctor) {
+
+    }
 }

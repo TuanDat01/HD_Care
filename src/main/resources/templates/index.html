@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<form th:action th:object="${reviewIn}" method="post" enctype="multipart/form-data">
+    Count star: <input type="number" th:field="${reviewIn.rating}" />
+    <br>
+    Content: <input type="text" th:field="${reviewIn.content}" />
+    <section class="my-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-8 mx-auto">
+                     <div class="form-group">
+                            <input type="file" name="image" accept="image/*" class="form-control-file" multiple>
+                        </div>
+                    <span th:if="${msg != null}" th:text="${msg}"></span>
+                </div>
+            </div>
+        </div>
+    </section>
+    <input type="submit"/> Posttttt
+</form>
+</body>
+</html>

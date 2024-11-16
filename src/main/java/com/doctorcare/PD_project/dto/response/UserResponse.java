@@ -12,4 +12,10 @@ public class UserResponse {
     String id;
     String username;
     String password;
+    String name;
+    String email;
+    String img;
+    String address;
+    String phone;
+    Boolean noPassword;
 }

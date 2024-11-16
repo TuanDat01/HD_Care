@@ -32,6 +32,10 @@ public class Review  {
     @JoinColumn(name = "like_review_id")
     List<LikeReview> likeReviews;
 
+    @ManyToOne
+    @JoinColumn(name = "patient_id")
+    Patient patient;
+
     @OneToMany
     @JoinColumn(name = "comment_id")
     List<Comment> comments;
@@ -40,6 +44,8 @@ public class Review  {
             img = new ArrayList<>();
         img.add(image);
     }
+
+
 
 
 }

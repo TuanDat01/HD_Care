@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.entity;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -40,30 +41,13 @@ public class User {
     String img;
 
     String role;
-
     boolean isEnable;
+
+
 
     boolean isBlocked;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<Post> posts;
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id='" + id + '\'' +
-                ", name='" + name + '\'' +
-                ", email='" + email + '\'' +
-                ", username='" + username + '\'' +
-                ", pwd='" + pwd + '\'' +
-                ", phone='" + phone + '\'' +
-                ", gender='" + gender + '\'' +
-                ", dob=" + dob +
-                ", img='" + img + '\'' +
-                ", roles='" + role + '\'' +
-                ", isEnable=" + isEnable +
-                ", isBlocked=" + isBlocked +
-                ", posts=" + posts +
-                '}';
-    }
 }

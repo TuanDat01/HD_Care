@@ -27,5 +27,7 @@ public class AppointmentRequest {
     String end;
     LocalDate dob;
     String prescriptionId;
+    String idDoctor;
     String nameDoctor;
+    String result;
 }

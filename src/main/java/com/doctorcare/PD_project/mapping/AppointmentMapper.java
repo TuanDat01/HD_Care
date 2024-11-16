@@ -21,6 +21,9 @@ public interface AppointmentMapper {
     @Mapping(source = "schedule.end", target = "end",dateFormat ="dd-MM-yyyy hh:mm" )
     @Mapping(source = "patient.dob",target = "dob",dateFormat = "dd-MM-yyyy")
     @Mapping(source = "prescription.id", target = "prescriptionId")
+    @Mapping(target = "idDoctor",ignore = true)
+    @Mapping(target = "nameDoctor", ignore = true)
+    @Mapping(target = "result", source = "prescription.result")
     AppointmentRequest toAppointmentRequest(Appointment appointment);
 
     @InheritInverseConfiguration

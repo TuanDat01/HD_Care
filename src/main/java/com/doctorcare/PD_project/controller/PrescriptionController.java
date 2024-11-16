@@ -17,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/prescription")
-@CrossOrigin(origins = "http://localhost:3000") // Chỉ cho phép localhost:3000 truy cập
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 public class PrescriptionController {
@@ -28,7 +27,7 @@ public class PrescriptionController {
         return ApiResponse.<MedicineDetail>builder().result(medicineService.CreateMedicine(medicineDetail,id)).build();
     }
     @PutMapping("/{id}")
-    public ApiResponse<CreatePrescriptionRequest> createPrescription(@RequestBody Prescription prescription, @PathVariable String id) {
+    public ApiResponse<CreatePrescriptionRequest> createPrescription(@RequestBody Prescription prescription, @PathVariable String id) throws AppException {
         return ApiResponse.<CreatePrescriptionRequest>builder().result(prescriptionService.createPrescription(prescription, id)).build();
     }
     @GetMapping("/{id}/medicine")

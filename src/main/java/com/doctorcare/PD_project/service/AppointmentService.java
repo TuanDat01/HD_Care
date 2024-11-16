@@ -5,6 +5,7 @@ import com.doctorcare.PD_project.dto.request.AppointmentV2Request;
 import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.dto.request.UpdateStatusAppointment;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
+import com.doctorcare.PD_project.dto.response.ManagePatient;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.enums.ErrorCode;
@@ -25,6 +26,8 @@ import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,42 +41,47 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
-import java.util.Date;
+import java.util.*;
 import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
+@Lazy
 public class AppointmentService {
-    DoctorRepository doctorRepository;
-    PatientRepository patientRepository;
-    ScheduleRepository scheduleRepository;
+    ScheduleService scheduleService;
+    DoctorService doctorService;
     AppointmentMapper appointmentMapper;
     AppointmentRepository appointmentRepository;
     UserMapper userMapper;
     PatientService patientService;
     SendEmailService emailService;
     PrescriptionService prescriptionService;
+    public List<AppointmentRequest> changeToListRequest(List<Appointment> appointments) {
+        return appointments.stream().map(appointmentMapper::toAppointmentRequest).toList();
+    }
 
-    public AppointmentV2Request getInfo(String idPatient, String idDoctor, String idSchedule){
-        Patient patient1 = patientRepository.findById(idPatient).orElseThrow(()-> new RuntimeException("not found patient"));
+    public AppointmentV2Request getInfo(String idPatient, String idDoctor, String idSchedule) throws AppException {
+        Patient patient1 = patientService.getPatientById(idPatient);
+        //String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        //Patient patient1 = patientService.getPatientByUsername()
         AppointmentV2Request appointmentV2Request = new AppointmentV2Request();
         PatientRequest patientRequest = userMapper.tPatientRequest(patient1);
-        patientRequest.setId(idPatient);
+        patientRequest.setId(idPatient); //context holder xu ly
         appointmentV2Request.setPatientRequest(patientRequest);
-        appointmentV2Request.setDoctorScheduleRequest(scheduleRepository.getInfoSchedule(idSchedule,idDoctor));
+        appointmentV2Request.setDoctorScheduleRequest(scheduleService.getInfoSchedule(idSchedule,idDoctor));
         return appointmentV2Request;
     }
 
     @Transactional
-    public AppointmentRequest createAppointment(AppointmentRequest appointmentRequest) throws AppException {
-        Patient patient = patientService.updatePatient(appointmentRequest);
-        patientRepository.save(patient);
-        Schedule schedule = scheduleRepository.findById(appointmentRequest.getScheduleId())
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
+    public AppointmentRequest createAppointment(AppointmentRequest appointmentRequest) throws AppException, MessagingException {
+//        Patient patient = patientService.updatePatient(appointmentRequest);
+//        patientRepository.save(patient);
+        Patient patient = patientService.updatePatient(appointmentRequest); //new
+        Schedule schedule = scheduleService.getScheduleById(appointmentRequest.getScheduleId());
         Appointment appointment = appointmentMapper.toAppointment(appointmentRequest);
         System.out.println(schedule.getId());
-        Doctor doctor = doctorRepository.findDoctorBySchedules(schedule.getId());
+        Doctor doctor = doctorService.findDoctorBySchedules(schedule.getId());
         Prescription prescription = new Prescription();
         appointment.setPatient(patient);
         appointment.setSchedule(schedule);
@@ -83,49 +91,58 @@ public class AppointmentService {
         Appointment savedAppointment = appointmentRepository.save(appointment);
         AppointmentRequest savedAppointmentRequest = appointmentMapper.toAppointmentRequest(savedAppointment);
         savedAppointmentRequest.setNameDoctor(doctor.getName());
-        //emailService.sendAppointmentConfirmation(savedAppointment);
+        savedAppointmentRequest.setIdDoctor(doctor.getId());
+//        emailService.sendAppointmentConfirmation(savedAppointment);
         return savedAppointmentRequest;
     }
 
-
-    public List<AppointmentRequest> findAllByPatientId(String id) {
-        List<Appointment> appointmentList =  appointmentRepository.findAllByPatientId(id);
+    public List<AppointmentRequest> findAllByPatientId(String id,String date, String month) {
+        Map<String,String> date1 = convertDate(date,month);
+        List<Appointment> appointmentList =  appointmentRepository.findAllByPatientId(id, date1!=null?date1.get("start"):null, date1!=null?date1.get("end"):null);
         System.out.println(appointmentList);
-        List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
-            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
-                appointment.setStatus(AppointmentStatus.PENDING.toString());
-                appointmentRepository.save(appointment);
-            }
-        }).toList();
-        System.out.println(appointmentsFilter);
-        return appointmentsFilter.stream().map(appointmentMapper::toAppointmentRequest).toList();
+//        List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
+//            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
+//                appointment.setStatus(AppointmentStatus.PENDING.toString());
+//                appointmentRepository.save(appointment);
+//
+//            }
+//        }).toList();
+//        System.out.println(appointmentsFilter);
+        return changeToListRequest(appointmentList);
+    }
+    public List<Appointment> getAppointBySchedule(Schedule schedule){
+        return appointmentRepository.findAppointmentBySchedule(schedule);
     }
     public AppointmentRequest getAppointmentById(String id) throws AppException {
         return appointmentMapper.toAppointmentRequest(appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT)));
     }
     public List<AppointmentRequest> getAppointmentByDoctor(String id,String date,String status) {
+        System.out.println(id);
         List<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status);
         List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
-            if(appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
+            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
                 appointment.setStatus(AppointmentStatus.COMPLETED.toString());
                 appointmentRepository.save(appointment);
-            };
+
+            }
         }).toList();
-        return appointmentsFilter.stream().map(appointmentMapper::toAppointmentRequest).toList();
+        return changeToListRequest(appointmentList);
     }
     @Transactional
-    public AppointmentRequest getAppointmentByDoctorAndId(String id, UpdateStatusAppointment updateStatusAppointment) throws AppException { //idDoctor
+    public Appointment getAppointmentByDoctorAndId(String id, UpdateStatusAppointment updateStatusAppointment) throws AppException { //idDoctor
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT));
         if (!appointment.getDoctor().getId().equals(updateStatusAppointment.getIdDoctor())) {
             throw new AppException(ErrorCode.NOT_FOUND_DOCTOR);
         }
         appointment.setStatus(updateStatusAppointment.getStatus());
-        return appointmentMapper.toAppointmentRequest(appointment);
+        appointment.setNote(updateStatusAppointment.getNote());
+        System.out.println(appointment);
+        return appointment;
+    }
+    public List<ManagePatient> getPatientOfDoctor (String id){
+        return appointmentRepository.getPatientOfDoctor(id);
     }
 
-//    public List<AppointmentRequest> findAppointment(String idDoctor,String id) {
-//        Appointment appointment = appointmentRepository.findAllByDoctorId(idDoctor);
-//    }
     public void createPdf(AppointmentRequest appointmentRequest, ByteArrayOutputStream outputStream) throws AppException {
         Patient patient = patientService.getPatientById(appointmentRequest.getIdPatient());
         List<MedicineDetail> medicineDetails = prescriptionService.getMedicineByPrescription(appointmentRequest.getPrescriptionId());
@@ -208,30 +225,10 @@ public class AppointmentService {
             throw new RuntimeException("Có lỗi xảy ra khi tạo PDF: " + e.getMessage(), e);
         }
     }
-
-    public List<AppointmentRequest> filterAppointment(String id, String date,String month) {
-//
-//        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
-//        try {
-//            // Parse the string into a Date object
-//            Date endDate = formatter.parse(date);
-//            Date startDate = new Date();
-//            startDate.setDate(endDate.getDate() - endDate.getDay() +1);
-//            LocalDate start = startDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//            LocalDate end = endDate.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-//            System.out.println(start);
-//            System.out.println(end);
-//            List<Appointment> appointmentList= appointmentRepository.filterAppointment(id,start.toString(),end.toString());
-//            return appointmentList.stream().map(appointmentMapper::toAppointmentRequest).toList();
-//
-//        } catch (ParseException e) {
-//            e.printStackTrace();
-//        }
-//        return null;
+    public Map<String,String> convertDate(String date, String month){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Map<String,String> dat1e = new HashMap<>();
         LocalDate start, end;
-
-        try {
             if (date != null) {
                 LocalDate givenWeek = LocalDate.parse(date, formatter);
                 // Lấy ngày bắt đầu và kết thúc tuần
@@ -246,14 +243,21 @@ public class AppointmentService {
             } else {
                 // Nếu cả date và month đều null
                 System.out.println("Date or month must be provided.");
-                return List.of(); // Hoặc xử lý lỗi theo yêu cầu
+                return null;
             }
-            List<Appointment> appointmentList = appointmentRepository.filterAppointment(id, start.toString(), end.toString());
-            return appointmentList.stream().map(appointmentMapper::toAppointmentRequest).toList();
+            dat1e.put("start",start.toString());
+            dat1e.put("end",end.toString());
+            return dat1e;
+    }
+    public List<AppointmentRequest> filterAppointment(String id, String date,String month) {
+        try {
+            Map<String,String> date1 = convertDate(date, month);
+            List<Appointment> appointmentList = appointmentRepository.filterAppointment(id, date1!=null?date1.get("start"):null, date1!=null?date1.get("end"):null);
+            return changeToListRequest(appointmentList);
 
         } catch (DateTimeParseException e) {
             System.out.println("Invalid date or month format: " + e.getMessage());
         }
         return List.of();
     }
-    }
+}

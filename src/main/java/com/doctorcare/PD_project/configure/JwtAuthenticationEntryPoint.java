@@ -1,4 +1,4 @@
-package com.doctorcare.PD_project.security;
+package com.doctorcare.PD_project.configure;
 
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.enums.ErrorCode;

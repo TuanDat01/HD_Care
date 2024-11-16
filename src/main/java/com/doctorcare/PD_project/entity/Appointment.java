@@ -1,6 +1,7 @@
 package com.doctorcare.PD_project.entity;
 
 import com.doctorcare.PD_project.enums.AppointmentStatus;
+import com.doctorcare.PD_project.event.listen.EntityListener;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -16,12 +17,21 @@ import java.util.List;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Appointment")
+@EntityListeners(EntityListener.class)
 public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "appointment_id")
     String id;
     String title;
+
+    @Column(name = "description")
+    String description;
+
+    @Column(name = "status")
+    String status;
+    @Column(name = "noteStatus")
+    String note;
     @ManyToOne
     @JoinColumn(name = "doctor_id")
     Doctor doctor;
@@ -29,19 +39,9 @@ public class Appointment {
     @JoinColumn(name = "patient_id")
     Patient patient;
 
-    @Column(name = "description")
-    String description;
-
-
-
-    @Column(name = "status")
-    String status;
-
     @ManyToOne
     @JoinColumn(name = "schedule_id")
     Schedule schedule;
-
-
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "prescription_id")

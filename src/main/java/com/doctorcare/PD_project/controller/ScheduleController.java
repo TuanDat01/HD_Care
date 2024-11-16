@@ -2,6 +2,7 @@ package com.doctorcare.PD_project.controller;
 
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.ScheduleService;
@@ -16,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/doctor-schedule")
-@CrossOrigin(origins = "http://localhost:3000") // Chỉ cho phép localhost:3000 truy cập
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 @Validated
@@ -28,17 +28,20 @@ public class ScheduleController {
         return ApiResponse.<DoctorResponse>builder().result(doctorResponse).build();
     }
     @GetMapping
-    public ApiResponse<List<Schedule>> getSchedule(@RequestParam(name = "idDoctor",required = true) String id,@RequestParam(name = "date",required = false) String date){
-        return ApiResponse.<List<Schedule>>builder().result(scheduleService.getSchedule(id,date)).build();
+    public ApiResponse<List<ScheduleResponse>> getSchedule(@RequestParam(name = "idDoctor",required = true) String id, @RequestParam(name = "date",required = false) String date){
+        return ApiResponse.<List<ScheduleResponse>>builder().result(scheduleService.getSchedule(id,date)).build();
     }
-
+    @PostMapping("/delete-schedules")
+    public ApiResponse<Void> deleteSchedule(@RequestParam(name = "idDoctor",required = true) String id, @Valid @RequestBody List<Schedule> schedule) throws AppException {
+        return scheduleService.deleteSchedule(id,schedule);
+    }
     @GetMapping("/{id}")
-    public ApiResponse<Schedule> getScheduleById(@PathVariable String id){
+    public ApiResponse<Schedule> getScheduleById(@PathVariable String id) throws AppException {
         return ApiResponse.<Schedule>builder().result(scheduleService.getScheduleById(id)).build();
     }
 
     @PostMapping("/schedule-inactive")
-    public ApiResponse<DoctorResponse> getScheduleUnactive(@RequestParam(name = "idDoctor",required = true) String id, @RequestBody List<Schedule> schedule) throws AppException {
+    public ApiResponse<DoctorResponse> getScheduleInactive(@RequestParam(name = "idDoctor",required = true) String id, @RequestBody List<Schedule> schedule) throws AppException {
         return ApiResponse.<DoctorResponse>builder().result(scheduleService.getScheduleInactive(schedule,id)).build();
     }
 

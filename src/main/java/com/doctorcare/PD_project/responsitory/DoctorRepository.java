@@ -30,8 +30,6 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
             "where s.id = :scheduleId ")
     Doctor findDoctorBySchedules(@Param("scheduleId") String id);
 
-
-
-
-
+    @Override
+    long count();
 }
