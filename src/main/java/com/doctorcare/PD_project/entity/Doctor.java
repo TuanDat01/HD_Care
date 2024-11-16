@@ -1,7 +1,6 @@
 package com.doctorcare.PD_project.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -23,10 +22,11 @@ public class Doctor extends User {
     String specialization;
     String experience;
     long price;
-    @Lob
-    String description;
     double avgRating;
     int numberOfReviews;
+
+    @Lob
+    String description;
 
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
@@ -50,5 +50,4 @@ public class Doctor extends User {
         }
         reviews.add(review);
     }
-
 }

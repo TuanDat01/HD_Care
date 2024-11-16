@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.print.Doc;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -95,7 +96,7 @@ public class DoctorService {
 //        }
         doctors = doctorRepository.filterDoctor(district,name,city,doctorPageRequest).getContent();
         doctors = doctors.stream().peek(doctor -> {
-            List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), String.valueOf(LocalDateTime.now()));
+            List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), LocalDate.now().toString());
             doctor.setSchedules(schedule);
         }).toList();
         System.out.println("doctor : " + doctors);
