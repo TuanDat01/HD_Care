@@ -8,12 +8,14 @@ import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Schedule;
+import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
+import com.doctorcare.PD_project.responsitory.ScheduleRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -21,6 +23,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.print.Doc;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +37,7 @@ public class DoctorService {
     DoctorRepository doctorRepository;
     UserMapper userMapper;
     ScheduleMapper scheduleMapper;
+    ScheduleRepository scheduleRepository;
     @Transactional
     public UserResponse CreateDoctor(CreateUserRequest userRequest) {
 
@@ -41,15 +46,18 @@ public class DoctorService {
         Doctor savedDoctor = doctorRepository.save(doctor);
         return userMapper.toUserResponse(savedDoctor);
     }
-
+    public List<ScheduleResponse> convertScheduleOfDoctor(Doctor doctor){
+        List<ScheduleResponse> scheduleResponses = new ArrayList<>();
+        for (Schedule s:doctor.getSchedules()
+        ) {
+            scheduleResponses.add(scheduleMapper.toScheduleResponse(s));
+        }
+        return scheduleResponses;
+    }
     public List<DoctorResponse> TransformDoctorResponse(List<Doctor> doctors){
         Stream<Doctor> doctorStream = doctors.stream();
         List<DoctorResponse> doctorResponses = doctorStream.map(doctor -> {
-            List<ScheduleResponse> scheduleResponses = new ArrayList<>();
-            for (Schedule s:doctor.getSchedules()
-                 ) {
-                scheduleResponses.add(scheduleMapper.toScheduleResponse(s));
-            }
+            List<ScheduleResponse> scheduleResponses = convertScheduleOfDoctor(doctor);
             DoctorResponse doctorResponse = userMapper.toDoctorResponse(doctor);
             doctorResponse.setSchedules(scheduleResponses);
             return  doctorResponse;
@@ -79,18 +87,29 @@ public class DoctorService {
 //            System.out.println(countDoctor);
 //            doctorPageRequest = new DoctorPageRequest((int) countDoctor,0);
 //        }
-        if (district == null && name == null && city == null) {
-            doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
-            Page<Doctor> pageDoctor = doctorRepository.findAll(doctorPageRequest);
-            doctors = pageDoctor.getContent();
-            return TransformDoctorResponse(doctors);
-        }
+//        if (district == null && name == null && city == null) {
+//            doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
+//            Page<Doctor> pageDoctor = doctorRepository.findAll(doctorPageRequest);
+//            doctors = pageDoctor.getContent();
+//            return TransformDoctorResponse(doctors);
+//        }
         doctors = doctorRepository.filterDoctor(district,name,city,doctorPageRequest).getContent();
+        doctors = doctors.stream().peek(doctor -> {
+            List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), String.valueOf(LocalDateTime.now()));
+            doctor.setSchedules(schedule);
+        }).toList();
+        System.out.println("doctor : " + doctors);
         return TransformDoctorResponse(doctors);
     }
 
     public DoctorResponse FindDoctorResponseById(String id) throws AppException {
-        return userMapper.toDoctorResponse(doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR)));
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+        List<ScheduleResponse> scheduleResponses = convertScheduleOfDoctor(doctor);
+        DoctorResponse doctorResponse = userMapper.toDoctorResponse(doctor);
+        doctorResponse.setSchedules(scheduleResponses);
+        return  doctorResponse;
+
+
     }
 
     public Doctor findDoctorById(String id) throws AppException {

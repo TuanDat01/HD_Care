@@ -11,7 +11,7 @@ public interface ScheduleMapper {
     Schedule toSchedule(CreateScheduleRequest scheduleRequest);
     CreateScheduleRequest toScheduleRequest(Schedule schedule);
 
-    @Mapping(source = "start",target = "start",dateFormat = "hh:mm")
-    @Mapping(source = "end",target = "end",dateFormat = "hh:mm")
+    @Mapping(source = "start",target = "start",dateFormat = "dd-MM-yyyy hh:mm")
+    @Mapping(source = "end",target = "end",dateFormat = "dd-MM-yyyy hh:mm")
     ScheduleResponse toScheduleResponse(Schedule schedule);
 }
