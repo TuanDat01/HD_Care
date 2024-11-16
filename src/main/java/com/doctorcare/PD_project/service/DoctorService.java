@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,11 +40,15 @@ public class DoctorService {
     UserMapper userMapper;
     ScheduleMapper scheduleMapper;
     ScheduleRepository scheduleRepository;
+    PasswordEncoder passwordEncoder;
     @Transactional
-    public UserResponse CreateDoctor(CreateUserRequest userRequest) {
-
+    public UserResponse CreateDoctor(CreateUserRequest userRequest) throws AppException {
+        if(doctorRepository.findDoctorByUsername(userRequest.getUsername()).isEmpty()){
+            throw new AppException(ErrorCode.NOT_FOUND_DOCTOR);
+        }
         Doctor doctor = userMapper.toDoctor(userRequest);
         doctor.setRole(Roles.DOCTOR.name());
+        doctor.setPwd(passwordEncoder.encode(userRequest.getPassword()));
         Doctor savedDoctor = doctorRepository.save(doctor);
         return userMapper.toUserResponse(savedDoctor);
     }
@@ -82,7 +87,7 @@ public class DoctorService {
         System.out.println(LocalDateTime.now());
 
         int limit = 3;
-        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
+        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p)*limit);
 //        if (p==null){
 //            long countDoctor = doctorRepository.count();
 //            System.out.println(countDoctor);

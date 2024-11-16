@@ -21,7 +21,7 @@ public interface UserMapper {
     @Mapping(source = "pwd",target = "password")
     UserResponse toUserResponse(User user);
 
-    @Mapping(source = "password",target = "pwd")
+    @Mapping(target = "pwd",ignore = true)
     Doctor toDoctor(CreateUserRequest userRequest);
 
     @Mapping(target = "pwd",ignore = true)
@@ -33,7 +33,7 @@ public interface UserMapper {
 
     void updateDoctor(UpdateDoctorRequest doctorRequest, @MappingTarget Doctor doctor);
 
-    @Mapping(target = "id", ignore = true)
+//    @Mapping(target = "id", ignore = true)
     @Mapping(target = "schedules",ignore = true)
     DoctorResponse toDoctorResponse(Doctor doctor);
 

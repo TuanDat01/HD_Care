@@ -26,7 +26,7 @@ public class DoctorController {
     DoctorService doctorService;
 
     @PostMapping
-    public ApiResponse<UserResponse> CreateDoctor(@Valid @RequestBody CreateUserRequest userRequest) {
+    public ApiResponse<UserResponse> CreateDoctor(@Valid @RequestBody CreateUserRequest userRequest) throws AppException {
         return ApiResponse.<UserResponse>builder().result(doctorService.CreateDoctor(userRequest)).build();
     }
     @GetMapping("/{id}")
