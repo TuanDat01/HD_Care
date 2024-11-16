@@ -40,19 +40,21 @@ public class PatientService {
     PatientRepository patientRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
-    UserRepository userRepository;
-
+    @Transactional
     public void CreatePatient(CreateUserRequest userRequest, HttpServletRequest request) throws AppException {
         if (patientRepository.findByUsername(userRequest.getUsername()).isPresent()) {
             throw new AppException(ErrorCode.USERNAME_EXISTS);
         }
+
         Patient patient = userMapper.toPatient(userRequest);
         patient.setRole(Roles.PATIENT.name());
         patient.setPwd(passwordEncoder.encode(userRequest.getPassword()));
         Patient patientSaved = patientRepository.save(patient);
+
         System.out.println(patientSaved);
         if (request != null) {
             String appUrl = request.getRequestURL().toString();
+
             try {
                 applicationEventPublisher.publishEvent(new OnRegisterEvent(patientSaved, appUrl, request.getLocale()));
                 throw new AppException(ErrorCode.NO_ACTIVE);
@@ -82,6 +84,7 @@ public class PatientService {
     }
     public UserResponse getPatient() throws AppException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("username " + username);
         Patient patient  = patientRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
         UserResponse userResponse = userMapper.toUserResponse(patient);
         userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));

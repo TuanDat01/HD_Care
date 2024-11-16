@@ -22,7 +22,7 @@ public class DoctorResponse {
     String experience;
     long price;
     String description;
-    List<Schedule> schedules;
+    List<ScheduleResponse> schedules;
     List<Review> reviews;
 
 }

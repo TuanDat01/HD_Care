@@ -4,11 +4,14 @@ import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.DoctorPageRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
+import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.exception.AppException;
+import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
 import lombok.AccessLevel;
@@ -16,8 +19,10 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
@@ -27,7 +32,8 @@ import java.util.stream.Stream;
 public class DoctorService {
     DoctorRepository doctorRepository;
     UserMapper userMapper;
-
+    ScheduleMapper scheduleMapper;
+    @Transactional
     public UserResponse CreateDoctor(CreateUserRequest userRequest) {
 
         Doctor doctor = userMapper.toDoctor(userRequest);
@@ -38,7 +44,16 @@ public class DoctorService {
 
     public List<DoctorResponse> TransformDoctorResponse(List<Doctor> doctors){
         Stream<Doctor> doctorStream = doctors.stream();
-        List<DoctorResponse> doctorResponses = doctorStream.map(userMapper::toDoctorResponse).toList();
+        List<DoctorResponse> doctorResponses = doctorStream.map(doctor -> {
+            List<ScheduleResponse> scheduleResponses = new ArrayList<>();
+            for (Schedule s:doctor.getSchedules()
+                 ) {
+                scheduleResponses.add(scheduleMapper.toScheduleResponse(s));
+            }
+            DoctorResponse doctorResponse = userMapper.toDoctorResponse(doctor);
+            doctorResponse.setSchedules(scheduleResponses);
+            return  doctorResponse;
+        }).toList();
         for (int i=0;i<doctorResponses.size();i++){
             Doctor doctor = doctors.get(i);
             DoctorResponse doctorResponse = doctorResponses.get(i);

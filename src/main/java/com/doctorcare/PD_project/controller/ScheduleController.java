@@ -2,6 +2,7 @@ package com.doctorcare.PD_project.controller;
 
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.ScheduleService;
@@ -27,8 +28,8 @@ public class ScheduleController {
         return ApiResponse.<DoctorResponse>builder().result(doctorResponse).build();
     }
     @GetMapping
-    public ApiResponse<List<Schedule>> getSchedule(@RequestParam(name = "idDoctor",required = true) String id,@RequestParam(name = "date",required = false) String date){
-        return ApiResponse.<List<Schedule>>builder().result(scheduleService.getSchedule(id,date)).build();
+    public ApiResponse<List<ScheduleResponse>> getSchedule(@RequestParam(name = "idDoctor",required = true) String id, @RequestParam(name = "date",required = false) String date){
+        return ApiResponse.<List<ScheduleResponse>>builder().result(scheduleService.getSchedule(id,date)).build();
     }
     @PostMapping("/delete-schedules")
     public ApiResponse<Void> deleteSchedule(@RequestParam(name = "idDoctor",required = true) String id, @Valid @RequestBody List<Schedule> schedule) throws AppException {

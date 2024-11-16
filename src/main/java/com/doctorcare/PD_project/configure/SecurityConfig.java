@@ -28,7 +28,6 @@ public class SecurityConfig {
     private static final String[] PUBLIC_URL = {
             "/appointment/pdf",
             "/auth/*",
-            "/patient",
             "/patient/verify"
     };
 
@@ -45,9 +44,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request -> {
             try {
                 request
-                        .requestMatchers(DOCTOR_URL).authenticated()
+                        .requestMatchers(DOCTOR_URL).permitAll()
                         .requestMatchers(PUBLIC_URL).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 ;
             } catch (Exception e) {
                 throw new RuntimeException(e);
@@ -61,7 +60,7 @@ public class SecurityConfig {
                             .decoder(jwtDecoder()) // Để cho phép truy cập khi cung cấp đúng token
                             .jwtAuthenticationConverter(jwtAuthenticationConverter()))
                             .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
-//                        .accessDeniedHandler(new customerHandle())
+                        .accessDeniedHandler(new customerHandle())
         );
 
         return httpSecurity.build();

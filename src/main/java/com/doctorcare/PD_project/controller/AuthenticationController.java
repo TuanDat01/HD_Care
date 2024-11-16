@@ -5,6 +5,7 @@ import com.doctorcare.PD_project.dto.request.IntrospectRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.AuthenticationResponse;
 import com.doctorcare.PD_project.dto.response.IntrospectResponse;
+import com.doctorcare.PD_project.dto.response.RefreshTokenResponse;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.AuthenticationService;
 import com.nimbusds.jose.JOSEException;
@@ -36,12 +37,12 @@ public class AuthenticationController {
                 .build();
     }
 
-    @PostMapping("/outbound/authentication")
-    ApiResponse<AuthenticationResponse> outBoundAuthenticate(@RequestParam("code") String code) throws AppException {
-        System.out.println("Innn");
-        var result = authenticationService.outBoundAuthenticate(code);
-        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
-    }
+//    @PostMapping("/outbound/authentication")
+//    ApiResponse<AuthenticationResponse> outBoundAuthenticate(@RequestParam("code") String code) throws AppException {
+//        System.out.println("Innn");
+//        var result = authenticationService.outBoundAuthenticate(code);
+//        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+//    }
 
     @PostMapping("/introspect")
     ApiResponse <IntrospectResponse> authenticate(@RequestBody IntrospectRequest request)
@@ -51,5 +52,10 @@ public class AuthenticationController {
         return ApiResponse.<IntrospectResponse>builder()
                 .result(result)
                 .build();
+    }
+
+    @PostMapping("/refreshToken")
+    ApiResponse<RefreshTokenResponse> refresh(@RequestBody IntrospectRequest request) throws AppException, ParseException, JOSEException {
+        return ApiResponse.<RefreshTokenResponse>builder().result(authenticationService.getAccessToken(request)).build();
     }
 }

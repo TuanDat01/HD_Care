@@ -29,18 +29,25 @@ public class PrescriptionService {
     MedicineResponsitory medicineResponsitory;
     AppointmentRepository appointmentRepository;
     public CreatePrescriptionRequest createPrescription(Prescription prescription,String id) throws AppException {
-        CreatePrescriptionRequest createPrescriptionRequest = new CreatePrescriptionRequest();
-        Prescription prescription1 = prescriptionRepository.findById(id).orElseThrow();
+        Prescription prescription1 = prescriptionRepository.findById(id)
+                .orElseThrow();
         Appointment appointment = appointmentRepository.findAppointmentByPrescription(prescription1);
+
         if (Objects.equals(appointment.getStatus(), AppointmentStatus.PENDING.toString()))
             throw new AppException(ErrorCode.UPDATE_STATUS);
+
         prescription1.setResult(prescription.getResult());
         prescription1.setTimestamp(LocalDateTime.now());
+
+        CreatePrescriptionRequest createPrescriptionRequest = new CreatePrescriptionRequest();
         createPrescriptionRequest.setResult(prescription1.getResult());
         createPrescriptionRequest.setTimestamp(prescription1.getTimestamp());
+
         List<MedicineDetail> medicineDetails = medicineResponsitory.findByPrescriptionId(id);
+
         createPrescriptionRequest.setMedicineDetails(medicineDetails);
         prescriptionRepository.save(prescription1);
+
         return createPrescriptionRequest;
     }
     public List<MedicineDetail> getMedicineByPrescription(String id) {

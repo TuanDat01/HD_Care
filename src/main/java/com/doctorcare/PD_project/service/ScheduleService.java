@@ -4,6 +4,7 @@ import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.request.DoctorScheduleRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Schedule;
@@ -34,6 +35,7 @@ public class ScheduleService {
     UserMapper userMapper;
     ScheduleRepository scheduleRepository;
     AppointmentRepository appointmentRepository;
+    ScheduleMapper scheduleMapper;
     @Transactional
     public DoctorResponse createSchedule(List<Schedule> scheduleRequest, String id) throws AppException {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_DOCTOR));
@@ -44,8 +46,9 @@ public class ScheduleService {
         return userMapper.toDoctorResponse(doctor);
     }
 
-    public List<Schedule> getSchedule(String id,String date){
-        return scheduleRepository.findSchedule(id , date);
+    public List<ScheduleResponse> getSchedule(String id, String date){
+        List<Schedule> schedules =  scheduleRepository.findSchedule(id , date);
+        return schedules.stream().map(scheduleMapper::toScheduleResponse).toList();
     }
 
     @Transactional

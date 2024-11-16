@@ -34,6 +34,7 @@ public interface UserMapper {
     void updateDoctor(UpdateDoctorRequest doctorRequest, @MappingTarget Doctor doctor);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "schedules",ignore = true)
     DoctorResponse toDoctorResponse(Doctor doctor);
 
     @InheritInverseConfiguration
