@@ -95,7 +95,7 @@ public class DoctorService {
 //        }
         doctors = doctorRepository.filterDoctor(district,name,city,doctorPageRequest).getContent();
         doctors = doctors.stream().peek(doctor -> {
-            List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), "2024-11-01");
+            List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), String.valueOf(LocalDateTime.now()));
             doctor.setSchedules(schedule);
         }).toList();
         System.out.println("doctor : " + doctors);
