@@ -46,8 +46,8 @@ public class SecurityConfig {
             try {
                 request
 //                        .requestMatchers(DOCTOR_URL).authenticated()
-//                        .requestMatchers(PUBLIC_URL).permitAll()
-                        .anyRequest().permitAll()
+                        .requestMatchers(PUBLIC_URL).permitAll()
+                        .anyRequest().authenticated()
                 ;
             } catch (Exception e) {
                 throw new RuntimeException(e);
