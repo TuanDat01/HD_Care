@@ -3,6 +3,8 @@ package com.doctorcare.PD_project.dto.response;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDate;
+
 @Getter
 @Setter
 @AllArgsConstructor
@@ -14,4 +16,5 @@ public class ScheduleResponse {
     String start;
     String end;
     boolean available;
+    LocalDate date;
 }

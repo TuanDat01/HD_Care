@@ -37,7 +37,9 @@ public enum ErrorCode {
     PASSWORD_EXIST(1027, "password is exit", HttpStatus.BAD_REQUEST),
     NO_ACTIVE(1028,"Account no active please check email to active" ,HttpStatus.OK),
     UPDATE_STATUS(1029, "Please update status is confirmed to prescription", HttpStatus.BAD_REQUEST),
-        PAGE_VALID(1030,"input page invalid" ,HttpStatus.BAD_REQUEST );
+        PAGE_VALID(1030,"input page invalid" ,HttpStatus.BAD_REQUEST ),
+        START_TIME_EXISTED(1031,"Start Time existed" , HttpStatus.BAD_REQUEST),
+    DURATION_TIME(1032,"duration start between end must be one hours",HttpStatus.BAD_REQUEST);
 
 
     ErrorCode(int code, String message, HttpStatus status) {

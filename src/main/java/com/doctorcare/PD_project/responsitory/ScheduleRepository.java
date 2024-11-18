@@ -26,4 +26,8 @@ public interface ScheduleRepository extends JpaRepository<Schedule, String> {
             " and d.id = :doctorId order by s.start ")
     List<Schedule> findSchedule(@Param("doctorId") String doctorId,@Param("date") String date);
 
+    @Query("select s from Schedule s" +
+            " where FUNCTION('DATE',s.start) = :date ")
+    List<Schedule> findScheduleByDate(@Param("date") String date);
+
 }

@@ -14,7 +14,9 @@ import java.time.LocalDateTime;
 @ToString
 @RequiredArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 @TimeConstraint
+@AllArgsConstructor
 public class Schedule {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)

@@ -55,23 +55,30 @@ public class DoctorService {
     }
     public List<ScheduleResponse> convertScheduleOfDoctor(Doctor doctor){
         List<ScheduleResponse> scheduleResponses = new ArrayList<>();
+
         for (Schedule s:doctor.getSchedules()
         ) {
-            scheduleResponses.add(scheduleMapper.toScheduleResponse(s));
+            ScheduleResponse scheduleResponse = scheduleMapper.toScheduleResponse(s);
+            scheduleResponse.setDate(LocalDate.now());
+
+            scheduleResponses.add(scheduleResponse);
         }
         return scheduleResponses;
     }
     public List<DoctorResponse> TransformDoctorResponse(List<Doctor> doctors){
-        Stream<Doctor> doctorStream = doctors.stream();
-        List<DoctorResponse> doctorResponses = doctorStream.map(doctor -> {
+        List<DoctorResponse> doctorResponses = doctors.stream().map(doctor -> {
             List<ScheduleResponse> scheduleResponses = convertScheduleOfDoctor(doctor);
+
             DoctorResponse doctorResponse = userMapper.toDoctorResponse(doctor);
             doctorResponse.setSchedules(scheduleResponses);
+
             return  doctorResponse;
         }).toList();
+
         for (int i=0;i<doctorResponses.size();i++){
             Doctor doctor = doctors.get(i);
             DoctorResponse doctorResponse = doctorResponses.get(i);
+
             doctorResponse.setId(doctor.getId());
         }
         return doctorResponses;

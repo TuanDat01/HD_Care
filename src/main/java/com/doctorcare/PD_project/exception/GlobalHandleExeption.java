@@ -61,6 +61,7 @@ ResponseEntity<ApiResponse> handlingAccessDeniedException(AccessDeniedException 
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
         try {
             String key = ex.getConstraintViolations().stream().findFirst().get().getMessageTemplate();
+            System.out.println(ex.getConstraintViolations().stream().findFirst().get().getPropertyPath());
             errorCode = ErrorCode.valueOf(key);
         }
         catch (IllegalArgumentException e){
@@ -78,20 +79,20 @@ ResponseEntity<ApiResponse> handlingAccessDeniedException(AccessDeniedException 
         apiResponse.setMessage(errorCode.getMessage());
         return new ResponseEntity<>(apiResponse, errorCode.getStatus());
     }
-//    @ExceptionHandler(value = RuntimeException.class)
-//    public ResponseEntity<ApiResponse> handle(RuntimeException ex) {
-//        ApiResponse apiResponse = new ApiResponse();
-//        ErrorCode errorCode = ErrorCode.INVALID_KEY;
-//        System.out.println(ex.getMessage());
-//        try {
-//            System.out.println(ex.getMessage());
-//            errorCode = ErrorCode.valueOf(ex.getMessage());
-//        } catch (IllegalArgumentException e) {
-//            System.out.println("kh co enum");
-//        }
-//        apiResponse.setCode(errorCode.getCode());
-//        apiResponse.setMessage(errorCode.getMessage());
-//        return new ResponseEntity<>(apiResponse, errorCode.getStatus());
-//    }
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseEntity<ApiResponse> handle(RuntimeException ex) {
+        ApiResponse apiResponse = new ApiResponse();
+        ErrorCode errorCode = ErrorCode.INVALID_KEY;
+        System.out.println(ex.getMessage());
+        try {
+            System.out.println(ex.getMessage());
+            errorCode = ErrorCode.valueOf(ex.getMessage());
+        } catch (IllegalArgumentException e) {
+            System.out.println("kh co enum");
+        }
+        apiResponse.setCode(errorCode.getCode());
+        apiResponse.setMessage(errorCode.getMessage());
+        return new ResponseEntity<>(apiResponse, errorCode.getStatus());
+    }
 
 }
