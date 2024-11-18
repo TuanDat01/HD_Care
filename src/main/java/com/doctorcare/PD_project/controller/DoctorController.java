@@ -2,10 +2,7 @@ package com.doctorcare.PD_project.controller;
 
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
-import com.doctorcare.PD_project.dto.response.ApiResponse;
-import com.doctorcare.PD_project.dto.response.DoctorResponse;
-import com.doctorcare.PD_project.dto.response.ReviewResponse;
-import com.doctorcare.PD_project.dto.response.UserResponse;
+import com.doctorcare.PD_project.dto.response.*;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.exception.AppException;
@@ -40,11 +37,11 @@ public class DoctorController {
 
 
     @GetMapping
-    public ApiResponse<List<DoctorResponse>> getAll(@RequestParam(name = "name", required = false) String name,
+    public ApiResponse<PageResponse> getAll(@RequestParam(name = "name", required = false) String name,
                                                     @RequestParam(name = "district", required = false) String district,
                                                     @RequestParam(name = "city",required = false) String city,
-                                                    @RequestParam(name = "page",required = false) String page) {
-       return ApiResponse.<List<DoctorResponse>>builder().result(doctorService.GetAll(district, name, city,page)).build();
+                                                    @RequestParam(name = "page",required = false) int page) throws AppException {
+       return ApiResponse.<PageResponse>builder().result(doctorService.GetAll(district, name, city,page)).build();
     }
 
     @GetMapping("{id}/review")

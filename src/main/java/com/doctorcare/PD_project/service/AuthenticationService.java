@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -66,7 +67,7 @@ public class AuthenticationService {
 
     @NonFinal
     @Value("${token.accessToken}")
-    protected int accessToken;
+    protected int accessDuration;
 
     @NonFinal
     @Value("${token.refreshToken}")
@@ -99,7 +100,7 @@ public class AuthenticationService {
                 .issuer("tuandat.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(refreshDuration, ChronoUnit.SECONDS).toEpochMilli()
+                        Instant.now().plus(refreshDuration, ChronoUnit.DAYS).toEpochMilli()
                 ))
                 .build();
 
@@ -164,7 +165,7 @@ public class AuthenticationService {
                 .issuer("sohan.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(1, ChronoUnit.SECONDS).toEpochMilli()
+                        Instant.now().plus(accessDuration, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .claim("roles", user.getRole())
                 .claim("id", user.getId())
@@ -182,7 +183,6 @@ public class AuthenticationService {
             throw new RuntimeException(e);
         }
     }
-
 
 
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
