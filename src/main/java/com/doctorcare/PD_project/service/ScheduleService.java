@@ -97,7 +97,6 @@ public class ScheduleService {
         }));
         return userMapper.toDoctorResponse(doctor);
     }
-    @PreAuthorize("hasRole('DOCTOR')")
     public Schedule getScheduleById(String id) throws AppException {
         return scheduleRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
     }

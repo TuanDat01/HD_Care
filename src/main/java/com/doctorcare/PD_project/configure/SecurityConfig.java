@@ -27,13 +27,15 @@ public class SecurityConfig {
     private String signerKey;
     private static final String[] PUBLIC_URL = {
             "/appointment/pdf",
-            "/auth/*",
-            "/patient",
-            "/patient/verify"
+            "/auth/**",
+            "/patient/verify",
+            "/appointment/*",
+            "/appointment",
+            "/doctor/*",
+
     };
 
     private static final String[] DOCTOR_URL = {
-            "/doctor/*",
             "/doctor-schedule/*",
             "/medicine/*",
             "/prescription/*",
@@ -45,9 +47,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request -> {
             try {
                 request
-//                        .requestMatchers(DOCTOR_URL).authenticated()
+                        .requestMatchers(DOCTOR_URL).hasRole("DOCTOR")
                         .requestMatchers(PUBLIC_URL).permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 ;
             } catch (Exception e) {
                 throw new RuntimeException(e);

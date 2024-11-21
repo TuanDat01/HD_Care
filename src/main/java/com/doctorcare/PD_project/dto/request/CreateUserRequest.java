@@ -21,8 +21,9 @@ public class CreateUserRequest {
     String username;
     @Size(min = 8,message = "PASSWORD_SIZE")
     String password;
-    @Size(min = 10, message = "PHONE_NUMBER_PATTERN")
+    @Size(min = 10,max = 10, message = "PHONE_NUMBER_PATTERN")
     String phone;
+    String address;
     String gender;
     boolean isEnable;
     String img;

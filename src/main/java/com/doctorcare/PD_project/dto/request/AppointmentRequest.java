@@ -30,4 +30,5 @@ public class AppointmentRequest {
     String idDoctor;
     String nameDoctor;
     String result;
+    String img;
 }

@@ -14,5 +14,5 @@ public class CreateReview {
     String content;
     int rating;
     List<String> img;
-
+    String idAppointment;
 }

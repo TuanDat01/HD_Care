@@ -25,7 +25,6 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
     )
     Page<Doctor> filterDoctor(@Param("district") String district, @Param("name") String name, @Param("city") String city,Pageable pageable);
 
-    Page<Doctor> findAll(Pageable pageable);
 
     @Query("SELECT d from Doctor  d " +
             "join d.schedules s " +

@@ -44,8 +44,8 @@ public class DoctorService {
     PasswordEncoder passwordEncoder;
     @Transactional
     public UserResponse CreateDoctor(CreateUserRequest userRequest) throws AppException {
-        if(doctorRepository.findDoctorByUsername(userRequest.getUsername()).isEmpty()){
-            throw new AppException(ErrorCode.NOT_FOUND_DOCTOR);
+        if(doctorRepository.findDoctorByUsername(userRequest.getUsername()).isPresent()){
+            throw new AppException(ErrorCode.USERNAME_EXISTS);
         }
         Doctor doctor = userMapper.toDoctor(userRequest);
         doctor.setRole(Roles.DOCTOR.name());
@@ -93,7 +93,8 @@ public class DoctorService {
     public PageResponse GetAll(String district, String name, String city, int p) throws AppException {
         List<Doctor> doctors = null;
         int limit = 3;
-        long pageMax = doctorRepository.count()/limit;
+        long count = doctorRepository.count();
+        long pageMax = (count + limit - 1)/limit;
 
         if( p-1 < 0 || p-1 >= pageMax){
             throw new AppException(ErrorCode.PAGE_VALID);
@@ -101,16 +102,6 @@ public class DoctorService {
 
         DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, (p-1)*limit);
 
-        if (district == null && name == null && city == null) {
-            doctorPageRequest = new DoctorPageRequest(limit, (p-1) * limit);
-
-            Page<Doctor> pageDoctor = doctorRepository.findAll(doctorPageRequest);
-            doctors = pageDoctor.getContent();
-
-            List<DoctorResponse> doctorResponse = TransformDoctorResponse(doctors);
-
-            return PageResponse.builder().pageMax(pageMax).doctorResponse(doctorResponse).build();
-        }
         doctors = doctorRepository.filterDoctor(district,name,city,doctorPageRequest).getContent();
 
         doctors = doctors.stream().peek(doctor -> {

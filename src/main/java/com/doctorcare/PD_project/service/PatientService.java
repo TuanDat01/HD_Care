@@ -11,6 +11,7 @@ import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
 import com.doctorcare.PD_project.exception.AppException;
+import com.doctorcare.PD_project.mail.EmailService;
 import com.doctorcare.PD_project.mapping.AppointmentMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.PatientRepository;
@@ -28,9 +29,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.net.http.HttpRequest;
 import java.util.Collections;
+import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -40,6 +44,7 @@ public class PatientService {
     PatientRepository patientRepository;
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
+    SendEmailService sendEmailService;
     @Transactional
     public void CreatePatient(CreateUserRequest userRequest, HttpServletRequest request) throws AppException {
         if (patientRepository.findByUsername(userRequest.getUsername()).isPresent()) {
@@ -72,9 +77,16 @@ public class PatientService {
         return patientRepository.save(patient);
     }
     //PostAuthorize("hasAuthority('PATIENT')")
-    public PatientRequest updatePatient(String id, PatientRequest patientRequest) throws AppException {
-        Patient patient = patientRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+    public PatientRequest updatePatient(PatientRequest patientRequest) throws AppException, IOException {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("username" + username);
+        Patient patient  = patientRepository.findByUsername(username)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+
+        System.out.println("patient: " + patient.toString());
         userMapper.updatePatient(patient, patientRequest);
+        System.out.println("patient Update: " + patient.toString());
+
         return userMapper.toPatientRequest(patientRepository.save(patient));
     }
 
@@ -84,10 +96,13 @@ public class PatientService {
     }
     public UserResponse getPatient() throws AppException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("username " + username);
+        System.out.println("username" + username);
+
         Patient patient  = patientRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+
         UserResponse userResponse = userMapper.toUserResponse(patient);
         userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
+
         return userResponse;
     }
     @Transactional

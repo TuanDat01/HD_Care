@@ -78,22 +78,24 @@ public class AppointmentService {
 //        Patient patient = patientService.updatePatient(appointmentRequest);
 //        patientRepository.save(patient);
         Patient patient = patientService.updatePatient(appointmentRequest); //new
+
         Schedule schedule = scheduleService.getScheduleById(appointmentRequest.getScheduleId());
+
         Appointment appointment = appointmentMapper.toAppointment(appointmentRequest);
-        System.out.println(schedule.getId());
         Doctor doctor = doctorService.findDoctorBySchedules(schedule.getId());
+
         Prescription prescription = new Prescription();
+
         appointment.setPatient(patient);
         appointment.setSchedule(schedule);
         appointment.setDoctor(doctor);
         appointment.setStatus(AppointmentStatus.PENDING.toString());
         appointment.setPrescription(prescription);
+
         Appointment savedAppointment = appointmentRepository.save(appointment);
-        AppointmentRequest savedAppointmentRequest = appointmentMapper.toAppointmentRequest(savedAppointment);
-        savedAppointmentRequest.setNameDoctor(doctor.getName());
-        savedAppointmentRequest.setIdDoctor(doctor.getId());
-//        emailService.sendAppointmentConfirmation(savedAppointment);
-        return savedAppointmentRequest;
+
+        //        emailService.sendAppointmentConfirmation(savedAppointment);
+        return appointmentMapper.toAppointmentRequest(savedAppointment);
     }
 
     public List<AppointmentRequest> findAllByPatientId(String id,String date, String month) {

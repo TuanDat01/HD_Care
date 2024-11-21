@@ -1,6 +1,7 @@
 package com.doctorcare.PD_project.dto.response;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
@@ -12,4 +13,5 @@ import lombok.experimental.FieldDefaults;
 public class AuthenticationResponse {
     String accessToken;
     String refreshToken;
+    UserResponse userResponse;
 }

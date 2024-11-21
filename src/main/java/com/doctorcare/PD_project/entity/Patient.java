@@ -9,8 +9,10 @@ import lombok.experimental.FieldDefaults;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Patient extends User{
 
     String address;
+
 }
