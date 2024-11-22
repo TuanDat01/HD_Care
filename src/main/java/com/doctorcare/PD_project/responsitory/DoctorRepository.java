@@ -13,17 +13,18 @@ import org.springframework.stereotype.Repository;
 
 import javax.print.Doc;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DoctorRepository extends JpaRepository<Doctor,String> {
     @Query("SELECT d From Doctor d where " +
             "(:city is null or d.city = :city) "+
             "AND (:district is null or d.district = :district) "+
-            "AND (:name is null or d.name like %:name%)"
+            "AND (:name is null or d.name like %:name%)" +
+            "order by d.name"
     )
     Page<Doctor> filterDoctor(@Param("district") String district, @Param("name") String name, @Param("city") String city,Pageable pageable);
 
-    Page<Doctor> findAll(Pageable pageable);
 
     @Query("SELECT d from Doctor  d " +
             "join d.schedules s " +
@@ -32,4 +33,6 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
 
     @Override
     long count();
+
+    Optional<Doctor> findDoctorByUsername(String username);
 }

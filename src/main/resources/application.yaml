@@ -11,6 +11,11 @@ spring:
     show-sql: true
   main:
     banner-mode: off
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 10MB
 
 #    lazy-initialization: true
   mail:
@@ -57,8 +62,10 @@ outbound:
 jwt:
   signerKey: "xxiZx4S9K4jCse8UI89bTPGihA9MXjHSob+hfnckRMo7yRlIO7xheltlc/+dKFv4"
 token:
-  accessToken : "1"
-  refreshToken : "5"
+  accessToken : "2"
+  refreshToken : "30"
+
+
 
 
 

@@ -24,5 +24,6 @@ public class DoctorResponse {
     String description;
     List<ScheduleResponse> schedules;
     List<Review> reviews;
+    String img;
 
 }

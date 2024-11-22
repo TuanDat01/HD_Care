@@ -10,10 +10,7 @@ import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.entity.User;
-import org.mapstruct.InheritInverseConfiguration;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.MappingTarget;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
@@ -21,7 +18,7 @@ public interface UserMapper {
     @Mapping(source = "pwd",target = "password")
     UserResponse toUserResponse(User user);
 
-    @Mapping(source = "password",target = "pwd")
+    @Mapping(target = "pwd",ignore = true)
     Doctor toDoctor(CreateUserRequest userRequest);
 
     @Mapping(target = "pwd",ignore = true)
@@ -33,7 +30,7 @@ public interface UserMapper {
 
     void updateDoctor(UpdateDoctorRequest doctorRequest, @MappingTarget Doctor doctor);
 
-    @Mapping(target = "id", ignore = true)
+//    @Mapping(target = "id", ignore = true)
     @Mapping(target = "schedules",ignore = true)
     DoctorResponse toDoctorResponse(Doctor doctor);
 
@@ -43,6 +40,7 @@ public interface UserMapper {
     PatientRequest tPatientRequest(Patient patient);
 
     @Mapping(target = "id",ignore = true)
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updatePatient(@MappingTarget Patient patient, PatientRequest updatePatient);
 
     PatientRequest toPatientRequest(AppointmentRequest appointmentRequest);

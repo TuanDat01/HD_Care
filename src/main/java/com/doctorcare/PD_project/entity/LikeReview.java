@@ -18,6 +18,4 @@ public class LikeReview extends Like {
     @ManyToOne
     @JoinColumn(name = "patient_liked_id")
     Patient patientLiked;
-
-
 }

@@ -2,6 +2,8 @@ package com.doctorcare.PD_project.aop;
 
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.After;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Before;
 import org.springframework.stereotype.Component;
@@ -16,10 +18,10 @@ import java.util.stream.Collectors;
 @Component
 public class statistical {
     private final ConcurrentHashMap<String,Integer> countUse = new ConcurrentHashMap<>();
-    @Before ("execution ( * com.doctorcare.PD_project.service.AppointmentService.createAppointment(..))")
-    public void getStatistical(JoinPoint joinPoint){
+    @AfterReturning(value = "execution ( * com.doctorcare.PD_project.service.AppointmentService.createAppointment(..))",returning="result")
+    public void getStatistical(JoinPoint joinPoint,AppointmentRequest result){
         AppointmentRequest appointmentRequest = (AppointmentRequest) joinPoint.getArgs()[0];
-        countUse.merge(appointmentRequest.getIdDoctor(),1,Integer::sum);
+        countUse.merge(result.getIdDoctor(),1,Integer::sum);
         System.out.println(getDetailStatistical());
     }
     public LinkedHashMap<String,Integer> getDetailStatistical(){

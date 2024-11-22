@@ -1,6 +1,7 @@
 package com.doctorcare.PD_project.service;
 
-import com.doctorcare.PD_project.dto.request.AppointmentRequest;
+
+import com.doctorcare.PD_project.dto.request.CreateSchedule;
 import com.doctorcare.PD_project.dto.request.DoctorScheduleRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
@@ -16,20 +17,30 @@ import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.AppointmentRepository;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
 import com.doctorcare.PD_project.responsitory.ScheduleRepository;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true,level = AccessLevel.PRIVATE)
+@Validated
 public class ScheduleService {
     DoctorRepository doctorRepository;
     UserMapper userMapper;
@@ -37,18 +48,39 @@ public class ScheduleService {
     AppointmentRepository appointmentRepository;
     ScheduleMapper scheduleMapper;
     @Transactional
-    public DoctorResponse createSchedule(List<Schedule> scheduleRequest, String id) throws AppException {
+    public DoctorResponse createSchedule(@Valid List<Schedule> scheduleRequest, String id) throws AppException {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_DOCTOR));
         scheduleRequest.forEach((schedule -> {
             schedule.setAvailable(true);
+            System.out.println(schedule);
             doctor.addSchedule(schedule);
+            doctorRepository.save(doctor);
         }));
-        return userMapper.toDoctorResponse(doctor);
+        DoctorResponse doctorResponse = userMapper.toDoctorResponse(doctor);
+        List<ScheduleResponse> scheduleResponse = doctor.getSchedules().stream().map(schedule ->
+                {
+                    ScheduleResponse scheduleResponse1 = scheduleMapper.toScheduleResponse(schedule);
+
+                    scheduleResponse1.setDate(schedule.getStart().toLocalDate());
+
+                    return scheduleResponse1;
+                }
+                ).toList();
+
+        doctorResponse.setSchedules(scheduleResponse);
+        return doctorResponse;
     }
 
     public List<ScheduleResponse> getSchedule(String id, String date){
         List<Schedule> schedules =  scheduleRepository.findSchedule(id , date);
-        return schedules.stream().map(scheduleMapper::toScheduleResponse).toList();
+
+        return schedules.stream().map(schedule -> {
+            ScheduleResponse scheduleResponse = scheduleMapper.toScheduleResponse(schedule);
+
+            scheduleResponse.setDate(schedule.getStart().toLocalDate());
+
+            return scheduleResponse;
+        }).toList();
     }
 
     @Transactional
@@ -65,7 +97,6 @@ public class ScheduleService {
         }));
         return userMapper.toDoctorResponse(doctor);
     }
-    @PreAuthorize("hasRole('DOCTOR')")
     public Schedule getScheduleById(String id) throws AppException {
         return scheduleRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
     }
@@ -87,5 +118,42 @@ public class ScheduleService {
             doctor.getSchedules().remove(schedule1);
         }
         return null;
+    }
+
+    public List<Schedule> convertToSaveSchedule(CreateSchedule createSchedule){
+        List<Schedule> schedules = scheduleRepository.findScheduleByDate(createSchedule.getDate());
+        List<ScheduleResponse> scheduleResponses = schedules.stream().map(scheduleMapper::toScheduleResponse).toList();
+        return createSchedule.getSchedules().stream().map(s -> {
+                String[] parts = s.split("-");
+
+                if (parts.length == 2) {
+                    for (ScheduleResponse scheduleResponse: scheduleResponses
+                         ) {
+
+                        if (Objects.equals(parts[0], scheduleResponse.getStart())){
+                            throw new RuntimeException("START_TIME_EXISTED");
+                        }
+
+                    }
+                    LocalDate localDate = LocalDate.parse(createSchedule.getDate()); // Parse từ chuỗi
+                    LocalTime startLocalTime = LocalTime.parse(parts[0]); // Parse từ chuỗi
+                    LocalTime endLocalTime = LocalTime.parse(parts[1]); // Parse từ chuỗi
+                    LocalDateTime startDateTime = LocalDateTime.of(localDate, startLocalTime);
+                    LocalDateTime endDateTime = LocalDateTime.of(localDate, endLocalTime);
+                    if ((Duration.between(startDateTime, endDateTime).toHours() != 1)) {
+                        throw new RuntimeException("START_TIME_EXISTED");
+                    }
+                    System.out.println(Schedule.builder().end(endDateTime).start(startDateTime).build().toString());
+                    return Schedule.builder().end(endDateTime).start(startDateTime).build();
+                } else {
+                    System.out.println("Input format is incorrect");
+                }
+                    return null;
+                }
+            ).toList();
+    }
+
+    public DoctorResponse saveSchedule(CreateSchedule createSchedule,String idDoctor) throws AppException {
+        return createSchedule(convertToSaveSchedule(createSchedule),idDoctor);
     }
 }

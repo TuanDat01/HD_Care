@@ -11,13 +11,19 @@ import com.doctorcare.PD_project.entity.VerifyToken;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.PatientService;
+import com.doctorcare.PD_project.service.SendEmailService;
 import com.doctorcare.PD_project.service.VerifyTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/patient")
@@ -26,6 +32,7 @@ import org.springframework.web.bind.annotation.*;
 public class PatientController {
     PatientService patientService;
     VerifyTokenService verifyTokenService;
+    SendEmailService emailService;
     @PostMapping
     public ApiResponse<Void> CreatePatient(@RequestBody @Valid CreateUserRequest userRequest, HttpServletRequest httpServletRequest) throws AppException {
         patientService.CreatePatient(userRequest,httpServletRequest);
@@ -38,9 +45,14 @@ public class PatientController {
         }
         return ApiResponse.<User>builder().result(verifyTokenService.updateAndDelete(token)).build();
     }
-    @PutMapping("/{id}")
-    public ApiResponse<PatientRequest> updatePatient(@PathVariable String id, @RequestBody PatientRequest patientRequest) throws AppException {
-        return ApiResponse.<PatientRequest>builder().result(patientService.updatePatient(id, patientRequest)).build();
+    @PutMapping
+    public ApiResponse<PatientRequest> updatePatient(@Valid @RequestBody PatientRequest patientRequest)
+            throws AppException, IOException {
+
+        return ApiResponse.<PatientRequest>builder()
+                .result(patientService.updatePatient(patientRequest))
+                .message("Update successful")
+                .build();
     }
     @GetMapping("/my-info")
     public ApiResponse<UserResponse> getPatientById() throws AppException {
@@ -57,5 +69,15 @@ public class PatientController {
         patientService.createPassword(createPasswordRequest);
         return ApiResponse.<Void>builder().message("Create password successful for login").build();
     }
+
+    @PostMapping("/upload")
+    public ApiResponse<List<String>> createUpload(@RequestParam("file") List<MultipartFile> fileList){
+        List<String> list = emailService.sendImage(fileList);
+        return ApiResponse.<List<String>>builder()
+                .message("Upload successful")
+                .result(list)
+                .build();
+    }
+
 
 }

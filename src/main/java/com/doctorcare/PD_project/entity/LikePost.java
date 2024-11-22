@@ -16,6 +16,4 @@ public class LikePost extends Like {
     @ManyToOne
     @JoinColumn(name="user_liked_id")
     User userLiked;
-
-
 }

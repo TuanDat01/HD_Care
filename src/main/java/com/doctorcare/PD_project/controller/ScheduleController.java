@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.controller;
 
+import com.doctorcare.PD_project.dto.request.CreateSchedule;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.dto.response.ScheduleResponse;
@@ -22,10 +23,18 @@ import java.util.List;
 @Validated
 public class ScheduleController {
     ScheduleService scheduleService;
+//    @PostMapping
+//    public ApiResponse<DoctorResponse> createSchedule(@RequestParam(name = "idDoctor",required = true) String id, @Valid @RequestBody List<Schedule> schedule) throws AppException {
+//        DoctorResponse doctorResponse = scheduleService.createSchedule(schedule, id);
+//        return ApiResponse.<DoctorResponse>builder().result(doctorResponse).build();
+//    }
+
     @PostMapping
-    public ApiResponse<DoctorResponse> createSchedule(@RequestParam(name = "idDoctor",required = true) String id, @Valid @RequestBody List<Schedule> schedule) throws AppException {
-        DoctorResponse doctorResponse = scheduleService.createSchedule(schedule, id);
-        return ApiResponse.<DoctorResponse>builder().result(doctorResponse).build();
+    public ApiResponse<DoctorResponse> createSchedule(@RequestParam(name = "idDoctor",required = true) String idDoctor,
+                                                      @RequestBody CreateSchedule createSchedule) throws AppException {
+        return ApiResponse.<DoctorResponse>builder()
+                .result(scheduleService.saveSchedule(createSchedule,idDoctor))
+                .build();
     }
     @GetMapping
     public ApiResponse<List<ScheduleResponse>> getSchedule(@RequestParam(name = "idDoctor",required = true) String id, @RequestParam(name = "date",required = false) String date){

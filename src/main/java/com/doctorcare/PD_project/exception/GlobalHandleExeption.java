@@ -61,6 +61,7 @@ ResponseEntity<ApiResponse> handlingAccessDeniedException(AccessDeniedException 
         ErrorCode errorCode = ErrorCode.INVALID_KEY;
         try {
             String key = ex.getConstraintViolations().stream().findFirst().get().getMessageTemplate();
+            System.out.println(ex.getConstraintViolations().stream().findFirst().get().getPropertyPath());
             errorCode = ErrorCode.valueOf(key);
         }
         catch (IllegalArgumentException e){

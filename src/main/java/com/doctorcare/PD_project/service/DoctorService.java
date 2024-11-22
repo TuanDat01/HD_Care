@@ -4,6 +4,7 @@ import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.DoctorPageRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.PageResponse;
 import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
@@ -20,11 +21,13 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.Page;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.print.Doc;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,33 +41,44 @@ public class DoctorService {
     UserMapper userMapper;
     ScheduleMapper scheduleMapper;
     ScheduleRepository scheduleRepository;
+    PasswordEncoder passwordEncoder;
     @Transactional
-    public UserResponse CreateDoctor(CreateUserRequest userRequest) {
-
+    public UserResponse CreateDoctor(CreateUserRequest userRequest) throws AppException {
+        if(doctorRepository.findDoctorByUsername(userRequest.getUsername()).isPresent()){
+            throw new AppException(ErrorCode.USERNAME_EXISTS);
+        }
         Doctor doctor = userMapper.toDoctor(userRequest);
         doctor.setRole(Roles.DOCTOR.name());
+        doctor.setPwd(passwordEncoder.encode(userRequest.getPassword()));
         Doctor savedDoctor = doctorRepository.save(doctor);
         return userMapper.toUserResponse(savedDoctor);
     }
     public List<ScheduleResponse> convertScheduleOfDoctor(Doctor doctor){
         List<ScheduleResponse> scheduleResponses = new ArrayList<>();
+
         for (Schedule s:doctor.getSchedules()
         ) {
-            scheduleResponses.add(scheduleMapper.toScheduleResponse(s));
+            ScheduleResponse scheduleResponse = scheduleMapper.toScheduleResponse(s);
+            scheduleResponse.setDate(LocalDate.now());
+
+            scheduleResponses.add(scheduleResponse);
         }
         return scheduleResponses;
     }
     public List<DoctorResponse> TransformDoctorResponse(List<Doctor> doctors){
-        Stream<Doctor> doctorStream = doctors.stream();
-        List<DoctorResponse> doctorResponses = doctorStream.map(doctor -> {
+        List<DoctorResponse> doctorResponses = doctors.stream().map(doctor -> {
             List<ScheduleResponse> scheduleResponses = convertScheduleOfDoctor(doctor);
+
             DoctorResponse doctorResponse = userMapper.toDoctorResponse(doctor);
             doctorResponse.setSchedules(scheduleResponses);
+
             return  doctorResponse;
         }).toList();
+
         for (int i=0;i<doctorResponses.size();i++){
             Doctor doctor = doctors.get(i);
             DoctorResponse doctorResponse = doctorResponses.get(i);
+
             doctorResponse.setId(doctor.getId());
         }
         return doctorResponses;
@@ -76,37 +90,38 @@ public class DoctorService {
         return userMapper.toDoctorResponse(doctorRepository.save(doctor));
     }
 
-    public List<DoctorResponse> GetAll(String district, String name, String city, String p) {
+    public PageResponse GetAll(String district, String name, String city, int p) throws AppException {
         List<Doctor> doctors = null;
-        System.out.println(LocalDateTime.now());
-
         int limit = 3;
-        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
-//        if (p==null){
-//            long countDoctor = doctorRepository.count();
-//            System.out.println(countDoctor);
-//            doctorPageRequest = new DoctorPageRequest((int) countDoctor,0);
-//        }
-//        if (district == null && name == null && city == null) {
-//            doctorPageRequest = new DoctorPageRequest(limit, Integer.parseInt(p));
-//            Page<Doctor> pageDoctor = doctorRepository.findAll(doctorPageRequest);
-//            doctors = pageDoctor.getContent();
-//            return TransformDoctorResponse(doctors);
-//        }
+        long count = doctorRepository.count();
+        long pageMax = (count + limit - 1)/limit;
+
+        if( p-1 < 0 || p-1 >= pageMax){
+            throw new AppException(ErrorCode.PAGE_VALID);
+        }
+
+        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, (p-1)*limit);
+
         doctors = doctorRepository.filterDoctor(district,name,city,doctorPageRequest).getContent();
+
         doctors = doctors.stream().peek(doctor -> {
-            List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), String.valueOf(LocalDateTime.now()));
+            List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), LocalDate.now().toString());
             doctor.setSchedules(schedule);
         }).toList();
-        System.out.println("doctor : " + doctors);
-        return TransformDoctorResponse(doctors);
+
+        List<DoctorResponse> doctorResponse = TransformDoctorResponse(doctors);
+
+        return PageResponse.builder().pageMax(pageMax).doctorResponse(doctorResponse).build();
     }
 
     public DoctorResponse FindDoctorResponseById(String id) throws AppException {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+
         List<ScheduleResponse> scheduleResponses = convertScheduleOfDoctor(doctor);
+
         DoctorResponse doctorResponse = userMapper.toDoctorResponse(doctor);
         doctorResponse.setSchedules(scheduleResponses);
+
         return  doctorResponse;
 
 

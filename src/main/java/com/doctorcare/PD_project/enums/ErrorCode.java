@@ -14,7 +14,7 @@ public enum ErrorCode {
     EMAIL_EXISTS(1007, "Email existed", HttpStatus.CONFLICT),
     EMAIL_NOT_BLANK(1008, "Email cannot be blank", HttpStatus.BAD_REQUEST),
     EMAIL_INVALID(1009, "Invalid email", HttpStatus.BAD_REQUEST),
-    USERNAME_EXISTS(1010, "Username existed", HttpStatus.CONFLICT),
+    USERNAME_EXISTS(1010, "Username existed", HttpStatus.BAD_REQUEST),
     USERNAME_NOT_BLANK(1011, "Username cannot be blank", HttpStatus.BAD_REQUEST),
     USERNAME_SIZE(1012, "Username must be at least 3 characters", HttpStatus.BAD_REQUEST),
     USERNAME_PATTERN(1013, "Invalid username", HttpStatus.BAD_REQUEST),
@@ -33,10 +33,13 @@ public enum ErrorCode {
     EMAIL_EXISTED(1025, "Email existed", HttpStatus.CONFLICT),
     INVALID_FORMAT(1030, "Email Invalid email format", HttpStatus.CONFLICT),
     TOKEN_EXPIRED(1026, "Token expired", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1026, "you do not permission to access", HttpStatus.FORBIDDEN),
+    UNAUTHORIZED(1033, "you do not permission to access", HttpStatus.FORBIDDEN),
     PASSWORD_EXIST(1027, "password is exit", HttpStatus.BAD_REQUEST),
-    NO_ACTIVE(1028,"Account no active please check email to active" ,HttpStatus.BAD_REQUEST ),
-    UPDATE_STATUS(1029, "Please update status is confirmed to prescription", HttpStatus.BAD_REQUEST);
+    NO_ACTIVE(1028,"Please check email to active" ,HttpStatus.OK),
+    UPDATE_STATUS(1029, "Please update status is confirmed to prescription", HttpStatus.BAD_REQUEST),
+        PAGE_VALID(1030,"input page invalid" ,HttpStatus.BAD_REQUEST ),
+        START_TIME_EXISTED(1031,"Start Time existed" , HttpStatus.BAD_REQUEST),
+    DURATION_TIME(1032,"duration start between end must be one hours",HttpStatus.BAD_REQUEST);
 
 
     ErrorCode(int code, String message, HttpStatus status) {

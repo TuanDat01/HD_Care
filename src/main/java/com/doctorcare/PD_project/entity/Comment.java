@@ -7,7 +7,6 @@ import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
 import java.util.Date;
-import java.util.List;
 
 @Entity
 @Getter
@@ -19,15 +18,10 @@ public class Comment {
     String id;
 
     String content;
-
     String img;
-
     Date date;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user;
-
-
-
 }
