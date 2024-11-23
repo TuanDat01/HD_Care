@@ -90,6 +90,7 @@ public class AuthenticationService {
                 .userResponse(userMapper.toUserResponse(user))
                 .refreshToken(refreshToken)
                 .accessToken(accessToken)
+                .role(user.getRole())
                 .build();
     }
 
