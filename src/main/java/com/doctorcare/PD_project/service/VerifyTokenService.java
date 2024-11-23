@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class VerifyTokenService {
     VerifyRepository verifyRepository;
     public void saveVerifyToken(VerifyToken verifyToken) {
+        System.out.println("da luu");
         verifyRepository.save(verifyToken);
     };
     public VerifyToken findByToken(String token) {
@@ -32,7 +33,9 @@ public class VerifyTokenService {
             throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
         User user = verifyToken.getUser();
+        System.out.println("user la:" + user);
         user.setEnable(true);
+        System.out.println(user.isEnable());
         verifyRepository.delete(verifyToken);
         return user;
     }

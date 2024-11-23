@@ -12,15 +12,19 @@ import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
+import com.doctorcare.PD_project.event.create.OnRegisterEvent;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
 import com.doctorcare.PD_project.responsitory.ScheduleRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -42,15 +46,31 @@ public class DoctorService {
     ScheduleMapper scheduleMapper;
     ScheduleRepository scheduleRepository;
     PasswordEncoder passwordEncoder;
+    ApplicationEventPublisher applicationEventPublisher;
     @Transactional
-    public UserResponse CreateDoctor(CreateUserRequest userRequest) throws AppException {
+    public UserResponse CreateDoctor(CreateUserRequest userRequest, HttpServletRequest request) throws AppException {
         if(doctorRepository.findDoctorByUsername(userRequest.getUsername()).isPresent()){
             throw new AppException(ErrorCode.USERNAME_EXISTS);
         }
+//        if(doctorRepository.findDoctorByEmail(userRequest.getEmail()).isPresent())
+//        {
+//            throw new AppException(ErrorCode.USERNAME_EXISTS);
+//
+//        }
         Doctor doctor = userMapper.toDoctor(userRequest);
         doctor.setRole(Roles.DOCTOR.name());
         doctor.setPwd(passwordEncoder.encode(userRequest.getPassword()));
         Doctor savedDoctor = doctorRepository.save(doctor);
+
+        String appUrl = request.getRequestURL().toString();
+        try {
+            applicationEventPublisher.publishEvent(new OnRegisterEvent(savedDoctor, appUrl, request.getLocale()));
+            throw new AppException(ErrorCode.NO_ACTIVE);
+
+        } catch (RuntimeException exception) {
+                System.out.println(exception.getMessage());
+            }
+
         return userMapper.toUserResponse(savedDoctor);
     }
     public List<ScheduleResponse> convertScheduleOfDoctor(Doctor doctor){
@@ -90,7 +110,7 @@ public class DoctorService {
         return userMapper.toDoctorResponse(doctorRepository.save(doctor));
     }
 
-    public PageResponse GetAll(String district, String name, String city, int p) throws AppException {
+    public PageResponse GetAll(String district, String name, String city, int p,String order) throws AppException {
         List<Doctor> doctors = null;
         int limit = 3;
         long count = doctorRepository.count();
@@ -99,8 +119,15 @@ public class DoctorService {
         if( p-1 < 0 || p-1 >= pageMax){
             throw new AppException(ErrorCode.PAGE_VALID);
         }
-
-        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, (p-1)*limit);
+        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(
+                limit,
+                (p - 1) * limit,
+                order != null ?
+                        ("asc".equalsIgnoreCase(order) ?
+                                Sort.by(Sort.Order.asc("price")) :
+                                Sort.by(Sort.Order.desc("price")))
+                        : Sort.unsorted() // No sorting if `order` is null
+        );
 
         doctors = doctorRepository.filterDoctor(district,name,city,doctorPageRequest).getContent();
 

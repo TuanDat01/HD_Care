@@ -6,8 +6,10 @@ import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.AuthenticationResponse;
 import com.doctorcare.PD_project.dto.response.IntrospectResponse;
 import com.doctorcare.PD_project.dto.response.RefreshTokenResponse;
+import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.AuthenticationService;
+import com.doctorcare.PD_project.service.VerifyTokenService;
 import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     AuthenticationService authenticationService;
+    VerifyTokenService verifyTokenService;
 
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) throws AppException {
@@ -34,6 +37,7 @@ public class AuthenticationController {
 
         return ApiResponse.<AuthenticationResponse>builder()
                 .result(result)
+                .message("Login successfully")
                 .build();
     }
 
@@ -53,7 +57,13 @@ public class AuthenticationController {
                 .result(result)
                 .build();
     }
-
+    @GetMapping("/verify")
+    public ApiResponse<User> verifyAccount(@RequestParam(value = "token") String token) throws AppException {
+        if(token == null) {
+            throw new RuntimeException("Token is null");
+        }
+        return ApiResponse.<User>builder().result(verifyTokenService.updateAndDelete(token)).build();
+    }
     @PostMapping("/refreshToken")
     ApiResponse<RefreshTokenResponse> refresh(@RequestBody IntrospectRequest request) throws AppException, ParseException, JOSEException {
         return ApiResponse.<RefreshTokenResponse>builder().result(authenticationService.getAccessToken(request)).build();

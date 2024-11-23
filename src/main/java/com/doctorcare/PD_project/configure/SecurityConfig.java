@@ -32,6 +32,7 @@ public class SecurityConfig {
             "/appointment/*",
             "/appointment",
             "/doctor/*",
+            "/doctor"
 
     };
 
@@ -47,9 +48,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request -> {
             try {
                 request
-                        .requestMatchers(DOCTOR_URL).hasRole("DOCTOR")
+                        .requestMatchers(DOCTOR_URL).permitAll()
                         .requestMatchers(PUBLIC_URL).permitAll()
-                        .anyRequest().authenticated()
+                        .anyRequest().permitAll()
                 ;
             } catch (Exception e) {
                 throw new RuntimeException(e);

@@ -38,13 +38,6 @@ public class PatientController {
         patientService.CreatePatient(userRequest,httpServletRequest);
         return ApiResponse.<Void>builder().build();
     }
-    @GetMapping("/verify")
-    public ApiResponse<User> verifyAccount(@RequestParam(value = "token") String token) throws AppException {
-        if(token == null) {
-            throw new RuntimeException("Token is null");
-        }
-        return ApiResponse.<User>builder().result(verifyTokenService.updateAndDelete(token)).build();
-    }
     @PutMapping
     public ApiResponse<PatientRequest> updatePatient(@Valid @RequestBody PatientRequest patientRequest)
             throws AppException, IOException {
