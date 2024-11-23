@@ -81,7 +81,7 @@ public class SendEmailService {
 
     @Async
     public void sendActive(String token, OnRegisterEvent event) throws MessagingException {
-        String url = event.getAppUrl() + "/verify?token=" + token;
+        String url = "http://localhost:8082/api/v1/auth/verify?token=" + token;
         String subject = String.format("Xác nhận tài khoản" +
                 "<p>Chao ban: <strong>%s</strong></p>" +
                 "<p>Xin vui long kich hoat tai khoan : <a href = '%s'>o day</a></p>", event.getUser().getName(), url);

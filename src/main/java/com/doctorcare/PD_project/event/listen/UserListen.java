@@ -24,6 +24,7 @@ public class UserListen {
     public void handleOnRegisterEvent(OnRegisterEvent event) throws MessagingException {
         String token = UUID.randomUUID().toString();
         VerifyToken verifyToken1 = new VerifyToken(token,event.getUser());
+        System.out.println(event.getUser());
         verifyTokenService.saveVerifyToken(verifyToken1);
         sendEmailService.sendActive(token, event);
 
