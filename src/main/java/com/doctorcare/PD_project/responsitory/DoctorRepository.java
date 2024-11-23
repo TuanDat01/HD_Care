@@ -21,9 +21,11 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
             "(:city is null or d.city = :city) "+
             "AND (:district is null or d.district = :district) "+
             "AND (:name is null or d.name like %:name%)" +
-            "order by d.name"
-    )
-    Page<Doctor> filterDoctor(@Param("district") String district, @Param("name") String name, @Param("city") String city,Pageable pageable);
+            "order by d.name")
+    Page<Doctor> filterDoctor(@Param("district") String district,
+                              @Param("name") String name,
+                              @Param("city") String city,
+                              Pageable pageable);
 
 
     @Query("SELECT d from Doctor  d " +
@@ -35,4 +37,5 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
     long count();
 
     Optional<Doctor> findDoctorByUsername(String username);
+    Optional<Doctor> findDoctorByEmail(String email);
 }

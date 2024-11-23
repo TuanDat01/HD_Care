@@ -32,6 +32,7 @@ public class SecurityConfig {
             "/appointment/*",
             "/appointment",
             "/doctor/*",
+            "/doctor"
 
     };
 

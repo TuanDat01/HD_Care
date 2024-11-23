@@ -7,6 +7,7 @@ import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.DoctorService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +24,8 @@ public class DoctorController {
     DoctorService doctorService;
 
     @PostMapping
-    public ApiResponse<UserResponse> CreateDoctor(@Valid @RequestBody CreateUserRequest userRequest) throws AppException {
-        return ApiResponse.<UserResponse>builder().result(doctorService.CreateDoctor(userRequest)).build();
+    public ApiResponse<UserResponse> CreateDoctor(@Valid @RequestBody CreateUserRequest userRequest, HttpServletRequest request) throws AppException {
+        return ApiResponse.<UserResponse>builder().result(doctorService.CreateDoctor(userRequest,request)).build();
     }
     @GetMapping("/{id}")
     public ApiResponse<DoctorResponse> FindDoctor(@PathVariable String id) throws AppException {
@@ -40,8 +41,9 @@ public class DoctorController {
     public ApiResponse<PageResponse> getAll(@RequestParam(name = "name", required = false) String name,
                                                     @RequestParam(name = "district", required = false) String district,
                                                     @RequestParam(name = "city",required = false) String city,
-                                                    @RequestParam(name = "page",required = false) int page) throws AppException {
-       return ApiResponse.<PageResponse>builder().result(doctorService.GetAll(district, name, city,page)).build();
+                                                    @RequestParam(name = "page",required = false) int page,
+                                                    @RequestParam(name = "order",required = false) String order) throws AppException {
+       return ApiResponse.<PageResponse>builder().result(doctorService.GetAll(district, name, city,page,order)).build();
     }
 
     @GetMapping("{id}/review")
