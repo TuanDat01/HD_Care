@@ -127,13 +127,10 @@ public class ScheduleService {
                 String[] parts = s.split("-");
 
                 if (parts.length == 2) {
-                    for (ScheduleResponse scheduleResponse: scheduleResponses
-                         ) {
-
+                    for (ScheduleResponse scheduleResponse: scheduleResponses) {
                         if (Objects.equals(parts[0], scheduleResponse.getStart())){
                             throw new RuntimeException("START_TIME_EXISTED");
                         }
-
                     }
                     LocalDate localDate = LocalDate.parse(createSchedule.getDate()); // Parse từ chuỗi
                     LocalTime startLocalTime = LocalTime.parse(parts[0]); // Parse từ chuỗi

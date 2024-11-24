@@ -34,19 +34,19 @@ springdoc:
     path : /api-docs
   swagger-ui:
     enabled: true
-logging:
-  level:
-    root: WARN
-    org:
-      hibernate:
-        SQL: TRACE
-        type:
-          descriptor:
-            sql:
-              BasicBinder: TRACE
-        orm:
-          jdbc:
-          bind: TRACE
+#logging:
+#  level:
+#    root: WARN
+#    org:
+#      hibernate:
+#        SQL: TRACE
+#        type:
+#          descriptor:
+#            sql:
+#              BasicBinder: TRACE
+#        orm:
+#          jdbc:
+#          bind: TRACE
 
 server:
   port: 8082
