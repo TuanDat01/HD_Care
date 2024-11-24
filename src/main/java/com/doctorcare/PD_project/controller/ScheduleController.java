@@ -7,7 +7,6 @@ import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.ScheduleService;
-import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -41,8 +40,11 @@ public class ScheduleController {
         return ApiResponse.<List<ScheduleResponse>>builder().result(scheduleService.getSchedule(id,date)).build();
     }
     @PostMapping("/delete-schedules")
-    public ApiResponse<Void> deleteSchedule(@RequestParam(name = "idDoctor",required = true) String id, @Valid @RequestBody List<Schedule> schedule) throws AppException {
-        return scheduleService.deleteSchedule(id,schedule);
+    public ApiResponse<Object> deleteSchedule(@RequestParam(name = "idDoctor",required = true) String id,
+                                              @RequestBody List<Schedule> listId) throws AppException {
+        return ApiResponse.builder()
+                .message("Delete")
+                .result(scheduleService.deleteSchedule(id,listId)).build();
     }
     @GetMapping("/{id}")
     public ApiResponse<Schedule> getScheduleById(@PathVariable String id) throws AppException {
