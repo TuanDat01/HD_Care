@@ -108,14 +108,18 @@ public class ScheduleService {
     public ApiResponse<Void> deleteSchedule(String id, List<Schedule> schedule) throws AppException {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
         for (Schedule schedule1 : schedule){
-            if (doctor.getSchedules().contains(schedule1))
+            Schedule schedule2 = scheduleRepository.findById(schedule1.getId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
+            if (doctor.getSchedules().contains(schedule2))
             {
+                System.out.println("Innn");
                 List<Appointment> appointmentRequests =  appointmentRepository.findAppointmentBySchedule(schedule1);
                 for (Appointment appointmentRequest : appointmentRequests){
                     appointmentRequest.setStatus(AppointmentStatus.CANCELLED.toString());
                 }
             }
-            doctor.getSchedules().remove(schedule1);
+            doctor.getSchedules().remove(schedule2);
+            scheduleRepository.deleteById(schedule1.getId());
+            System.out.println(doctor.getSchedules());
         }
         return null;
     }

@@ -26,7 +26,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             "join d.schedules s" +
             " where d.id = :doctorId and" +
             " (:date IS NULL or FUNCTION('DATE', s.end) = :date)" +
-            " and a.schedule.id = s.id and (:status is null or a.status=:status)")
+            " and (:status is null or a.status=:status)")
     List<Appointment> findByDoctor(@Param("doctorId") String doctorId,@Param("date") String date,@Param("status") String status);
     Appointment findAllByDoctorId(String doctorId);
     @Query("select a from Appointment a " +

@@ -120,9 +120,11 @@ public class AppointmentService {
     }
     public List<AppointmentRequest> getAppointmentByDoctor(String id,String date,String status) {
         System.out.println(id);
+        System.out.println(status);
         List<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status);
+        System.out.println("appointment :" + appointmentList);
         List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
-            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
+            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now()) && Objects.equals(appointment.getStatus(), AppointmentStatus.CONFIRMED.toString())) {
                 appointment.setStatus(AppointmentStatus.COMPLETED.toString());
                 appointmentRepository.save(appointment);
 
