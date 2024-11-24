@@ -18,4 +18,5 @@ public class CreateSchedule {
 
     String date;
     List<String> schedules;
+    String idDoctor;
 }

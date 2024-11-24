@@ -2,10 +2,7 @@ package com.doctorcare.PD_project.controller;
 
 import com.doctorcare.PD_project.dto.request.AuthenticationRequest;
 import com.doctorcare.PD_project.dto.request.IntrospectRequest;
-import com.doctorcare.PD_project.dto.response.ApiResponse;
-import com.doctorcare.PD_project.dto.response.AuthenticationResponse;
-import com.doctorcare.PD_project.dto.response.IntrospectResponse;
-import com.doctorcare.PD_project.dto.response.RefreshTokenResponse;
+import com.doctorcare.PD_project.dto.response.*;
 import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.AuthenticationService;
@@ -57,6 +54,7 @@ public class AuthenticationController {
                 .result(result)
                 .build();
     }
+
     @GetMapping("/verify")
     public ApiResponse<User> verifyAccount(@RequestParam(value = "token") String token) throws AppException {
         if(token == null) {

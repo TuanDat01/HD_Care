@@ -48,5 +48,7 @@ public interface UserMapper {
     @Mapping(source = "pwd",target = "password")
     UserResponse toUserResponse(Patient patient);
 
+    @Mapping(source = "pwd",target = "password")
+    UserResponse toUserResponse(Doctor doctor);
 
 }
