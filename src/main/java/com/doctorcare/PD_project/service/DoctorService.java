@@ -168,12 +168,16 @@ public class DoctorService {
 
     }
 
-    public DoctorResponse getDoctor() throws AppException {
+    public UserResponse getDoctor() throws AppException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        System.out.println("username" + username);
 
-        Doctor doctor  = doctorRepository.findDoctorByUsername(username)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+        Doctor doctor  = doctorRepository.findDoctorByUsername(username).
+                orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
 
-        return userMapper.toDoctorResponse(doctor);
+        UserResponse userResponse = userMapper.toUserResponse(doctor);
+        userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
+
+        return userResponse;
     }
 }

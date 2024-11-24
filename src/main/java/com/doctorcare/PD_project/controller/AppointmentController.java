@@ -20,6 +20,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,23 +66,29 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor-appointments")
-    public ApiResponse<List<AppointmentRequest>> getAppointmentByDoctor(@RequestParam(name = "doctorId") String id,
+    public ApiResponse<Page<AppointmentRequest>> getAppointmentByDoctor(@RequestParam(name = "doctorId") String id,
                                                                         @RequestParam(name = "date",required = false) String date,
-                                                                        @RequestParam(name = "status",required = false) String status)
-    {
-        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.getAppointmentByDoctor(id,date,status)).build();
+                                                                        @RequestParam(name = "status",required = false) String status,
+                                                                        @RequestParam(name = "page", required = false) Integer page) throws AppException {
+        return ApiResponse.<Page<AppointmentRequest>>builder().result(appointmentService.getAppointmentByDoctor(id, date, status,page - 1)).build();
     }
 
     @PutMapping("/doctor-appointment/{id}/status")
     public ApiResponse<Appointment> getAppointmentByDoctorAndId(@PathVariable String id, @RequestBody UpdateStatusAppointment updateStatusAppointment) throws AppException {
         return ApiResponse.<Appointment>builder().result(appointmentService.getAppointmentByDoctorAndId(id, updateStatusAppointment)).build();
-
     }
 
     @GetMapping("/doctor-appointment/time")
-    public ApiResponse<List<AppointmentRequest>> filterAppointment(@RequestParam (name = "doctorId") String id, @RequestParam (name = "week", required = false) String week, @RequestParam(name = "month",required = false) String month){
-        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.filterAppointment(id,week,month)).build();
+    public ApiResponse<Page<AppointmentRequest>> filterAppointment(@RequestParam (name = "doctorId") String id,
+                                                                   @RequestParam (name = "week", required = false) String week,
+                                                                   @RequestParam(name = "month", required = false) String month,
+                                                                   @RequestParam(name = "status", required = false) String status,
+                                                                   @RequestParam (name = "page", required = true) Integer page){
+        return ApiResponse.<Page<AppointmentRequest>>builder()
+                .result(appointmentService.filterAppointment(id, week, month, status, page - 1))
+                .build();
     }
+
     @GetMapping("/doctor-appointment/manage-patient")
     public ApiResponse<List<ManagePatient>> getPatientOfDoctor(@RequestParam(name = "doctorId")String id){
         return ApiResponse.<List<ManagePatient>>builder().result(appointmentService.getPatientOfDoctor(id)).build();

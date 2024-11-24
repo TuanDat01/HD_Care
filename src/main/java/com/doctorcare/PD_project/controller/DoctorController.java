@@ -58,8 +58,7 @@ public class DoctorController {
     }
 
     @GetMapping("/my-info")
-    public ApiResponse<DoctorResponse> getDoctorById() throws AppException {
-        return ApiResponse.<DoctorResponse>builder().result(doctorService.getDoctor()).build();
+    public ApiResponse<UserResponse> getDoctorById() throws AppException {
+        return ApiResponse.<UserResponse>builder().result(doctorService.getDoctor()).build();
     }
-
 }
