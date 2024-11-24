@@ -8,9 +8,7 @@ import com.doctorcare.PD_project.dto.response.PageResponse;
 import com.doctorcare.PD_project.dto.response.ScheduleResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
-import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.entity.Schedule;
-import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
@@ -24,21 +22,16 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.print.Doc;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -113,7 +106,7 @@ public class DoctorService {
         return userMapper.toDoctorResponse(doctorRepository.save(doctor));
     }
 
-    public PageResponse GetAll(String district, String name, String city, int p,String order) throws AppException {
+    public PageResponse<DoctorResponse> GetAll(String district, String name, String city, int p,String order) throws AppException {
         List<Doctor> doctors = null;
         int limit = 3;
         long count = doctorRepository.count();
@@ -141,7 +134,7 @@ public class DoctorService {
 
         List<DoctorResponse> doctorResponse = TransformDoctorResponse(doctors);
 
-        return PageResponse.builder().pageMax(pageMax).doctorResponse(doctorResponse).build();
+        return PageResponse.<DoctorResponse>builder().pageMax(pageMax).typeResponse(doctorResponse).build();
     }
 
     public DoctorResponse FindDoctorResponseById(String id) throws AppException {

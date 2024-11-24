@@ -12,7 +12,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class PageResponse {
+public class PageResponse<T> {
     long pageMax;
-    List<DoctorResponse> doctorResponse;
+    List<T> typeResponse;
 }

@@ -68,6 +68,7 @@ public class ScheduleService {
                 ).toList();
 
         doctorResponse.setSchedules(scheduleResponse);
+        
         return doctorResponse;
     }
 

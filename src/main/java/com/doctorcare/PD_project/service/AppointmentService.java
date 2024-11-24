@@ -1,8 +1,8 @@
 package com.doctorcare.PD_project.service;
 
 import com.doctorcare.PD_project.dto.request.*;
-import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.ManagePatient;
+import com.doctorcare.PD_project.dto.response.PageResponse;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.enums.ErrorCode;
@@ -10,9 +10,6 @@ import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.AppointmentMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.AppointmentRepository;
-import com.doctorcare.PD_project.responsitory.DoctorRepository;
-import com.doctorcare.PD_project.responsitory.PatientRepository;
-import com.doctorcare.PD_project.responsitory.ScheduleRepository;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfPCell;
@@ -24,19 +21,17 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.time.temporal.TemporalAdjuster;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.List;
@@ -115,21 +110,13 @@ public class AppointmentService {
     public AppointmentRequest getAppointmentById(String id) throws AppException {
         return appointmentMapper.toAppointmentRequest(appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT)));
     }
-    public List<AppointmentRequest> getAppointmentByDoctor(
+    public Page<AppointmentRequest> getAppointmentByDoctor(
             String id,String date,String status,int page) throws AppException {
 
-        int limit = 5;
-        long count = appointmentRepository.count();
+        Pageable paging = PageRequest.of(page-1, 5);
 
-        long pageMax = (count + limit - 1)/limit;
-        System.out.println("pageMax : " + pageMax);
-
-        if (page - 1 < 0 && page > pageMax)
-            throw new AppException(ErrorCode.PAGE_VALID);
-
-        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, page/limit)
-
-        List<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status);
+        System.out.println("date " + date);
+        Page<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status,paging);
         System.out.println("appointment :" + appointmentList);
         List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
             if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now()) && Objects.equals(appointment.getStatus(), AppointmentStatus.CONFIRMED.toString())) {
@@ -138,7 +125,7 @@ public class AppointmentService {
 
             }
         }).toList();
-        return changeToListRequest(appointmentList);
+        return appointmentList.map(appointmentMapper::toAppointmentRequest);
     }
     @Transactional
     public Appointment getAppointmentByDoctorAndId(String id, UpdateStatusAppointment updateStatusAppointment) throws AppException { //idDoctor

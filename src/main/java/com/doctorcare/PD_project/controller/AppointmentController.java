@@ -6,6 +6,7 @@ import com.doctorcare.PD_project.dto.request.DoctorScheduleRequest;
 import com.doctorcare.PD_project.dto.request.UpdateStatusAppointment;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.ManagePatient;
+import com.doctorcare.PD_project.dto.response.PageResponse;
 import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
@@ -20,6 +21,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -65,12 +67,11 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor-appointments")
-    public ApiResponse<List<AppointmentRequest>> getAppointmentByDoctor(@RequestParam(name = "doctorId") String id,
+    public ApiResponse<Page<AppointmentRequest>> getAppointmentByDoctor(@RequestParam(name = "doctorId") String id,
                                                                         @RequestParam(name = "date",required = false) String date,
                                                                         @RequestParam(name = "status",required = false) String status,
-                                                                        @RequestParam(name = "page", required = false) int page)
-    {
-        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.getAppointmentByDoctor(id,date,status,page)).build();
+                                                                        @RequestParam(name = "page", required = false) int page) throws AppException {
+        return ApiResponse.<Page<AppointmentRequest>>builder().result(appointmentService.getAppointmentByDoctor(id,date,status,page)).build();
     }
 
     @PutMapping("/doctor-appointment/{id}/status")
