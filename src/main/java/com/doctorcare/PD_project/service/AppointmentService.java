@@ -119,8 +119,6 @@ public class AppointmentService {
         return appointmentMapper.toAppointmentRequest(appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT)));
     }
     public List<AppointmentRequest> getAppointmentByDoctor(String id,String date,String status) {
-        System.out.println(id);
-        System.out.println(status);
         List<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status);
         System.out.println("appointment :" + appointmentList);
         List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {

@@ -118,7 +118,7 @@ public class ScheduleService {
                 }
             }
             doctor.getSchedules().remove(schedule2);
-            scheduleRepository.deleteById(schedule1.getId());
+//            scheduleRepository.deleteById(schedule1.getId());
             System.out.println(doctor.getSchedules());
         }
         return null;
