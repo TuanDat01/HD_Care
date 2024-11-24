@@ -1,9 +1,6 @@
 package com.doctorcare.PD_project.service;
 
-import com.doctorcare.PD_project.dto.request.AppointmentRequest;
-import com.doctorcare.PD_project.dto.request.AppointmentV2Request;
-import com.doctorcare.PD_project.dto.request.PatientRequest;
-import com.doctorcare.PD_project.dto.request.UpdateStatusAppointment;
+import com.doctorcare.PD_project.dto.request.*;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.ManagePatient;
 import com.doctorcare.PD_project.entity.*;
@@ -118,9 +115,20 @@ public class AppointmentService {
     public AppointmentRequest getAppointmentById(String id) throws AppException {
         return appointmentMapper.toAppointmentRequest(appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT)));
     }
-    public List<AppointmentRequest> getAppointmentByDoctor(String id,String date,String status) {
-        System.out.println(id);
-        System.out.println(status);
+    public List<AppointmentRequest> getAppointmentByDoctor(
+            String id,String date,String status,int page) throws AppException {
+
+        int limit = 5;
+        long count = appointmentRepository.count();
+
+        long pageMax = (count + limit - 1)/limit;
+        System.out.println("pageMax : " + pageMax);
+
+        if (page - 1 < 0 && page > pageMax)
+            throw new AppException(ErrorCode.PAGE_VALID);
+
+        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(limit, page/limit)
+
         List<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status);
         System.out.println("appointment :" + appointmentList);
         List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {

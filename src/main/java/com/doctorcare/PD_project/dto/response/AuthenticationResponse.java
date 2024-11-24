@@ -14,5 +14,5 @@ public class AuthenticationResponse {
     String accessToken;
     String refreshToken;
     UserResponse userResponse;
-    String role;
+    String roles;
 }

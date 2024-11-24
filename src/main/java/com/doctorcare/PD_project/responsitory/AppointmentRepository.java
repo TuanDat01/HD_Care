@@ -4,6 +4,8 @@ import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.ManagePatient;
 import com.doctorcare.PD_project.entity.*;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,13 +23,17 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             "and (:startDate is null and :endDate is null or FUNCTION('DATE', s.start) between FUNCTION('DATE', :startDate) and FUNCTION('DATE', :endDate)) " +
             " order by s.start desc ")
     List<Appointment> findAllByPatientId(@Param("idPatient") String id,@Param("startDate") String startDate,@Param("endDate") String endDate);
+
     @Query("select a from Appointment a" +
             " join a.doctor d " +
             "join d.schedules s" +
             " where d.id = :doctorId and" +
             " (:date IS NULL or FUNCTION('DATE', s.end) = :date)" +
             " and (:status is null or a.status=:status)")
-    List<Appointment> findByDoctor(@Param("doctorId") String doctorId,@Param("date") String date,@Param("status") String status);
+    Page<List<Appointment>> findByDoctor(@Param("doctorId") String doctorId,
+                                         @Param("date") String date,
+                                         @Param("status") String status,
+                                         Pageable pageable);
     Appointment findAllByDoctorId(String doctorId);
     @Query("select a from Appointment a " +
             "join a.schedule s " +
@@ -45,8 +51,10 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             " order by MAX(a.schedule.end) desc")
     List<ManagePatient> getPatientOfDoctor(@Param("doctorId") String id);
 
+    @Override
+    long count();
 
-//    @Query("select a from Appointment a where" +
+    //    @Query("select a from Appointment a where" +
 //            " a.doctor = :doctor and" +
 //            " a.status = :status")
 //    List<Appointment> findAppointmentByStatus(@Param("status") String status, @Param("doctor")Doctor doctor);

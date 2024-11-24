@@ -124,9 +124,20 @@ public class ScheduleService {
         return null;
     }
 
-    public List<Schedule> convertToSaveSchedule(CreateSchedule createSchedule){
+    public List<Schedule> convertToSaveSchedule(CreateSchedule createSchedule) throws AppException {
         List<Schedule> schedules = scheduleRepository.findScheduleByDate(createSchedule.getDate());
-        List<ScheduleResponse> scheduleResponses = schedules.stream().map(scheduleMapper::toScheduleResponse).toList();
+        Doctor doctor = doctorRepository.findById(createSchedule.getIdDoctor())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+
+// Danh sách lịch từ Doctor
+        List<Schedule> filter = doctor.getSchedules();
+
+// Giữ lại các phần tử trong filter nếu chúng tồn tại trong schedules
+        List<Schedule> filteredSchedules = schedules.stream()
+                .filter(schedule -> filter.stream().anyMatch(schedule1 -> schedule1.equals(schedule)))
+                .toList();
+
+        List<ScheduleResponse> scheduleResponses = filteredSchedules.stream().map(scheduleMapper::toScheduleResponse).toList();
         return createSchedule.getSchedules().stream().map(s -> {
                 String[] parts = s.split("-");
 

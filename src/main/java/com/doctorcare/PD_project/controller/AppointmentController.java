@@ -67,9 +67,10 @@ public class AppointmentController {
     @GetMapping("/doctor-appointments")
     public ApiResponse<List<AppointmentRequest>> getAppointmentByDoctor(@RequestParam(name = "doctorId") String id,
                                                                         @RequestParam(name = "date",required = false) String date,
-                                                                        @RequestParam(name = "status",required = false) String status)
+                                                                        @RequestParam(name = "status",required = false) String status,
+                                                                        @RequestParam(name = "page", required = false) int page)
     {
-        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.getAppointmentByDoctor(id,date,status)).build();
+        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.getAppointmentByDoctor(id,date,status,page)).build();
     }
 
     @PutMapping("/doctor-appointment/{id}/status")
