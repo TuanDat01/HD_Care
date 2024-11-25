@@ -2,6 +2,7 @@ package com.doctorcare.PD_project.service;
 
 
 import com.doctorcare.PD_project.dto.request.CreateSchedule;
+import com.doctorcare.PD_project.dto.request.DeleteScheduleRequest;
 import com.doctorcare.PD_project.dto.request.DoctorScheduleRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
@@ -106,8 +107,9 @@ public class ScheduleService {
         return scheduleRepository.getInfoSchedule(idSchedule,idDoctor);
     }
     @Transactional
-    public ApiResponse<Void> deleteSchedule(String id, List<Schedule> schedule) throws AppException {
+    public ApiResponse<Void> deleteSchedule(String id, DeleteScheduleRequest scheduleRequest) throws AppException {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+        List<Schedule> schedule = scheduleRequest.getScheduleList();
         for (Schedule schedule1 : schedule){
             Schedule schedule2 = scheduleRepository.findById(schedule1.getId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
             if (doctor.getSchedules().contains(schedule2))
@@ -116,10 +118,12 @@ public class ScheduleService {
                 List<Appointment> appointmentRequests =  appointmentRepository.findAppointmentBySchedule(schedule1);
                 for (Appointment appointmentRequest : appointmentRequests){
                     appointmentRequest.setStatus(AppointmentStatus.CANCELLED.toString());
+                    appointmentRequest.setNote(scheduleRequest.getNote());
                 }
             }
             doctor.getSchedules().remove(schedule2);
-            scheduleRepository.deleteById(schedule1.getId());
+
+//            scheduleRepository.deleteById(schedule1.getId());
             System.out.println(doctor.getSchedules());
         }
         return null;
@@ -129,10 +133,10 @@ public class ScheduleService {
         List<Schedule> schedules = scheduleRepository.findScheduleByDate(createSchedule.getDate());
         Doctor doctor = doctorRepository.findById(createSchedule.getIdDoctor())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
-
+        System.out.println(doctor.getUsername());
 // Danh sách lịch từ Doctor
         List<Schedule> filter = doctor.getSchedules();
-
+        System.out.println(filter.toString());
 // Giữ lại các phần tử trong filter nếu chúng tồn tại trong schedules
         List<Schedule> filteredSchedules = schedules.stream()
                 .filter(schedule -> filter.stream().anyMatch(schedule1 -> schedule1.equals(schedule)))
@@ -143,13 +147,10 @@ public class ScheduleService {
                 String[] parts = s.split("-");
 
                 if (parts.length == 2) {
-                    for (ScheduleResponse scheduleResponse: scheduleResponses
-                         ) {
-
+                    for (ScheduleResponse scheduleResponse: scheduleResponses) {
                         if (Objects.equals(parts[0], scheduleResponse.getStart())){
                             throw new RuntimeException("START_TIME_EXISTED");
                         }
-
                     }
                     LocalDate localDate = LocalDate.parse(createSchedule.getDate()); // Parse từ chuỗi
                     LocalTime startLocalTime = LocalTime.parse(parts[0]); // Parse từ chuỗi

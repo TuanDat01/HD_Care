@@ -29,18 +29,33 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             "join a.schedule s" +
             " where d.id = :doctorId and" +
             " (:date IS NULL or FUNCTION('DATE', s.end) = :date)" +
-            " and (:status is null or a.status=:status)")
+            " and (:status is null or a.status=:status)" +
+            " and (:name is null or a.patient.name like %:name%)")
     Page<Appointment> findByDoctor(@Param("doctorId") String doctorId,
                                          @Param("date") String date,
                                          @Param("status") String status,
+                                         @Param("name") String name,
                                          Pageable pageable);
+
     Appointment findAllByDoctorId(String doctorId);
+
     @Query("select a from Appointment a " +
             "join a.schedule s " +
             "join a.doctor d " +
-            "where (:startDate is null and :endDate is null or FUNCTION('DATE', s.start) between FUNCTION('DATE', :startDate) and FUNCTION('DATE', :endDate)) " +
-            "and d.id = :doctorId")
-    List<Appointment> filterAppointment(@Param("doctorId") String id, @Param("startDate") String startDate,@Param("endDate") String endDate);
+            "where (:startDate is null and :endDate is null or FUNCTION('DATE', s.start) " +
+            "between FUNCTION('DATE', :startDate) and FUNCTION('DATE', :endDate)) " +
+            "and d.id = :doctorId " +
+            "and (:status is null or a.status = :status)" +
+            " and(:name is null or a.patient.name like %:name%)")
+    Page<Appointment> filterAppointment(
+            @Param("doctorId") String id,
+            @Param("startDate") String startDate,
+            @Param("endDate") String endDate,
+            @Param("status") String status,
+            @Param("name") String name,
+            Pageable pageable
+    );
+
 
     List<Appointment> findAppointmentBySchedule(Schedule schedule);
 

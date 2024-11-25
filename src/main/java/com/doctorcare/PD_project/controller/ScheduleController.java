@@ -1,6 +1,7 @@
 package com.doctorcare.PD_project.controller;
 
 import com.doctorcare.PD_project.dto.request.CreateSchedule;
+import com.doctorcare.PD_project.dto.request.DeleteScheduleRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.dto.response.ScheduleResponse;
@@ -41,7 +42,7 @@ public class ScheduleController {
     }
     @PostMapping("/delete-schedules")
     public ApiResponse<Object> deleteSchedule(@RequestParam(name = "idDoctor",required = true) String id,
-                                              @RequestBody List<Schedule> listId) throws AppException {
+                                              @RequestBody DeleteScheduleRequest listId) throws AppException {
         return ApiResponse.builder()
                 .message("Delete")
                 .result(scheduleService.deleteSchedule(id,listId)).build();

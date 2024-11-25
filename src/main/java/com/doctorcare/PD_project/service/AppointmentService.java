@@ -2,7 +2,6 @@ package com.doctorcare.PD_project.service;
 
 import com.doctorcare.PD_project.dto.request.*;
 import com.doctorcare.PD_project.dto.response.ManagePatient;
-import com.doctorcare.PD_project.dto.response.PageResponse;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.enums.ErrorCode;
@@ -90,6 +89,31 @@ public class AppointmentService {
         return appointmentMapper.toAppointmentRequest(savedAppointment);
     }
 
+    public Map<String,String> convertDate(String date, String month){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        Map<String,String> dat1e = new HashMap<>();
+        LocalDate start, end;
+        if (date != null) {
+            LocalDate givenWeek = LocalDate.parse(date, formatter);
+            // Lấy ngày bắt đầu và kết thúc tuần
+            start = givenWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            end = givenWeek.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        } else if (month != null) {
+            LocalDate givenMonth = LocalDate.parse(month,formatter);
+            YearMonth yearMonth = YearMonth.from(givenMonth);
+            // Lấy ngày bắt đầu và kết thúc của tháng
+            start = yearMonth.atDay(1);
+            end = yearMonth.atEndOfMonth();
+        } else {
+            // Nếu cả date và month đều null
+            System.out.println("Date or month must be provided.");
+            return null;
+        }
+        dat1e.put("start",start.toString());
+        dat1e.put("end",end.toString());
+        return dat1e;
+    }
+
     public List<AppointmentRequest> findAllByPatientId(String id,String date, String month) {
         Map<String,String> date1 = convertDate(date,month);
         List<Appointment> appointmentList =  appointmentRepository.findAllByPatientId(id, date1!=null?date1.get("start"):null, date1!=null?date1.get("end"):null);
@@ -110,23 +134,14 @@ public class AppointmentService {
     public AppointmentRequest getAppointmentById(String id) throws AppException {
         return appointmentMapper.toAppointmentRequest(appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT)));
     }
-    public Page<AppointmentRequest> getAppointmentByDoctor(
-            String id,String date,String status,int page) throws AppException {
 
-        Pageable paging = PageRequest.of(page-1, 5);
-
-        System.out.println("date " + date);
-        Page<Appointment> appointmentList =  appointmentRepository.findByDoctor(id,date,status,paging);
-        System.out.println("appointment :" + appointmentList);
-        List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
-            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now()) && Objects.equals(appointment.getStatus(), AppointmentStatus.CONFIRMED.toString())) {
-                appointment.setStatus(AppointmentStatus.COMPLETED.toString());
-                appointmentRepository.save(appointment);
-
-            }
-        }).toList();
+    public Page<AppointmentRequest> getAppointmentByDoctor(String id, String date, String status, Integer page,String name) throws AppException {
+        int size = 5;
+        Pageable pageable = PageRequest.of(page, size);
+        Page<Appointment> appointmentList =  appointmentRepository.findByDoctor(id, date, status,name, pageable);
         return appointmentList.map(appointmentMapper::toAppointmentRequest);
     }
+
     @Transactional
     public Appointment getAppointmentByDoctorAndId(String id, UpdateStatusAppointment updateStatusAppointment) throws AppException { //idDoctor
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT));
@@ -138,6 +153,7 @@ public class AppointmentService {
         System.out.println(appointment);
         return appointment;
     }
+
     public List<ManagePatient> getPatientOfDoctor (String id){
         return appointmentRepository.getPatientOfDoctor(id);
     }
@@ -224,39 +240,27 @@ public class AppointmentService {
             throw new RuntimeException("Có lỗi xảy ra khi tạo PDF: " + e.getMessage(), e);
         }
     }
-    public Map<String,String> convertDate(String date, String month){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        Map<String,String> dat1e = new HashMap<>();
-        LocalDate start, end;
-            if (date != null) {
-                LocalDate givenWeek = LocalDate.parse(date, formatter);
-                // Lấy ngày bắt đầu và kết thúc tuần
-                start = givenWeek.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-                end = givenWeek.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
-            } else if (month != null) {
-                LocalDate givenMonth = LocalDate.parse(month,formatter);
-                YearMonth yearMonth = YearMonth.from(givenMonth);
-                // Lấy ngày bắt đầu và kết thúc của tháng
-                start = yearMonth.atDay(1);
-                end = yearMonth.atEndOfMonth();
-            } else {
-                // Nếu cả date và month đều null
-                System.out.println("Date or month must be provided.");
-                return null;
-            }
-            dat1e.put("start",start.toString());
-            dat1e.put("end",end.toString());
-            return dat1e;
-    }
-    public List<AppointmentRequest> filterAppointment(String id, String date,String month) {
+
+    public Page<AppointmentRequest> filterAppointment(String id, String date,String month, String status, Integer page, String name) {
+        int size = 5;
+        Pageable pageable = PageRequest.of(page, size);
+
         try {
             Map<String,String> date1 = convertDate(date, month);
-            List<Appointment> appointmentList = appointmentRepository.filterAppointment(id, date1!=null?date1.get("start"):null, date1!=null?date1.get("end"):null);
-            return changeToListRequest(appointmentList);
+            Page<Appointment> appointmentPage = appointmentRepository
+                    .filterAppointment(id,
+                            date1 != null ? date1.get("start") : null,
+                            date1 != null ? date1.get("end") : null,
+                            status,
+                            name,
+                            pageable);
 
+            return appointmentPage.map(appointmentMapper::toAppointmentRequest);
         } catch (DateTimeParseException e) {
             System.out.println("Invalid date or month format: " + e.getMessage());
         }
-        return List.of();
+
+        return Page.empty(pageable);
     }
+
 }

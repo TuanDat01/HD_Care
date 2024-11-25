@@ -23,4 +23,5 @@ public class UserResponse {
     String phone;
     Boolean noPassword;
     LocalDate dob;
+    String gender;
 }
