@@ -53,12 +53,14 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient-appointment")
-    public ApiResponse<List<AppointmentRequest>> getAppointmentByPatient(@RequestParam(name = "patientId") String id,
+    public ApiResponse<Page<AppointmentRequest>> getAppointmentByPatient(@RequestParam(name = "patientId") String id,
                                                                          @RequestParam(name = "date",required = false) String date,
-                                                                         @RequestParam(name = "month",required = false) String month)
+                                                                         @RequestParam(name = "month",required = false) String month,
+                                                                         @RequestParam(name = "status", required = false) String status,
+                                                                         @RequestParam(name = "page",required = false) int page)
     {
         System.out.println(id);
-        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.findAllByPatientId(id,date,month)).build();
+        return ApiResponse.<Page<AppointmentRequest>>builder().result(appointmentService.findAllByPatientId(id,date,month,status,page-1)).build();
     }
 
     @GetMapping("/{id}")
@@ -97,7 +99,8 @@ public class AppointmentController {
         return ApiResponse.<List<ManagePatient>>builder().result(appointmentService.getPatientOfDoctor(id)).build();
     }
     @PostMapping("/pdf")
-    public ResponseEntity<byte[]> exportToPdf(@RequestBody AppointmentRequest appointmentRequest,@RequestParam("status") String status) {
+    public ResponseEntity<byte[]> exportToPdf(@RequestBody AppointmentRequest appointmentRequest,
+                                              @RequestParam("status") String status) {
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             appointmentService.createPdf(appointmentRequest,outputStream);
 

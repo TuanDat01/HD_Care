@@ -21,8 +21,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             " join a.schedule s" +
             " where p.id = :idPatient " +
             "and (:startDate is null and :endDate is null or FUNCTION('DATE', s.start) between FUNCTION('DATE', :startDate) and FUNCTION('DATE', :endDate)) " +
+            "and (:status is null or a.status = :status)" +
             " order by s.start desc ")
-    List<Appointment> findAllByPatientId(@Param("idPatient") String id,@Param("startDate") String startDate,@Param("endDate") String endDate);
+    Page<Appointment> findAllByPatientId(@Param("idPatient") String id,
+                                         @Param("startDate") String startDate,
+                                         @Param("endDate") String endDate,
+                                         @Param("status") String status,
+                                         Pageable pageable);
 
     @Query("select a from Appointment a" +
             " join a.doctor d " +

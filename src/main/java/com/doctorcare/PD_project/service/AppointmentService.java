@@ -23,6 +23,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -114,9 +116,13 @@ public class AppointmentService {
         return dat1e;
     }
 
-    public List<AppointmentRequest> findAllByPatientId(String id,String date, String month) {
-        Map<String,String> date1 = convertDate(date,month);
-        List<Appointment> appointmentList =  appointmentRepository.findAllByPatientId(id, date1!=null?date1.get("start"):null, date1!=null?date1.get("end"):null);
+    public Page<AppointmentRequest> findAllByPatientId(String id,String date, String month, String status, int page) {
+        Map<String,String> date1 = null;
+        if (date != null && month != null) {
+            date1 = convertDate(date,month);
+        }
+        Pageable pageable = PageRequest.of(page,5);
+        Page<Appointment> appointmentList =  appointmentRepository.findAllByPatientId(id, date1!=null?date1.get("start"):null, date1!=null?date1.get("end"):null,status,pageable);
         System.out.println(appointmentList);
 //        List<Appointment> appointmentsFilter = appointmentList.stream().peek(appointment -> {
 //            if (appointment.getSchedule().getEnd().isBefore(LocalDateTime.now())) {
@@ -126,7 +132,7 @@ public class AppointmentService {
 //            }
 //        }).toList();
 //        System.out.println(appointmentsFilter);
-        return changeToListRequest(appointmentList);
+        return appointmentList.map(appointmentMapper::toAppointmentRequest);
     }
     public List<Appointment> getAppointBySchedule(Schedule schedule){
         return appointmentRepository.findAppointmentBySchedule(schedule);
