@@ -17,8 +17,10 @@ import com.doctorcare.PD_project.service.AppointmentService;
 import com.doctorcare.PD_project.service.SendEmailService;
 import com.itextpdf.text.pdf.PdfWriter;
 import jakarta.mail.MessagingException;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.Value;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -50,7 +52,7 @@ public class AppointmentController {
     }
 
     @PostMapping
-    public ApiResponse<AppointmentRequest> create(@RequestBody AppointmentRequest appointmentRequest) throws MessagingException, AppException {
+    public ApiResponse<AppointmentRequest> create(@RequestBody @Valid AppointmentRequest appointmentRequest) throws MessagingException, AppException {
         return ApiResponse.<AppointmentRequest>builder().result(appointmentService.createAppointment(appointmentRequest)).build();
     }
 
@@ -98,8 +100,10 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctor-appointment/manage-patient")
-    public ApiResponse<List<ManagePatient>> getPatientOfDoctor(@RequestParam(name = "doctorId")String id){
-        return ApiResponse.<List<ManagePatient>>builder().result(appointmentService.getPatientOfDoctor(id)).build();
+    public ApiResponse<Page<ManagePatient>> getPatientOfDoctor(@RequestParam(name = "doctorId") String id,
+                                                               @RequestParam(name = "page") Integer page,
+                                                               @RequestParam(name = "keyword", required = false) String keyword) throws AppException {
+        return ApiResponse.<Page<ManagePatient>>builder().result(appointmentService.getPatientOfDoctor(id, page - 1, keyword)).build();
     }
 
     @GetMapping("/pdf/{appointmentId}")

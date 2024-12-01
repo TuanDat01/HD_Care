@@ -65,11 +65,18 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     List<Appointment> findAppointmentBySchedule(Schedule schedule);
 
     Appointment findAppointmentByPrescription(Prescription prescription);
-    @Query("SELECT new com.doctorcare.PD_project.dto.response.ManagePatient(p.id,p.name,p.dob,max(a.schedule.end),p.address,p.email,p.phone,count(p.id)) " +
-            "FROM Appointment a join a.patient p WHERE a.doctor.id = :doctorId " +
-            "group by p.id" +
-            " order by MAX(a.schedule.end) desc")
-    List<ManagePatient> getPatientOfDoctor(@Param("doctorId") String id);
+    @Query("SELECT new com.doctorcare.PD_project.dto.response.ManagePatient(" +
+            "p.id, p.name, p.dob, MAX(a.schedule.end) as maxDate, " +
+            "p.address, p.email, p.phone, COUNT(p.id)) " +
+            "FROM Appointment a " +
+            "JOIN a.patient p " +
+            "WHERE a.doctor.id = :doctorId " +
+            "AND (:keyword IS NULL OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))) " +
+            "GROUP BY p.id, p.name, p.dob, p.address, p.email, p.phone " +
+            "ORDER BY MAX(a.schedule.end) DESC")
+    Page<ManagePatient> getPatientOfDoctor(@Param("doctorId") String id,
+                                           @Param("keyword") String keyword,
+                                           Pageable pageable);
 
     @Override
     long count();
