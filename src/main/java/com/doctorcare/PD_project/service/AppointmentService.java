@@ -162,8 +162,10 @@ public class AppointmentService {
         return appointment;
     }
 
-    public List<ManagePatient> getPatientOfDoctor (String id){
-        return appointmentRepository.getPatientOfDoctor(id);
+    public Page<ManagePatient> getPatientOfDoctor (String id, Integer page, String keyword) {
+        int size = 5;
+        Pageable pageable = PageRequest.of(page, size);
+        return appointmentRepository.getPatientOfDoctor(id, keyword, pageable);
     }
 
     public AppointmentRequest getData(String appointmentId) throws AppException {
