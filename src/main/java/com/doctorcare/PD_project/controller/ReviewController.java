@@ -29,26 +29,6 @@ import java.util.concurrent.ExecutionException;
 public class ReviewController {
     ReviewService reviewService;
     AppointmentService appointmentService;
-//    @GetMapping
-//    public String displayReviewPage(Model theModel, @RequestParam(value = "idPatient") String idPatient,
-//                                    @RequestParam(value = "idDoctor") String idDoctor) {
-//        theModel.addAttribute("reviewIn", new CreateReview());
-//        return "index";
-//    }
-//
-//    @PostMapping
-//    public String uploadImage(@ModelAttribute("reviewIn") CreateReview createReview,
-//                                                 @RequestParam(value = "image",required = false) List<MultipartFile> file2,
-//                                                 @RequestParam(value = "idPatient") String idPatient,
-//                                                 @RequestParam(value = "idDoctor") String idDoctor,
-//                                                 Model model) throws IOException, AppException, ExecutionException, InterruptedException {
-//       model.addAttribute("review", reviewService.create(createReview, file2, idPatient, idDoctor));
-//       return "a";
-//    }
-//    @PutMapping("/{id}")
-//    public ApiResponse<CreateReview> updateReview(@PathVariable String id,@RequestParam CreateReview createReview){
-//        return ApiResponse.<CreateReview>builder().result(reviewService.updateReview(id,createReview)).build();
-//    }
     @GetMapping
     public ResponseEntity<AppointmentRequest> fillReview(@RequestParam("idAppointment") String id) throws AppException {
         return ResponseEntity.ok().body(appointmentService.getAppointmentById(id));

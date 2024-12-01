@@ -3,6 +3,7 @@ package com.doctorcare.PD_project.responsitory;
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.entity.Doctor;
+import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.entity.Schedule;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -38,4 +39,8 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
 
     Optional<Doctor> findDoctorByUsername(String username);
     Optional<Doctor> findDoctorByEmail(String email);
+
+//    @Query("SELECT r from Doctor d join d.reviews r where d.id = :doctorId ")
+//    Page<Review> findReviewsByDoctorId(@Param("doctorId") String doctorId,
+//                                       Pageable pageable);
 }

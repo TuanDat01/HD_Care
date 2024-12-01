@@ -12,7 +12,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class CreateReview {
     String content;
-    int rating;
+    double rating;
     List<String> img;
     String idAppointment;
 }

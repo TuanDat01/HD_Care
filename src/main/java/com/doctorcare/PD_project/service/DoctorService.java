@@ -3,11 +3,9 @@ package com.doctorcare.PD_project.service;
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.DoctorPageRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
-import com.doctorcare.PD_project.dto.response.DoctorResponse;
-import com.doctorcare.PD_project.dto.response.PageResponse;
-import com.doctorcare.PD_project.dto.response.ScheduleResponse;
-import com.doctorcare.PD_project.dto.response.UserResponse;
+import com.doctorcare.PD_project.dto.response.*;
 import com.doctorcare.PD_project.entity.Doctor;
+import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
@@ -16,13 +14,17 @@ import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.responsitory.DoctorRepository;
+import com.doctorcare.PD_project.responsitory.ReviewRepository;
 import com.doctorcare.PD_project.responsitory.ScheduleRepository;
+import com.itextpdf.text.PageSize;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -30,15 +32,19 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
 @RequiredArgsConstructor
 public class DoctorService {
     DoctorRepository doctorRepository;
+    ReviewRepository reviewRepository;
     UserMapper userMapper;
     ScheduleMapper scheduleMapper;
     ScheduleRepository scheduleRepository;
@@ -109,24 +115,16 @@ public class DoctorService {
 
     public PageResponse<DoctorResponse> GetAll(String district, String name, String city, int p,String order) throws AppException {
         List<Doctor> doctors = null;
-        int limit = 3;
-//        long count = doctorRepository.count();
-//        long pageMax = (count + limit - 1)/limit;
-//
-//        if( p-1 < 0 || p-1 >= pageMax){
-//            throw new AppException(ErrorCode.PAGE_VALID);
-//        }
-        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(
-                limit,
-                (p - 1) * limit,
-                order != null ?
-                        ("asc".equalsIgnoreCase(order) ?
-                                Sort.by(Sort.Order.asc("price")) :
-                                Sort.by(Sort.Order.desc("price")))
-                        : Sort.unsorted() // No sorting if `order` is null
-        );
-
-        Page<Doctor> doctorPage = doctorRepository.filterDoctor(district,name,city,doctorPageRequest);
+//        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(
+//                20,
+//                0,
+//                order != null ?
+//                        ("asc".equalsIgnoreCase(order) ?
+//                               Sort.by(Sort.Direction.ASC,"price") : Sort.by(Sort.Direction.DESC, "price"))
+//                        : Sort.unsorted() // No sorting if `order` is null
+//        );
+        Pageable pageable = PageRequest.of(0,20, Sort.by("price").ascending());
+        Page<Doctor> doctorPage = doctorRepository.filterDoctor(district,name,city,pageable);
 
         doctors = doctorPage.getContent().stream().peek(doctor -> {
             List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), LocalDate.now().toString());
@@ -176,4 +174,24 @@ public class DoctorService {
 
         return userResponse;
     }
+
+    public ReviewResponse findReviewByDoctorId(String id, String sort, Double star, int page) throws AppException {
+        Pageable pageable = PageRequest.of(page-1,3,
+        (Objects.equals(sort, "asc") ? Sort.by(Sort.Direction.ASC, "date") : Sort.by(Sort.Direction.DESC, "date")));
+
+        Page<Review> reviews = reviewRepository.findReviewsByDoctorId(id, star,pageable);
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+
+        ReviewResponse reviewResponse = new ReviewResponse();
+        reviewResponse.setReviewList(reviews.getContent());
+        reviewResponse.setPageMax(reviews.getTotalPages());
+        reviewResponse.setCountReview(doctor.getNumberOfReviews());
+        reviewResponse.setCountAvg(doctor.getAvgRating());
+
+        List<Object[]> list = reviewRepository.countRating();
+        reviewResponse.setCountRating(list);
+
+        return reviewResponse;
+    }
+
 }
