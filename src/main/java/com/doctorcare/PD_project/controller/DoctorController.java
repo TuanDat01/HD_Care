@@ -12,8 +12,12 @@ import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -47,16 +51,12 @@ public class DoctorController {
     }
 
     @GetMapping("{id}/review")
-    public ApiResponse<ReviewResponse> getListReview(@PathVariable String id) throws AppException {
-        Doctor doctor = doctorService.findDoctorById(id);
-        ReviewResponse reviewResponse = new ReviewResponse();
-        List<Review> reviewList = doctor.getReviews();
-        reviewResponse.setReviewList(reviewList);
-        reviewResponse.setCountReview(reviewList);
-        reviewResponse.setCountAvg(reviewList);
-        return ApiResponse.<ReviewResponse>builder().result(reviewResponse).build();
+    public ApiResponse<ReviewResponse> getListReview(@PathVariable String id,
+                                                     @RequestParam(name = "sort",required = false) String sort,
+                                                     @RequestParam(name = "page", required = false) int page,
+                                                     @RequestParam(name = "star",required = false) Double star) throws AppException {
+        return ApiResponse.<ReviewResponse>builder().result(doctorService.findReviewByDoctorId(id,sort,star,page)).build();
     }
-
     @GetMapping("/my-info")
     public ApiResponse<UserResponse> getDoctorById() throws AppException {
         return ApiResponse.<UserResponse>builder().result(doctorService.getDoctor()).build();

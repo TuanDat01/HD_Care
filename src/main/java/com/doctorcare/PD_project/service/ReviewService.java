@@ -18,6 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -40,12 +43,23 @@ public class ReviewService {
         Patient patient = patientService.getPatientById(appointment.getIdPatient());
 
         review.setPatient(patient);
-        doctor.addReview(review);
+        review.setDate(LocalDateTime.now());
+        review.setDoctor(doctor);
+
+        doctor.setNumberOfReviews(doctor.getNumberOfReviews() + 1);
+        System.out.println(doctor.getNumberOfReviews());
+        double calculator = (doctor.getAvgRating() * (doctor.getNumberOfReviews() - 1 ) + createReview.getRating())/doctor.getNumberOfReviews();
+        DecimalFormat df = new DecimalFormat("#.##");
+        double result = Double.parseDouble(df.format(calculator));
+        System.out.println(result);
+        doctor.setAvgRating(result);
 
         reviewRepository.save(review);
 
         return reviewMapper.toCreateReview(review);
     }
+
+
 
     public CreateReview updateReview(String id, CreateReview createReview) {
         Review review = reviewRepository.findById(id).orElseThrow(() -> new RuntimeException("Khong tim thay review"));

@@ -26,13 +26,14 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     private String signerKey;
     private static final String[] PUBLIC_URL = {
-            "/appointment/pdf",
+            "/appointment/pdf2/",
             "/auth/**",
             "/patient/verify",
             "/appointment/*",
             "/appointment",
             "/doctor/*",
-            "/doctor"
+            "/doctor",
+            "/auth/verify"
 
     };
 

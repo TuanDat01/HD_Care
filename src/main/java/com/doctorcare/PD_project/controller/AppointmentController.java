@@ -119,6 +119,33 @@ public class AppointmentController {
             return ResponseEntity.status(500).build();
         }
     }
+    @GetMapping("/pdf2/{idAppointment}")
+    public ResponseEntity<byte[]> exportToPdf2(@PathVariable String idAppointment,
+                                              @RequestParam("status") String status) {
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+            appointmentService.createPdf2(idAppointment,outputStream);
 
+            AppointmentRequest appointmentRequest = appointmentService.findData(idAppointment);
+
+            byte[] pdfData = outputStream.toByteArray();
+            HttpHeaders headers = new HttpHeaders();
+
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            headers.setContentDispositionFormData("inline", appointmentRequest.getName()+".pdf");
+
+            if (Objects.equals(appointmentRequest.getStatus(), AppointmentStatus.PENDING.toString())){
+                throw new AppException(ErrorCode.UPDATE_STATUS);
+            }
+
+            if (Objects.equals(status, "Gửi"))
+                applicationEventPublisher.publishEvent(new CompleteAppointment(appointmentRequest,pdfData));
+
+            return ResponseEntity.ok().headers(headers).body(pdfData);
+        } catch (Exception e) {
+
+            System.out.println("Error" + e.getMessage());
+            return ResponseEntity.status(500).build();
+        }
+    }
 
 }

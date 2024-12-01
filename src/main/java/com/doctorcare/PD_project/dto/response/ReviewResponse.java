@@ -4,6 +4,8 @@ import com.doctorcare.PD_project.entity.Review;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.text.DecimalFormat;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -14,19 +16,13 @@ import java.util.List;
 public class ReviewResponse {
     List<Review> reviewList;
     double countAvg;
-    int countReview;
+    long countReview;
+    long pageMax;
+    List<Object[]> countRating;
 
-    public void setCountAvg(List<Review> reviewList) {
-        this.countAvg = sum(reviewList);
+
+    public void setCountReview(long countReview) {
+        this.countReview = countReview;
     }
-    public void setCountReview(List<Review> reviewList) {
-        this.countReview = reviewList.size();
-    }
-    public double sum(List<Review> reviewList){
-        double total = 0;
-        for (Review review : reviewList) {
-            total += review.getRating();
-        }
-        return total/countReview;
-    }
+
 }

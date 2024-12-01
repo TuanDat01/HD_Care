@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +21,9 @@ public class Review  {
 
     String content;
 
-    int rating;
+    double rating;
 
-    LocalDate date;
+    LocalDateTime date;
 
     @ElementCollection
     List<String> img;
@@ -35,6 +35,10 @@ public class Review  {
     @ManyToOne
     @JoinColumn(name = "patient_id")
     Patient patient;
+
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    Doctor doctor;
 
     @OneToMany
     @JoinColumn(name = "comment_id")

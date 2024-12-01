@@ -164,10 +164,99 @@ public class AppointmentService {
         return appointmentRepository.getPatientOfDoctor(id);
     }
 
+    public AppointmentRequest findData (String idAppointment){
+        Appointment appointment = appointmentRepository.findById(idAppointment).get();
+        return appointmentMapper.toAppointmentRequest(appointment);
+    }
+
     public void createPdf(AppointmentRequest appointmentRequest, ByteArrayOutputStream outputStream) throws AppException {
         Patient patient = patientService.getPatientById(appointmentRequest.getIdPatient());
         List<MedicineDetail> medicineDetails = prescriptionService.getMedicineByPrescription(appointmentRequest.getPrescriptionId());
         System.out.println(medicineDetails);
+        Prescription prescription = prescriptionService.getPrescriptionById(appointmentRequest.getPrescriptionId());
+        Document document = new Document();
+        try {
+            PdfWriter.getInstance(document, outputStream);
+            document.open();
+
+            // Cài đặt font hỗ trợ tiếng Việt
+            BaseFont baseFont = BaseFont.createFont("src/main/resources/fonts/times.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            Font fontTitle = new Font(baseFont, 16, Font.BOLD);
+            Font fontHeader = new Font(baseFont, 12, Font.BOLD);
+            Font fontBody = new Font(baseFont, 12);
+
+            // Tiêu đề chính của tài liệu
+            Paragraph paragraph1 = new Paragraph("Đơn thuốc", fontTitle);
+            paragraph1.setAlignment(Element.ALIGN_CENTER);
+            paragraph1.setSpacingAfter(20);
+            document.add(paragraph1);
+
+            // Danh sách thông tin bệnh nhân
+            Paragraph patientInfoParagraph = new Paragraph();
+            patientInfoParagraph.setSpacingAfter(20);
+
+// Thêm thông tin bệnh nhân theo từng dòng với khoảng cách giữa hai mục
+            patientInfoParagraph.add(new Chunk("Tên bệnh nhân: " + patient.getName(), fontBody));
+            patientInfoParagraph.add(new Chunk(new VerticalPositionMark())); // thêm vị trí dọc nếu cần
+            patientInfoParagraph.add(new Chunk("Năm sinh: " + patient.getDob().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")), fontBody));
+            patientInfoParagraph.add(Chunk.NEWLINE);
+
+            patientInfoParagraph.add(new Chunk("Giới tính: " + patient.getGender(), fontBody));
+            patientInfoParagraph.add(new Chunk(new VerticalPositionMark())); // thêm vị trí dọc nếu cần
+
+            patientInfoParagraph.add(new Chunk("Ngày khám: " + appointmentRequest.getStart(), fontBody));
+            patientInfoParagraph.add(Chunk.NEWLINE);
+
+            patientInfoParagraph.add(new Chunk("Lý do khám: " + appointmentRequest.getDescription(), fontBody));
+            patientInfoParagraph.add(new Chunk(new VerticalPositionMark())); // thêm vị trí dọc nếu cần
+
+            patientInfoParagraph.add(new Chunk("Chẩn đoán: " + prescription.getResult(), fontBody));
+
+// Thêm đoạn văn bản vào tài liệu
+            document.add(patientInfoParagraph);
+
+            // Tạo bảng với 6 cột
+            PdfPTable table = new PdfPTable(6);
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10);
+            table.setSpacingAfter(10);
+
+            // Tiêu đề các cột (sử dụng font tiếng Việt)
+            String[] headers = {"STT", "Tên thuốc", "Dạng thuốc", "Số lượng", "Hướng dẫn", "Lưu ý"};
+            for (String header : headers) {
+                PdfPCell cell = new PdfPCell(new Paragraph(header, fontHeader));
+                cell.setHorizontalAlignment(Element.ALIGN_CENTER);
+                cell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+                table.addCell(cell);
+            }
+
+            // Thêm dữ liệu vào bảng
+            for (int i = 0; i < medicineDetails.size(); i++) { // Giả sử có 5 dòng dữ liệu
+                table.addCell(new PdfPCell(new Paragraph(String.valueOf(i+1), fontBody)));
+                table.addCell(new PdfPCell(new Paragraph(medicineDetails.get(i).getName(), fontBody)));
+                table.addCell(new PdfPCell(new Paragraph(medicineDetails.get(i).getMedicineType(), fontBody)));
+                table.addCell(new PdfPCell(new Paragraph(medicineDetails.get(i).getQuantity(), fontBody)));
+                table.addCell(new PdfPCell(new Paragraph(medicineDetails.get(i).getInstruction(), fontBody)));
+                table.addCell(new PdfPCell(new Paragraph(medicineDetails.get(i).getNote(), fontBody)));
+            }
+            Paragraph footer = new Paragraph("Ngày kê đơn: " + prescription.getTimestamp().format(DateTimeFormatter.ofPattern("dd-MM-yy hh:mm")) + "\n\n\n\nBác sĩ: " + appointmentRequest.getNameDoctor(), fontBody);
+            footer.setAlignment(Element.ALIGN_RIGHT);
+            document.add(table);
+            document.add(footer);
+            // Thêm bảng vào tài liệu
+            document.close();
+
+            System.out.println("PDF đã được tạo thành công!");
+        } catch (DocumentException | IOException e) {
+            throw new RuntimeException("Có lỗi xảy ra khi tạo PDF: " + e.getMessage(), e);
+        }
+    }
+
+    public void createPdf2(String idAppointment, ByteArrayOutputStream outputStream) throws AppException {
+        AppointmentRequest appointmentRequest = findData(idAppointment);
+        Patient patient = patientService.getPatientById(appointmentRequest.getIdPatient());
+        List<MedicineDetail> medicineDetails = prescriptionService.getMedicineByPrescription(appointmentRequest.getPrescriptionId());
+
         Prescription prescription = prescriptionService.getPrescriptionById(appointmentRequest.getPrescriptionId());
         Document document = new Document();
         try {

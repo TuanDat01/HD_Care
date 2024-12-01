@@ -20,10 +20,12 @@ public class Doctor extends User {
     String district;
     String city;
     String specialization;
+    @Lob
     String experience;
     long price;
     double avgRating;
-    int numberOfReviews;
+    long numberOfReviews;
+    String address;
 
     @Lob
     String description;
@@ -33,9 +35,9 @@ public class Doctor extends User {
     @JsonIgnore
     List<Schedule> schedules;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "doctor_id")
-    List<Review> reviews;
+//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "doctor_id")
+//    List<Review> reviews;
 
     public void addSchedule(Schedule schedule){
         if(schedules == null){
@@ -44,10 +46,10 @@ public class Doctor extends User {
         schedules.add(schedule);
     }
 
-    public void addReview(Review review){
-        if(reviews == null){
-            reviews = new ArrayList<>();
-        }
-        reviews.add(review);
-    }
+//    public void addReview(Review review){
+//        if(reviews == null){
+//            reviews = new ArrayList<>();
+//        }
+//        reviews.add(review);
+//    }
 }
