@@ -94,6 +94,7 @@ public class PatientService {
         System.out.println(SecurityContextHolder.getContext().getAuthentication().getName());
         return patientRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
     }
+
     public UserResponse getPatient() throws AppException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         System.out.println("username" + username);

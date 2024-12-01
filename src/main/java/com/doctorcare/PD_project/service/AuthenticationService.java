@@ -102,7 +102,7 @@ public class AuthenticationService {
                 .issuer("tuandat.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(refreshDuration, ChronoUnit.HOURS).toEpochMilli()
+                        Instant.now().plus(refreshDuration, ChronoUnit.MINUTES).toEpochMilli()
                 ))
                 .build();
 
@@ -167,7 +167,7 @@ public class AuthenticationService {
                 .issuer("sohan.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(accessDuration, ChronoUnit.HOURS).toEpochMilli()
+                        Instant.now().plus(accessDuration, ChronoUnit.MINUTES).toEpochMilli()
                 ))
                 .claim("roles", user.getRole())
                 .claim("id", user.getId())

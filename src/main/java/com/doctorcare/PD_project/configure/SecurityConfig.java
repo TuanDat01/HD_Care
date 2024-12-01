@@ -48,9 +48,9 @@ public class SecurityConfig {
         httpSecurity.authorizeHttpRequests(request -> {
             try {
                 request
-                        .requestMatchers(DOCTOR_URL).permitAll()
+                        .requestMatchers(DOCTOR_URL).hasRole("DOCTOR")
                         .requestMatchers(PUBLIC_URL).permitAll()
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 ;
             } catch (Exception e) {
                 throw new RuntimeException(e);

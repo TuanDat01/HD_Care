@@ -6,6 +6,7 @@ import com.doctorcare.PD_project.dto.request.DoctorScheduleRequest;
 import com.doctorcare.PD_project.dto.request.UpdateStatusAppointment;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.ManagePatient;
+import com.doctorcare.PD_project.dto.response.PageResponse;
 import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
@@ -40,24 +41,29 @@ public class AppointmentController {
     AppointmentService appointmentService;
     SendEmailService sendEmailService;
     ApplicationEventPublisher applicationEventPublisher;
+
     @GetMapping
     public ApiResponse<AppointmentV2Request> getForm(@RequestParam(name = "idPatient")String idPatient,
                                                      @RequestParam(name = "idSchedule")String idSchedule,
                                                      @RequestParam(name = "idDoctor")String idDoctor) throws AppException {
         return ApiResponse.<AppointmentV2Request>builder().result(appointmentService.getInfo(idPatient,idSchedule,idDoctor)).build();
     }
+
     @PostMapping
     public ApiResponse<AppointmentRequest> create(@RequestBody AppointmentRequest appointmentRequest) throws MessagingException, AppException {
         return ApiResponse.<AppointmentRequest>builder().result(appointmentService.createAppointment(appointmentRequest)).build();
     }
 
     @GetMapping("/patient-appointment")
-    public ApiResponse<List<AppointmentRequest>> getAppointmentByPatient(@RequestParam(name = "patientId") String id,
+    public ApiResponse<Page<AppointmentRequest>> getAppointmentByPatient(@RequestParam(name = "patientId") String id,
                                                                          @RequestParam(name = "date",required = false) String date,
-                                                                         @RequestParam(name = "month",required = false) String month)
+                                                                         @RequestParam(name = "week",required = false) String week,
+                                                                         @RequestParam(name = "month",required = false) String month,
+                                                                         @RequestParam(name = "status", required = false) String status,
+                                                                         @RequestParam(name = "page",required = false) int page)
     {
         System.out.println(id);
-        return ApiResponse.<List<AppointmentRequest>>builder().result(appointmentService.findAllByPatientId(id,date,month)).build();
+        return ApiResponse.<Page<AppointmentRequest>>builder().result(appointmentService.findAllByPatientId(id,date, week, month,status,page-1)).build();
     }
 
     @GetMapping("/{id}")
@@ -69,8 +75,9 @@ public class AppointmentController {
     public ApiResponse<Page<AppointmentRequest>> getAppointmentByDoctor(@RequestParam(name = "doctorId") String id,
                                                                         @RequestParam(name = "date",required = false) String date,
                                                                         @RequestParam(name = "status",required = false) String status,
-                                                                        @RequestParam(name = "page", required = false) Integer page) throws AppException {
-        return ApiResponse.<Page<AppointmentRequest>>builder().result(appointmentService.getAppointmentByDoctor(id, date, status,page - 1)).build();
+                                                                        @RequestParam(name = "page", required = false) int page,
+                                                                        @RequestParam(name = "name",required = false) String name) throws AppException {
+        return ApiResponse.<Page<AppointmentRequest>>builder().result(appointmentService.getAppointmentByDoctor(id, date, status,page - 1,name)).build();
     }
 
     @PutMapping("/doctor-appointment/{id}/status")
@@ -78,14 +85,15 @@ public class AppointmentController {
         return ApiResponse.<Appointment>builder().result(appointmentService.getAppointmentByDoctorAndId(id, updateStatusAppointment)).build();
     }
 
-    @GetMapping("/doctor-appointment/time")
+    @GetMapping("/doctor-appointments/time")
     public ApiResponse<Page<AppointmentRequest>> filterAppointment(@RequestParam (name = "doctorId") String id,
                                                                    @RequestParam (name = "week", required = false) String week,
                                                                    @RequestParam(name = "month", required = false) String month,
                                                                    @RequestParam(name = "status", required = false) String status,
-                                                                   @RequestParam (name = "page", required = true) Integer page){
+                                                                   @RequestParam (name = "page", required = true) Integer page,
+                                                                   @RequestParam(name = "name", required = false) String name) throws AppException {
         return ApiResponse.<Page<AppointmentRequest>>builder()
-                .result(appointmentService.filterAppointment(id, week, month, status, page - 1))
+                .result(appointmentService.filterAppointment(id, week, month, status, page - 1, name))
                 .build();
     }
 
@@ -93,26 +101,33 @@ public class AppointmentController {
     public ApiResponse<List<ManagePatient>> getPatientOfDoctor(@RequestParam(name = "doctorId")String id){
         return ApiResponse.<List<ManagePatient>>builder().result(appointmentService.getPatientOfDoctor(id)).build();
     }
-    @PostMapping("/pdf")
-    public ResponseEntity<byte[]> exportToPdf(@RequestBody AppointmentRequest appointmentRequest,@RequestParam("status") String status) {
+
+    @GetMapping("/pdf/{appointmentId}")
+    public ResponseEntity<byte[]> exportToPdf(@PathVariable("appointmentId") String appointmentId,
+                                              @RequestParam("status") String status) throws AppException {
+
+        AppointmentRequest appointmentRequest = appointmentService.getData(appointmentId);
+
         try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            appointmentService.createPdf(appointmentRequest,outputStream);
+            appointmentService.createPdf(appointmentId, outputStream);
 
             byte[] pdfData = outputStream.toByteArray();
+
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_PDF);
-            headers.setContentDispositionFormData("inline", appointmentRequest.getName()+".pdf");
+            headers.setContentDispositionFormData("inline", appointmentId + ".pdf");
+
             if (Objects.equals(appointmentRequest.getStatus(), AppointmentStatus.PENDING.toString())){
                 throw new AppException(ErrorCode.UPDATE_STATUS);
             }
+
             if (Objects.equals(status, "Gửi"))
-                applicationEventPublisher.publishEvent(new CompleteAppointment(appointmentRequest,pdfData));
+                applicationEventPublisher.publishEvent(new CompleteAppointment(appointmentRequest, pdfData));
+
             return ResponseEntity.ok().headers(headers).body(pdfData);
         } catch (Exception e) {
             System.out.println("Error" + e.getMessage());
             return ResponseEntity.status(500).build();
         }
     }
-
-
 }

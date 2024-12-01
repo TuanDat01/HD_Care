@@ -62,8 +62,8 @@ outbound:
 jwt:
   signerKey: "xxiZx4S9K4jCse8UI89bTPGihA9MXjHSob+hfnckRMo7yRlIO7xheltlc/+dKFv4"
 token:
-  accessToken : "2"
-  refreshToken : "30"
+  accessToken : "30"
+  refreshToken : "60"
 
 
 

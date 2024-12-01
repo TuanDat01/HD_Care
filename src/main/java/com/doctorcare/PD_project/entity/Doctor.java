@@ -19,6 +19,7 @@ public class Doctor extends User {
 
     String district;
     String city;
+    String clinicName;
     String specialization;
     String experience;
     long price;
