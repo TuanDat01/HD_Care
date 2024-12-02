@@ -34,7 +34,7 @@ public enum ErrorCode {
     INVALID_FORMAT(1030, "Email Invalid email format", HttpStatus.CONFLICT),
     TOKEN_EXPIRED(1026, "Token expired", HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED(1033, "you do not permission to access", HttpStatus.FORBIDDEN),
-    PASSWORD_EXIST(1027, "password is exit", HttpStatus.BAD_REQUEST),
+    PASSWORD_EXIST(1027, "password is exist", HttpStatus.BAD_REQUEST),
     NO_ACTIVE(1028,"Please check email to active" ,HttpStatus.OK),
     UPDATE_STATUS(1029, "Please update status is confirmed to prescription", HttpStatus.BAD_REQUEST),
         PAGE_VALID(1030,"input page invalid" ,HttpStatus.BAD_REQUEST ),
