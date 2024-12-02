@@ -110,10 +110,12 @@ public class PatientService {
     public void createPassword(CreatePasswordRequest createPasswordRequest) throws AppException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
         Patient patient = patientRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+        System.out.println(patient.getPwd());
         if (StringUtils.hasText(patient.getPwd())) {
             throw new AppException(ErrorCode.PASSWORD_EXIST);
         }
         patient.setPwd(passwordEncoder.encode(createPasswordRequest.getPassword()));
+        patientRepository.save(patient);
     }
 
     public Patient getPatientByUsername(String username) throws AppException {

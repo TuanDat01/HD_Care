@@ -3,6 +3,7 @@ package com.doctorcare.PD_project.configure;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,7 +26,11 @@ public class SecurityConfig {
 
     @Value("${jwt.signerKey}")
     private String signerKey;
-    private static final String[] PUBLIC_URL = {
+
+    private static final String[] PUBLIC_URL_POST = {
+            "/auth/**",
+            "/auth/refreshToken"};
+    private static final String[] PUBLIC_URL_GET = {
             "/appointment/pdf2/",
             "/auth/**",
             "/patient/verify",
@@ -33,7 +38,9 @@ public class SecurityConfig {
             "/appointment",
             "/doctor/*",
             "/doctor",
-            "/auth/verify"
+            "/auth/verify",
+            "/doctor-schedule",
+            "/doctor/**",
 
     };
 
@@ -50,7 +57,8 @@ public class SecurityConfig {
             try {
                 request
                         .requestMatchers(DOCTOR_URL).hasRole("DOCTOR")
-                        .requestMatchers(PUBLIC_URL).permitAll()
+                        .requestMatchers(HttpMethod.POST, PUBLIC_URL_POST).permitAll()
+                        .requestMatchers(HttpMethod.GET,PUBLIC_URL_GET).permitAll()
                         .anyRequest().authenticated()
                 ;
             } catch (Exception e) {

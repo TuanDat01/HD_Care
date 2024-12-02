@@ -115,16 +115,15 @@ public class DoctorService {
 
     public PageResponse<DoctorResponse> GetAll(String district, String name, String city, int p,String order) throws AppException {
         List<Doctor> doctors = null;
-//        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(
-//                20,
-//                0,
-//                order != null ?
-//                        ("asc".equalsIgnoreCase(order) ?
-//                               Sort.by(Sort.Direction.ASC,"price") : Sort.by(Sort.Direction.DESC, "price"))
-//                        : Sort.unsorted() // No sorting if `order` is null
-//        );
-        Pageable pageable = PageRequest.of(0,20, Sort.by("price").ascending());
-        Page<Doctor> doctorPage = doctorRepository.filterDoctor(district,name,city,pageable);
+        DoctorPageRequest doctorPageRequest = new DoctorPageRequest(
+                5,
+                (p-1) * 5,
+                order != null ?
+                        ("asc".equalsIgnoreCase(order) ?
+                               Sort.by(Sort.Direction.ASC,"price") : Sort.by(Sort.Direction.DESC, "price"))
+                        : Sort.unsorted() // No sorting if `order` is null
+        );
+        Page<Doctor> doctorPage = doctorRepository.filterDoctor(district,null,city,doctorPageRequest);
 
         doctors = doctorPage.getContent().stream().peek(doctor -> {
             List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), LocalDate.now().toString());
@@ -188,7 +187,7 @@ public class DoctorService {
         reviewResponse.setCountReview(doctor.getNumberOfReviews());
         reviewResponse.setCountAvg(doctor.getAvgRating());
 
-        List<Object[]> list = reviewRepository.countRating();
+        List<Object[]> list = reviewRepository.countRating(id);
         reviewResponse.setCountRating(list);
 
         return reviewResponse;

@@ -26,7 +26,7 @@ public class EntityListener {
     public void beforeUpdate(Appointment appointment) {
         log.info(appointment.getStatus());
         if (Objects.equals(appointment.getStatus(), AppointmentStatus.CONFIRMED.toString())) {
-            applicationEventPublisher.publishEvent(new AppointmentStatusChange(appointment, false, appointment.getNote()));
+            applicationEventPublisher.publishEvent(new AppointmentStatusChange(appointment, false, null));
         } else if (Objects.equals(appointment.getStatus(), AppointmentStatus.CANCELLED.toString())) {
             applicationEventPublisher.publishEvent(new AppointmentStatusChange(appointment, true, appointment.getNote()));
         }

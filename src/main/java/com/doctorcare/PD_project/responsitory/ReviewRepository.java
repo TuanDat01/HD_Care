@@ -22,8 +22,8 @@ public interface ReviewRepository extends JpaRepository<Review,String> {
     List<Review> findReviewByDoctorId(String id);
 
     @Query("SELECT floor (r.rating) AS star, COUNT(r) AS count " +
-            "FROM Review r " +
+            "FROM Review r join r.doctor d where d.id = :doctorId " +
             "GROUP BY floor (r.rating) " +
             "ORDER BY floor (r.rating) DESC")
-    List<Object[]> countRating();
+    List<Object[]> countRating(@Param("doctorId") String doctorId);
 }

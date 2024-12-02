@@ -38,12 +38,12 @@ public class AuthenticationController {
                 .build();
     }
 
-//    @PostMapping("/outbound/authentication")
-//    ApiResponse<AuthenticationResponse> outBoundAuthenticate(@RequestParam("code") String code) throws AppException {
-//        System.out.println("Innn");
-//        var result = authenticationService.outBoundAuthenticate(code);
-//        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
-//    }
+    @PostMapping("/outbound/authentication")
+    ApiResponse<AuthenticationResponse> outBoundAuthenticate(@RequestParam("code") String code) throws AppException {
+        System.out.println("Innn");
+        var result = authenticationService.outBoundAuthenticate(code);
+        return ApiResponse.<AuthenticationResponse>builder().result(result).build();
+    }
 
     @PostMapping("/introspect")
     ApiResponse <IntrospectResponse> authenticate(@RequestBody IntrospectRequest request)

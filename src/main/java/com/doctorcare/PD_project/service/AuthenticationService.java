@@ -1,10 +1,13 @@
 package com.doctorcare.PD_project.service;
 
 import com.doctorcare.PD_project.dto.request.AuthenticationRequest;
+import com.doctorcare.PD_project.dto.request.ExchangeTokenRequest;
 import com.doctorcare.PD_project.dto.request.IntrospectRequest;
 import com.doctorcare.PD_project.dto.response.*;
+import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.ErrorCode;
+import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.UserMapper;
@@ -135,29 +138,35 @@ public class AuthenticationService {
                 .build();
     }
 
-//    public AuthenticationResponse outBoundAuthenticate(String code) throws AppException {
-//        System.out.println(CLIENT_ID);
-//        ExchangeTokenResponse exchangeTokenResponse =  outboundClient.exchangeToken(ExchangeTokenRequest.builder()
-//                        .code(code)
-//                        .clientId(CLIENT_ID)
-//                        .clientSecret(CLIENT_SECRET)
-//                        .grantType(GRANT_TYPE)
-//                        .redirectUri(REDIRECT_URI)
-//                        .build());
-//        UserGoogleResponse userGoogleResponse = onboardUserClient.getUserInfo("json",exchangeTokenResponse.getAccessToken());
-//        Patient patient = userMapper.toPatient(userGoogleResponse);
-//        patient.setUsername(userGoogleResponse.getEmail());
-//        patient.setRole(Roles.PATIENT.name());
-//        patientRepository.findByUsername(patient.getUsername()).orElseGet(() -> {
-//                    System.out.println("Da luu patient");
-//                    return patientRepository.save(patient);
-//                }
-//        );
-//        System.out.println(patient.toString());
-//        var token = generateAccess(patient);
-//        System.out.println(token);
-//        return AuthenticationResponse.builder().token(token).build();
-//    }
+    public AuthenticationResponse outBoundAuthenticate(String code) throws AppException {
+        System.out.println(CLIENT_ID);
+        ExchangeTokenResponse exchangeTokenResponse =  outboundClient.exchangeToken(ExchangeTokenRequest.builder()
+                        .code(code)
+                        .clientId(CLIENT_ID)
+                        .clientSecret(CLIENT_SECRET)
+                        .grantType(GRANT_TYPE)
+                        .redirectUri(REDIRECT_URI)
+                        .build());
+        UserGoogleResponse userGoogleResponse = onboardUserClient.getUserInfo("json",exchangeTokenResponse.getAccessToken());
+        Patient patient = userMapper.toPatient(userGoogleResponse);
+        patient.setUsername(userGoogleResponse.getEmail());
+        patient.setRole(Roles.PATIENT.name());
+        patient.setEnable(true);
+        patientRepository.findByUsername(patient.getUsername()).orElseGet(() -> {
+                    System.out.println("Da luu patient");
+                    return patientRepository.save(patient);
+                }
+        );
+        System.out.println(patient.toString());
+        UserResponse userResponse = userMapper.toUserResponse(patient);
+        var accessToken = generateAccess(patient);
+        var refreshToken = generateRefresh(patient.getId());
+        System.out.println(accessToken);
+        return AuthenticationResponse.builder()
+                .userResponse(userResponse)
+                .refreshToken(refreshToken)
+                .accessToken(accessToken).build();
+    }
 
     private String generateAccess(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
