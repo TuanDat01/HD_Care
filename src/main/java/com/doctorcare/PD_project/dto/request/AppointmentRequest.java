@@ -23,7 +23,7 @@ public class AppointmentRequest {
     String name;
 
     @NotBlank(message = "Giới tính không được để trống.")
-    @Pattern(regexp = "^(Male|Female|Other)$", message = "Giới tính phải là Male, Female hoặc Other.")
+    @Pattern(regexp = "^(Nam|Nu|Khac)$", message = "Giới tính phải là Male, Female hoặc Other.")
     String gender;
 
     @NotBlank(message = "Địa chỉ không được để trống.")

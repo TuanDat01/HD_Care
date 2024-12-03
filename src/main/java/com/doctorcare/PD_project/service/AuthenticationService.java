@@ -82,7 +82,7 @@ public class AuthenticationService {
         User user = userRepository.findByUsername(request.getUsername()).get();
         boolean authenticate = passwordEncoder.matches(request.getPassword(), user.getPwd());
         if (!authenticate)
-            throw new RuntimeException("Username or password is incorrect");
+            throw new AppException(ErrorCode.INVALID_CREDENTIAL);
         if (!user.isEnable() ) {
             applicationEventPublisher.publishEvent(new OnRegisterEvent(user, "http://localhost:8082/api/v1/patient", Locale.ENGLISH));
             throw new AppException(ErrorCode.NO_ACTIVE);

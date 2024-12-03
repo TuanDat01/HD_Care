@@ -29,7 +29,8 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_URL_POST = {
             "/auth/**",
-            "/auth/refreshToken"};
+            "/auth/refreshToken",
+            "/patient"};
     private static final String[] PUBLIC_URL_GET = {
             "/appointment/pdf2/",
             "/auth/**",
