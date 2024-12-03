@@ -71,11 +71,16 @@ public class AppointmentService {
 
     @Transactional
     public AppointmentRequest createAppointment(AppointmentRequest appointmentRequest) throws AppException, MessagingException {
-//        Patient patient = patientService.updatePatient(appointmentRequest);
-//        patientRepository.save(patient);
+
         Patient patient = patientService.updatePatient(appointmentRequest); //new
 
+        // Kiểm tra xem thời gian đặt lịch hợp lệ hay không
         Schedule schedule = scheduleService.getScheduleById(appointmentRequest.getScheduleId());
+
+        LocalDateTime localDateTime = LocalDateTime.now();
+
+        if (!schedule.getStart().isAfter(LocalDateTime.now()))
+            throw new AppException(ErrorCode.SCHEDULE_INVALID);
 
         Appointment appointment = appointmentMapper.toAppointment(appointmentRequest);
         Doctor doctor = doctorService.findDoctorBySchedules(schedule.getId());

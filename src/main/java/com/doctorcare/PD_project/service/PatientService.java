@@ -45,6 +45,7 @@ public class PatientService {
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
     SendEmailService sendEmailService;
+
     @Transactional
     public void CreatePatient(CreateUserRequest userRequest, HttpServletRequest request) throws AppException {
         if (patientRepository.findByUsername(userRequest.getUsername()).isPresent()) {
@@ -68,6 +69,7 @@ public class PatientService {
             }
         }
     }
+
     public Patient updatePatient(AppointmentRequest appointmentRequest) throws AppException {
         Patient patient = patientRepository.findById(appointmentRequest.getIdPatient()).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_PATIENT));
         System.out.println(patient);

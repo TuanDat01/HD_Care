@@ -48,7 +48,7 @@ ResponseEntity<ApiResponse> handlingAccessDeniedException(AccessDeniedException 
             String key = ex.getBindingResult().getAllErrors().stream().findFirst().get().getDefaultMessage();
             errorCode = ErrorCode.valueOf(key);
         } catch (IllegalArgumentException e) {
-            System.out.println("kh co enum");
+            System.out.println("Không có Error key");
         }
         apiResponse.setCode(errorCode.getCode());
         apiResponse.setMessage(errorCode.getMessage());
