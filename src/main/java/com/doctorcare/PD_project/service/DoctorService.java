@@ -123,7 +123,7 @@ public class DoctorService {
                                Sort.by(Sort.Direction.ASC,"price") : Sort.by(Sort.Direction.DESC, "price"))
                         : Sort.unsorted() // No sorting if `order` is null
         );
-        Page<Doctor> doctorPage = doctorRepository.filterDoctor(district,null,city,doctorPageRequest);
+        Page<Doctor> doctorPage = doctorRepository.filterDoctor(district, name, city, doctorPageRequest);
 
         doctors = doctorPage.getContent().stream().peek(doctor -> {
             List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), LocalDate.now().toString());

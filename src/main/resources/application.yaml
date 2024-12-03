@@ -4,7 +4,7 @@ spring:
   datasource:
     url: jdbc:mysql://localhost:3306/doctor
     username: root
-    password: 12022003b
+    password: 123456@
   jpa:
     hibernate:
       ddl-auto: update
@@ -62,8 +62,8 @@ outbound:
 jwt:
   signerKey: "xxiZx4S9K4jCse8UI89bTPGihA9MXjHSob+hfnckRMo7yRlIO7xheltlc/+dKFv4"
 token:
-  accessToken : "30"
-  refreshToken : "60"
+  accessToken : "10"
+  refreshToken : "5"
 
 
 
