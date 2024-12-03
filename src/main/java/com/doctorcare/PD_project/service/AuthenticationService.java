@@ -176,7 +176,7 @@ public class AuthenticationService {
                 .issuer("sohan.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(accessDuration, ChronoUnit.MINUTES).toEpochMilli()
+                        Instant.now().plus(accessDuration, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .claim("roles", user.getRole())
                 .claim("id", user.getId())
