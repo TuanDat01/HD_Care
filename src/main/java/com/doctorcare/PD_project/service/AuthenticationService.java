@@ -105,7 +105,7 @@ public class AuthenticationService {
                 .issuer("tuandat.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(refreshDuration, ChronoUnit.MINUTES).toEpochMilli()
+                        Instant.now().plus(refreshDuration, ChronoUnit.HOURS).toEpochMilli()
                 ))
                 .build();
 
