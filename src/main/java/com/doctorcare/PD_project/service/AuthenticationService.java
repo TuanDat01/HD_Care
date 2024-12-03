@@ -79,10 +79,12 @@ public class AuthenticationService {
     private final PatientRepository patientRepository;
     ApplicationEventPublisher applicationEventPublisher;
     public AuthenticationResponse authenticate(AuthenticationRequest request) throws AppException {
-        User user = userRepository.findByUsername(request.getUsername()).get();
+        User user = userRepository.findByUsername(request.getUsername())
+                .orElseThrow(() -> new AppException(ErrorCode.USERNAME_NOT_FOUND));
+
         boolean authenticate = passwordEncoder.matches(request.getPassword(), user.getPwd());
         if (!authenticate)
-            throw new RuntimeException("Username or password is incorrect");
+            throw new AppException(ErrorCode.INVALID_CREDENTIAL);
         if (!user.isEnable() ) {
             applicationEventPublisher.publishEvent(new OnRegisterEvent(user, "http://localhost:8082/api/v1/patient", Locale.ENGLISH));
             throw new AppException(ErrorCode.NO_ACTIVE);
@@ -176,7 +178,7 @@ public class AuthenticationService {
                 .issuer("sohan.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(
-                        Instant.now().plus(accessDuration, ChronoUnit.MINUTES).toEpochMilli()
+                        Instant.now().plus(accessDuration, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .claim("roles", user.getRole())
                 .claim("id", user.getId())

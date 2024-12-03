@@ -52,6 +52,14 @@ public class PatientService {
             throw new AppException(ErrorCode.USERNAME_EXISTS);
         }
 
+        if (patientRepository.findByEmail(userRequest.getEmail()).isPresent()) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        if (patientRepository.findByPhone(userRequest.getPhone()).isPresent()) {
+            throw new AppException(ErrorCode.PHONE_EXISTS);
+        }
+
         Patient patient = userMapper.toPatient(userRequest);
         patient.setRole(Roles.PATIENT.name());
         patient.setPwd(passwordEncoder.encode(userRequest.getPassword()));

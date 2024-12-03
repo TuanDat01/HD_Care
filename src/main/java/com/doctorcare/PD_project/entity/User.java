@@ -21,6 +21,7 @@ public class User {
     @Column(name = "id")
     String id;
 
+    @Column(unique = true, nullable = false)
     String name;
 
     String email;
@@ -31,6 +32,7 @@ public class User {
     @Column(name = "password")
     String pwd;
 
+    @Column(unique = true, nullable = false)
     String phone;
 
     String gender;
