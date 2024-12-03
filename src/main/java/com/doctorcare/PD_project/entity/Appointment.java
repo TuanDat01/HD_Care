@@ -32,11 +32,12 @@ public class Appointment {
     String status;
     @Column(name = "noteStatus")
     String note;
+
     @ManyToOne
-    @JoinColumn(name = "doctor_id")
+    @JoinColumn(name = "doctor_id", unique = true, nullable = false)
     Doctor doctor;
     @ManyToOne
-    @JoinColumn(name = "patient_id")
+    @JoinColumn(name = "patient_id", unique = true, nullable = false)
     Patient patient;
 
     @ManyToOne

@@ -102,10 +102,12 @@ public class ScheduleService {
     public Schedule getScheduleById(String id) throws AppException {
         return scheduleRepository.findById(id).orElseThrow(()-> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
     }
+
     public DoctorScheduleRequest getInfoSchedule(String idSchedule,String idDoctor)
     {
         return scheduleRepository.getInfoSchedule(idSchedule,idDoctor);
     }
+
     @Transactional
     public ApiResponse<Void> deleteSchedule(String id, DeleteScheduleRequest scheduleRequest) throws AppException {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));

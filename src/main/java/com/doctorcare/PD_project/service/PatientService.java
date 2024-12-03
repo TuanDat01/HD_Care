@@ -45,10 +45,19 @@ public class PatientService {
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
     SendEmailService sendEmailService;
+
     @Transactional
     public void CreatePatient(CreateUserRequest userRequest, HttpServletRequest request) throws AppException {
         if (patientRepository.findByUsername(userRequest.getUsername()).isPresent()) {
             throw new AppException(ErrorCode.USERNAME_EXISTS);
+        }
+
+        if (patientRepository.findByEmail(userRequest.getEmail()).isPresent()) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        if (patientRepository.findByPhone(userRequest.getPhone()).isPresent()) {
+            throw new AppException(ErrorCode.PHONE_EXISTS);
         }
 
         Patient patient = userMapper.toPatient(userRequest);
@@ -68,6 +77,7 @@ public class PatientService {
             }
         }
     }
+
     public Patient updatePatient(AppointmentRequest appointmentRequest) throws AppException {
         Patient patient = patientRepository.findById(appointmentRequest.getIdPatient()).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_PATIENT));
         System.out.println(patient);

@@ -37,9 +37,12 @@ public enum ErrorCode {
     PASSWORD_EXIST(1027, "password is exist", HttpStatus.BAD_REQUEST),
     NO_ACTIVE(1028,"Please check email to active" ,HttpStatus.OK),
     UPDATE_STATUS(1029, "Please update status is confirmed to prescription", HttpStatus.BAD_REQUEST),
-        PAGE_VALID(1030,"input page invalid" ,HttpStatus.BAD_REQUEST ),
-        START_TIME_EXISTED(1031,"Start Time existed" , HttpStatus.BAD_REQUEST),
-    DURATION_TIME(1032,"duration start between end must be one hours",HttpStatus.BAD_REQUEST);
+    PAGE_VALID(1030,"input page invalid" ,HttpStatus.BAD_REQUEST ),
+    START_TIME_EXISTED(1031,"Start Time existed" , HttpStatus.BAD_REQUEST),
+    DURATION_TIME(1032,"duration start between end must be one hours", HttpStatus.BAD_REQUEST),
+    INVALID_CREDENTIAL(1033, "username and password incorrect", HttpStatus.BAD_REQUEST),
+    SCHEDULE_INVALID(1034, "Thời gian khám phải bắt đầu sau thời gian hiện tại", HttpStatus.BAD_REQUEST),
+    USERNAME_NOT_FOUND(1035, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),;
 
 
     ErrorCode(int code, String message, HttpStatus status) {
