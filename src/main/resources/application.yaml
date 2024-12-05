@@ -2,9 +2,10 @@ spring:
   application:
     name: PD_project
   datasource:
-    url: jdbc:mysql://localhost:3306/doctor
-    username: root
-    password: 123456@
+    url: jdbc:mysql://gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/doctor
+    username: 3pPp29WZ1477fWf.root
+    password: RFQAE1DA8jp1KvPB
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update
