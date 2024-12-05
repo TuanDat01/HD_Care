@@ -25,8 +25,10 @@ public class ApplicationInitConfig {
         return args -> {
             if (userRepository.findByUsername("admin").isEmpty()) {
                 User user = new User();
+                user.setName("admin");
                 user.setUsername("admin");
                 user.setRole(Roles.ADMIN.name());
+                user.setPhone("0353986156");
                 user.setPwd(passwordEncoder.encode("admin"));
                 userRepository.save(user);
                 userRepository.save(user);
