@@ -136,7 +136,6 @@ public class AppointmentService {
         } else {
             appointmentList =  appointmentRepository.findAllByPatientId(id, date, date, status, pageable);
         }
-
         System.out.println(appointmentList);
         return appointmentList.map(appointmentMapper::toAppointmentRequest);
     }
@@ -352,7 +351,7 @@ public class AppointmentService {
             // Thêm bảng thuốc vào tài liệu
             document.add(medicineTable);
 
-            Paragraph footer = new Paragraph("Ngày kê đơn: " + prescription.getTimestamp().format(DateTimeFormatter.ofPattern("dd-MM-yy hh:mm")) + "\n\n\n\nBác sĩ: " + appointmentRequest.getNameDoctor(), fontBody);
+            Paragraph footer = new Paragraph("Ngày kê đơn: " + prescription.getTimestamp().format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm")) + "\n\n\n\nBác sĩ: " + appointmentRequest.getNameDoctor(), fontBody);
             footer.setAlignment(Element.ALIGN_RIGHT);
             document.add(footer);
             // Thêm bảng vào tài liệu

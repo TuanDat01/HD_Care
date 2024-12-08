@@ -55,11 +55,15 @@ public class DoctorService {
         if(doctorRepository.findDoctorByUsername(userRequest.getUsername()).isPresent()){
             throw new AppException(ErrorCode.USERNAME_EXISTS);
         }
-//        if(doctorRepository.findDoctorByEmail(userRequest.getEmail()).isPresent())
-//        {
-//            throw new AppException(ErrorCode.USERNAME_EXISTS);
-//
-//        }
+
+        if (doctorRepository.findDoctorByEmail(userRequest.getEmail()).isPresent()) {
+            throw new AppException(ErrorCode.EMAIL_EXISTED);
+        }
+
+        if (doctorRepository.findDoctorByPhone(userRequest.getPhone()).isPresent()) {
+            throw new AppException(ErrorCode.PHONE_EXISTS);
+        }
+
         Doctor doctor = userMapper.toDoctor(userRequest);
         doctor.setRole(Roles.DOCTOR.name());
         doctor.setPwd(passwordEncoder.encode(userRequest.getPassword()));
@@ -116,8 +120,8 @@ public class DoctorService {
     public PageResponse<DoctorResponse> GetAll(String district, String name, String city, int p,String order) throws AppException {
         List<Doctor> doctors = null;
         DoctorPageRequest doctorPageRequest = new DoctorPageRequest(
-                5,
-                (p-1) * 5,
+                4,
+                (p-1) * 4,
                 order != null ?
                         ("asc".equalsIgnoreCase(order) ?
                                Sort.by(Sort.Direction.ASC,"price") : Sort.by(Sort.Direction.DESC, "price"))
@@ -163,11 +167,10 @@ public class DoctorService {
 
     public UserResponse getDoctor() throws AppException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("username" + username);
 
         Doctor doctor  = doctorRepository.findDoctorByUsername(username).
                 orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
-
+        System.out.println("clinic Name: " + doctor.getClinicName());
         UserResponse userResponse = userMapper.toUserResponse(doctor);
         userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
 

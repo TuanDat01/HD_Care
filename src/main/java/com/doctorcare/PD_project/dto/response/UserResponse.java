@@ -24,4 +24,5 @@ public class UserResponse {
     Boolean noPassword;
     LocalDate dob;
     String gender;
+    String clinicName;
 }
