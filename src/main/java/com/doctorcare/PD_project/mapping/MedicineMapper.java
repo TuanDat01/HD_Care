@@ -1,6 +1,6 @@
 package com.doctorcare.PD_project.mapping;
 
-import com.doctorcare.PD_project.entity.MedicineDetail;
+import com.doctorcare.PD_project.entity.Medicine;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -9,5 +9,5 @@ import org.mapstruct.MappingTarget;
 public interface MedicineMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "prescription", ignore = true)
-    void updateMedicine(@MappingTarget MedicineDetail medicineDetail, MedicineDetail updateMedicineDetail);
+    void updateMedicine(@MappingTarget Medicine medicine, Medicine updateMedicine);
 }

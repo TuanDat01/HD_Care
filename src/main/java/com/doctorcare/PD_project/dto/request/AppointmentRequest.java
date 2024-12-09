@@ -22,7 +22,7 @@ public class AppointmentRequest {
     @Size(max = 100, message = "Tên bệnh nhân không được vượt quá 100 ký tự.")
     String name;
 
-    @NotBlank(message = "Giới tính không được để trống.")
+    @NotBlank(message = "GENDER_NOT_BLANK")
     String gender;
 
     @NotBlank(message = "Địa chỉ không được để trống.")
@@ -49,7 +49,7 @@ public class AppointmentRequest {
 
     String end;
 
-    @NotNull(message = "Ngày sinh không được để trống.")
+    @NotNull(message = "DOB_NOT_BLANK")
     @Past(message = "Ngày sinh phải là ngày trong quá khứ.")
     LocalDate dob;
 

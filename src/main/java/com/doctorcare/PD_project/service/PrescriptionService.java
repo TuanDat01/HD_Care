@@ -2,7 +2,7 @@ package com.doctorcare.PD_project.service;
 
 import com.doctorcare.PD_project.dto.request.CreatePrescriptionRequest;
 import com.doctorcare.PD_project.entity.Appointment;
-import com.doctorcare.PD_project.entity.MedicineDetail;
+import com.doctorcare.PD_project.entity.Medicine;
 import com.doctorcare.PD_project.entity.Prescription;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.enums.ErrorCode;
@@ -13,10 +13,8 @@ import com.doctorcare.PD_project.responsitory.PrescriptionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -43,14 +41,14 @@ public class PrescriptionService {
         createPrescriptionRequest.setResult(prescription1.getResult());
         createPrescriptionRequest.setTimestamp(prescription1.getTimestamp());
 
-        List<MedicineDetail> medicineDetails = medicineResponsitory.findByPrescriptionId(id);
+        List<Medicine> medicines = medicineResponsitory.findByPrescriptionId(id);
 
-        createPrescriptionRequest.setMedicineDetails(medicineDetails);
+        createPrescriptionRequest.setMedicines(medicines);
         prescriptionRepository.save(prescription1);
 
         return createPrescriptionRequest;
     }
-    public List<MedicineDetail> getMedicineByPrescription(String id) {
+    public List<Medicine> getMedicineByPrescription(String id) {
         return medicineResponsitory.findByPrescriptionId(id);
     }
 

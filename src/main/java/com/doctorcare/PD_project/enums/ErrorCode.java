@@ -5,10 +5,10 @@ import org.springframework.http.HttpStatus;
 
     @Getter
 public enum ErrorCode {
-    INVALID_KEY(1001, "Invalid key", HttpStatus.BAD_REQUEST),
+    INVALID_KEY(1001, "Đã có lỗi xảy ra", HttpStatus.BAD_REQUEST),
     FULL_NAME_NOT_BLANK(1002, "Full name cannot be blank", HttpStatus.BAD_REQUEST),
     FULL_NAME_SIZE(1003, "Full name must be at least 3 characters", HttpStatus.BAD_REQUEST),
-    PHONE_EXISTS(1004, "Phone number existed", HttpStatus.CONFLICT),
+    PHONE_EXISTS(1004, "Số điện thoại đã tồn tại", HttpStatus.CONFLICT),
     PHONE_NUMBER_NOT_BLANK(1005, "Phone number cannot be blank", HttpStatus.BAD_REQUEST),
     PHONE_NUMBER_PATTERN(1006, "Invalid phone number", HttpStatus.BAD_REQUEST),
     EMAIL_EXISTS(1007, "Email existed", HttpStatus.CONFLICT),
@@ -40,9 +40,13 @@ public enum ErrorCode {
     PAGE_VALID(1030,"input page invalid" ,HttpStatus.BAD_REQUEST ),
     START_TIME_EXISTED(1031,"Start Time existed" , HttpStatus.BAD_REQUEST),
     DURATION_TIME(1032,"duration start between end must be one hours", HttpStatus.BAD_REQUEST),
-    INVALID_CREDENTIAL(1033, "username and password incorrect", HttpStatus.BAD_REQUEST),
+    INVALID_CREDENTIAL(1033, "Tài khoản hoặc mật khẩu không đúng", HttpStatus.BAD_REQUEST),
     SCHEDULE_INVALID(1034, "Thời gian khám phải bắt đầu sau thời gian hiện tại", HttpStatus.BAD_REQUEST),
-    USERNAME_NOT_FOUND(1035, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),;
+    USERNAME_NOT_FOUND(1035, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
+        DOB_NOT_BLANK(1036, "Vui lòng cập nhật ngày sinh ở trang cá nhân", HttpStatus.BAD_REQUEST),
+        GENDER_NOT_BLANK(1037, "Giới tính không được để trống", HttpStatus.BAD_REQUEST),
+
+        ;
 
 
     ErrorCode(int code, String message, HttpStatus status) {

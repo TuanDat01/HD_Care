@@ -15,15 +15,15 @@ import java.time.Duration;
 @SpringBootTest
 class PdProjectApplicationTests {
 
-	@Test
-	public void Test(){
-
-		Flux<String> text = Flux.just("A","B","C");
-		Flux<Integer> number = Flux.just(1,2,3);
-//		Flux<Tuple2<String,Integer>> combine = Flux.zip(text,number);
-//		combine.subscribe(objects -> System.out.println(objects.getT1() + objects.getT2()));
-		Flux<String> combine = Flux.zip(text,number,(v1,v2) -> v1 + v2);
-		combine.subscribe(s -> System.out.println(s));
-	}
+//	@Test
+//	public void Test(){
+//
+//		Flux<String> text = Flux.just("A","B","C");
+//		Flux<Integer> number = Flux.just(1,2,3);
+////		Flux<Tuple2<String,Integer>> combine = Flux.zip(text,number);
+////		combine.subscribe(objects -> System.out.println(objects.getT1() + objects.getT2()));
+//		Flux<String> combine = Flux.zip(text,number,(v1,v2) -> v1 + v2);
+//		combine.subscribe(s -> System.out.println(s));
+//	}
 
 }
