@@ -34,10 +34,10 @@ public class Appointment {
     String note;
 
     @ManyToOne
-    @JoinColumn(name = "doctor_id", unique = true, nullable = false)
+    @JoinColumn(name = "doctor_id", nullable = false)
     Doctor doctor;
     @ManyToOne
-    @JoinColumn(name = "patient_id", unique = true, nullable = false)
+    @JoinColumn(name = "patient_id", nullable = false)
     Patient patient;
 
     @ManyToOne
