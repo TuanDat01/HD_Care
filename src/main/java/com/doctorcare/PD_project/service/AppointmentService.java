@@ -245,7 +245,9 @@ public class AppointmentService {
             // Thêm thông tin bệnh nhân theo từng dòng với khoảng cách giữa hai mục
             patientInfoParagraph.add(new Chunk("Tên bệnh nhân: " + patient.getName(), fontBody));
             patientInfoParagraph.add(new Chunk(new VerticalPositionMark())); // thêm vị trí dọc nếu cần
-            patientInfoParagraph.add(new Chunk("Năm sinh: " + patient.getDob().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")), fontBody));
+            if (patient.getDob() != null) {
+                patientInfoParagraph.add(new Chunk("Năm sinh: " + patient.getDob().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")), fontBody));
+            }
             patientInfoParagraph.add(Chunk.NEWLINE);
 
             patientInfoParagraph.add(new Chunk("Giới tính: " + patient.getGender(), fontBody));

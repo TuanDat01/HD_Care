@@ -92,8 +92,10 @@ public class PatientService {
 
         Patient patient  = patientRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
-        if (patientRepository.findByPhone(patientRequest.getPhone()).isPresent()){
-            throw new AppException(ErrorCode.PHONE_EXISTS);
+        if (!patient.getPhone().equals(patientRequest.getPhone())) {
+            if (patientRepository.findByPhone(patientRequest.getPhone()).isPresent()){
+                throw new AppException(ErrorCode.PHONE_EXISTS);
+            }
         }
         userMapper.updatePatient(patient, patientRequest);
 
