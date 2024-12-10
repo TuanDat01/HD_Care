@@ -39,6 +39,8 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
     Optional<Doctor> findDoctorByUsername(String username);
     Optional<Doctor> findDoctorByEmail(String email);
 
+    Optional<Doctor> findDoctorByPhone(String phone);
+
 //    @Query("SELECT r from Doctor d join d.reviews r where d.id = :doctorId ")
 //    Page<Review> findReviewsByDoctorId(@Param("doctorId") String doctorId,
 //                                       Pageable pageable);

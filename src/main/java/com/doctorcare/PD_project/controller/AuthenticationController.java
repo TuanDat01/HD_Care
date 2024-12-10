@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import java.text.ParseException;
 
@@ -56,11 +57,14 @@ public class AuthenticationController {
     }
 
     @GetMapping("/verify")
-    public ApiResponse<User> verifyAccount(@RequestParam(value = "token") String token) throws AppException {
+    public ModelAndView verifyAccount(@RequestParam(value = "token") String token) throws AppException {
         if(token == null) {
             throw new RuntimeException("Token is null");
         }
-        return ApiResponse.<User>builder().result(verifyTokenService.updateAndDelete(token)).build();
+        verifyTokenService.updateAndDelete(token);
+        ModelAndView modelAndView = new ModelAndView("success"); // Tên template Thymeleaf
+        modelAndView.addObject("message", "Patient created successfully!");
+        return modelAndView;
     }
     @PostMapping("/refreshToken")
     ApiResponse<RefreshTokenResponse> refresh(@RequestBody IntrospectRequest request) throws AppException, ParseException, JOSEException {
