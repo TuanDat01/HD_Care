@@ -49,6 +49,7 @@ public class AppointmentRequest {
 
     String end;
 
+
 //    @NotNull(message = "DOB_NOT_BLANK")
 //    @Past(message = "Ngày sinh phải là ngày trong quá khứ.")
     LocalDate dob;
