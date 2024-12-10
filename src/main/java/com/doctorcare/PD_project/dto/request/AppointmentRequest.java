@@ -49,8 +49,6 @@ public class AppointmentRequest {
 
     String end;
 
-    @NotNull(message = "Ngày sinh không được để trống.")
-    @Past(message = "Ngày sinh phải là ngày trong quá khứ.")
     LocalDate dob;
 
     String prescriptionId;
