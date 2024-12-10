@@ -12,11 +12,19 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class MedicineDetail {
+public class Medicine {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
 
     String name;
     String instruction;
+    String medicineType;
+    String quantity;
+    String note;
+
+    @ManyToOne
+    @JoinColumn(name = "prescription_id")
+    @JsonIgnore
+    Prescription prescription;
 }

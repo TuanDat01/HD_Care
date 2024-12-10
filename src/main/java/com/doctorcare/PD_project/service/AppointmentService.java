@@ -24,13 +24,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -136,7 +133,6 @@ public class AppointmentService {
         } else {
             appointmentList =  appointmentRepository.findAllByPatientId(id, date, date, status, pageable);
         }
-
         System.out.println(appointmentList);
         return appointmentList.map(appointmentMapper::toAppointmentRequest);
     }
@@ -186,8 +182,8 @@ public class AppointmentService {
         Doctor doctor = doctorRepository.findById(appointmentRequest.getIdDoctor())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
 
-        List<MedicineDetail> medicineDetails = prescriptionService.getMedicineByPrescription(appointmentRequest.getPrescriptionId());
-        System.out.println(medicineDetails);
+        List<Medicine> medicines = prescriptionService.getMedicineByPrescription(appointmentRequest.getPrescriptionId());
+        System.out.println(medicines);
 
         Prescription prescription = prescriptionService.getPrescriptionById(appointmentRequest.getPrescriptionId());
         Document document = new Document();
@@ -249,7 +245,9 @@ public class AppointmentService {
             // Thêm thông tin bệnh nhân theo từng dòng với khoảng cách giữa hai mục
             patientInfoParagraph.add(new Chunk("Tên bệnh nhân: " + patient.getName(), fontBody));
             patientInfoParagraph.add(new Chunk(new VerticalPositionMark())); // thêm vị trí dọc nếu cần
-            patientInfoParagraph.add(new Chunk("Năm sinh: " + patient.getDob().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")), fontBody));
+            if (patient.getDob() != null) {
+                patientInfoParagraph.add(new Chunk("Năm sinh: " + patient.getDob().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")), fontBody));
+            }
             patientInfoParagraph.add(Chunk.NEWLINE);
 
             patientInfoParagraph.add(new Chunk("Giới tính: " + patient.getGender(), fontBody));
@@ -290,13 +288,13 @@ public class AppointmentService {
             }
 
             // Thêm dữ liệu vào bảng
-            for (int i = 0; i < medicineDetails.size(); i++) {
+            for (int i = 0; i < medicines.size(); i++) {
                 PdfPCell cell1 = new PdfPCell(new Paragraph(String.valueOf(i + 1), fontBody));
-                PdfPCell cell2 = new PdfPCell(new Paragraph(medicineDetails.get(i).getName(), fontBody));
-                PdfPCell cell3 = new PdfPCell(new Paragraph(medicineDetails.get(i).getMedicineType(), fontBody));
-                PdfPCell cell4 = new PdfPCell(new Paragraph(medicineDetails.get(i).getQuantity(), fontBody));
-                PdfPCell cell5 = new PdfPCell(new Paragraph(medicineDetails.get(i).getInstruction(), fontBody));
-                PdfPCell cell6 = new PdfPCell(new Paragraph(medicineDetails.get(i).getNote(), fontBody));
+                PdfPCell cell2 = new PdfPCell(new Paragraph(medicines.get(i).getName(), fontBody));
+                PdfPCell cell3 = new PdfPCell(new Paragraph(medicines.get(i).getMedicineType(), fontBody));
+                PdfPCell cell4 = new PdfPCell(new Paragraph(medicines.get(i).getQuantity(), fontBody));
+                PdfPCell cell5 = new PdfPCell(new Paragraph(medicines.get(i).getInstruction(), fontBody));
+                PdfPCell cell6 = new PdfPCell(new Paragraph(medicines.get(i).getNote(), fontBody));
 
                 // Căn giữa nội dung theo chiều dọc và chiều ngang
                 cell1.setHorizontalAlignment(Element.ALIGN_CENTER);
@@ -352,7 +350,7 @@ public class AppointmentService {
             // Thêm bảng thuốc vào tài liệu
             document.add(medicineTable);
 
-            Paragraph footer = new Paragraph("Ngày kê đơn: " + prescription.getTimestamp().format(DateTimeFormatter.ofPattern("dd-MM-yy hh:mm")) + "\n\n\n\nBác sĩ: " + appointmentRequest.getNameDoctor(), fontBody);
+            Paragraph footer = new Paragraph("Ngày kê đơn: " + prescription.getTimestamp().format(DateTimeFormatter.ofPattern("dd-MM-yy HH:mm")) + "\n\n\n\nBác sĩ: " + appointmentRequest.getNameDoctor(), fontBody);
             footer.setAlignment(Element.ALIGN_RIGHT);
             document.add(footer);
             // Thêm bảng vào tài liệu

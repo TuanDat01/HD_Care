@@ -1,6 +1,7 @@
 package com.doctorcare.PD_project.controller;
 
 import com.doctorcare.PD_project.dto.response.ApiResponse;
+import com.doctorcare.PD_project.entity.Medicine;
 import com.doctorcare.PD_project.entity.MedicineDetail;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.MedicineService;
@@ -8,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/medicine")
@@ -21,15 +24,19 @@ public class MedicineController {
 //        return ApiResponse.<MedicineDetail>builder().result(medicineService.CreateMedicine(medicineDetail)).build();
 //    }
     @PutMapping("/{id}")
-    public ApiResponse<MedicineDetail> UpdateMedicine(@PathVariable String id, @RequestBody MedicineDetail medicineDetail) throws AppException {
-        return ApiResponse.<MedicineDetail>builder().result(medicineService.updateMedicine(id,medicineDetail)).build();
+    public ApiResponse<Medicine> UpdateMedicine(@PathVariable String id, @RequestBody Medicine medicine) throws AppException {
+        return ApiResponse.<Medicine>builder().result(medicineService.updateMedicine(id, medicine)).build();
     }
     @DeleteMapping("/{id}")
     public void DeleteMedicine(@PathVariable String id) {
         medicineService.deleteMedicineById(id);
     }
     @GetMapping("/{id}")
-    public ApiResponse<MedicineDetail> GetMedicineById(@PathVariable String id) throws AppException {
-        return ApiResponse.<MedicineDetail>builder().result(medicineService.getMedicineById(id)).build();
+    public ApiResponse<Medicine> GetMedicineById(@PathVariable String id) throws AppException {
+        return ApiResponse.<Medicine>builder().result(medicineService.getMedicineById(id)).build();
+    }
+    @GetMapping
+    public ApiResponse<List<MedicineDetail>> GetAllMedicine() {
+        return ApiResponse.<List<MedicineDetail>>builder().result(medicineService.findAll()).build();
     }
 }

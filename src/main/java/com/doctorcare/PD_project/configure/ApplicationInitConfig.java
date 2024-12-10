@@ -26,6 +26,7 @@ public class ApplicationInitConfig {
             if (userRepository.findByUsername("admin").isEmpty()) {
                 User user = new User();
                 user.setName("admin");
+                user.setEnable(true);
                 user.setUsername("admin");
                 user.setRole(Roles.ADMIN.name());
                 user.setPhone("0353986156");

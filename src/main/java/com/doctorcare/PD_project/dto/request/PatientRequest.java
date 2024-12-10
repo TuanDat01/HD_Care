@@ -18,7 +18,6 @@ import java.time.LocalDateTime;
 
 public class PatientRequest {
     String id;
-    @NotNull(message = "FULL_NAME_NOT_BLANK")
     String name;
     String dob;
     String gender;

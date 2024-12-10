@@ -47,6 +47,7 @@ public class PatientController {
                 .message("Update successful")
                 .build();
     }
+
     @GetMapping("/my-info")
     public ApiResponse<UserResponse> getPatientById() throws AppException {
         return ApiResponse.<UserResponse>builder().result(patientService.getPatient()).build();

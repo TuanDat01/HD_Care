@@ -81,19 +81,24 @@ public class SendEmailService {
 
     @Async
     public void sendActive(String token, OnRegisterEvent event) throws MessagingException {
-        String url = "http://localhost:8082/api/v1/auth/verify?token=" + token;
-        String subject = String.format("Xác nhận tài khoản" +
-                "<p>Chao ban: <strong>%s</strong></p>" +
-                "<p>Xin vui long kich hoat tai khoan : <a href = '%s'>o day</a></p>", event.getUser().getName(), url);
-        emailServiceImpl.sendSimpleMessage(event.getUser().getEmail(), "Xác nhận tài khoản", subject, null);
+        String activationUrl = String.format("http://localhost:8082/api/v1/auth/verify?token=%s", token);
+        String subject = "Xác nhận tài khoản";
+        String message = String.format(
+                "<p>Xin chào, <strong>%s</strong>!</p>" +
+                        "<p>Vui lòng kích hoạt tài khoản của bạn bằng cách nhấp vào liên kết sau: " +
+                        "<a href='%s'>Kích hoạt tài khoản</a></p>",
+                event.getUser().getName(), activationUrl
+        );
+
+        emailServiceImpl.sendSimpleMessage(event.getUser().getEmail(), subject, message, null);
     }
 
     @Async
     public void sendCancelAppointment(String token, OnRegisterEvent event) throws MessagingException {
         String url = event.getAppUrl() + "/verify?token=" + token;
         String subject = String.format("Xác nhận tài khoản" +
-                "<p>Chao ban: <strong>%s</strong></p>" +
-                "<p>Xin vui long kich hoat tai khoan : <a href = '%s'>o day</a></p>", event.getUser().getName(), url);
+                "<p>Xin chào, <strong>%s</strong>!</p>" +
+                "<p>Xin vui lòng kích hoạt tài khoản: <a href = '%s'>Tại đây</a></p>", event.getUser().getName(), url);
         emailServiceImpl.sendSimpleMessage(event.getUser().getEmail(), "Xác nhận tài khoản", subject, null);
     }
 

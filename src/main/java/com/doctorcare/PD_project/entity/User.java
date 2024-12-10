@@ -32,7 +32,7 @@ public class User {
     @Column(name = "password")
     String pwd;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     String phone;
 
     String gender;

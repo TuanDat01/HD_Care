@@ -89,13 +89,15 @@ public class PatientService {
     //PostAuthorize("hasAuthority('PATIENT')")
     public PatientRequest updatePatient(PatientRequest patientRequest) throws AppException, IOException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("username" + username);
+
         Patient patient  = patientRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
-
-        System.out.println("patient: " + patient.toString());
+        if (!patient.getPhone().equals(patientRequest.getPhone())) {
+            if (patientRepository.findByPhone(patientRequest.getPhone()).isPresent()){
+                throw new AppException(ErrorCode.PHONE_EXISTS);
+            }
+        }
         userMapper.updatePatient(patient, patientRequest);
-        System.out.println("patient Update: " + patient.toString());
 
         return userMapper.toPatientRequest(patientRepository.save(patient));
     }
