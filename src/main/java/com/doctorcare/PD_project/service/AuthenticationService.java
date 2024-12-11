@@ -86,7 +86,7 @@ public class AuthenticationService {
         if (!authenticate)
             throw new AppException(ErrorCode.INVALID_CREDENTIAL);
         if (!user.isEnable() ) {
-            applicationEventPublisher.publishEvent(new OnRegisterEvent(user, "https://grateful-flow-production.up.railway.app/api/v1/patient", Locale.ENGLISH));
+            applicationEventPublisher.publishEvent(new OnRegisterEvent(user, "https://powerful-motivation-production.up.railway.app/api/v1/patient", Locale.ENGLISH));
             throw new AppException(ErrorCode.NO_ACTIVE);
         }
         var accessToken = generateAccess(user);
