@@ -2,6 +2,7 @@ package com.doctorcare.PD_project.responsitory;
 
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.OtherDoctor;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.entity.Schedule;
@@ -40,6 +41,16 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
     Optional<Doctor> findDoctorByEmail(String email);
 
     Optional<Doctor> findDoctorByPhone(String phone);
+
+    @Query(value = "select d from Doctor d where d.id <> :doctorId and" +
+            " (:city is null or d.city=:city) or" +
+            " d.id <> :doctorId and (:name is null or d.name like %:name%) or" +
+            " d.id <> :doctorId and (:price is null or d.price=:price)")
+    Page<Doctor> findOtherDoctor(@Param("doctorId") String doctorId,
+                                 @Param("city") String city,
+                                      @Param("name") String name,
+                                      @Param("price") long price,
+                                 Pageable pageable);
 
 //    @Query("SELECT r from Doctor d join d.reviews r where d.id = :doctorId ")
 //    Page<Review> findReviewsByDoctorId(@Param("doctorId") String doctorId,

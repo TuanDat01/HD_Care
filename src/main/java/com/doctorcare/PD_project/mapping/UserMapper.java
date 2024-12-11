@@ -5,6 +5,7 @@ import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
+import com.doctorcare.PD_project.dto.response.OtherDoctor;
 import com.doctorcare.PD_project.dto.response.UserGoogleResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Doctor;
@@ -50,5 +51,7 @@ public interface UserMapper {
 
     @Mapping(source = "pwd",target = "password")
     UserResponse toUserResponse(Doctor doctor);
+
+    OtherDoctor toOtherDoctor(Doctor doctor);
 
 }

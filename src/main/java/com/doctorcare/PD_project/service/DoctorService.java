@@ -196,4 +196,12 @@ public class DoctorService {
         return reviewResponse;
     }
 
+    public List<OtherDoctor> findDoctorByOther(String id) throws AppException {
+        Doctor doctor = doctorRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+        Pageable pageable = PageRequest.of(0, 4); // Page 0 with 4 results
+        List<Doctor> doctors = doctorRepository.findOtherDoctor(doctor.getId(), doctor.getCity(),doctor.getName(), doctor.getPrice(), pageable).getContent();
+
+        return doctors.stream().map(userMapper::toOtherDoctor).toList();
+    }
+
 }

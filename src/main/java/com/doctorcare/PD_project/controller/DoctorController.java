@@ -61,4 +61,9 @@ public class DoctorController {
     public ApiResponse<UserResponse> getDoctorById() throws AppException {
         return ApiResponse.<UserResponse>builder().result(doctorService.getDoctor()).build();
     }
+
+    @GetMapping("/otherDoctor/{id}")
+    public ApiResponse<List<OtherDoctor>> findOtherDoctor(@PathVariable String id) throws AppException {
+        return ApiResponse.<List<OtherDoctor>>builder().result(doctorService.findDoctorByOther(id)).build();
+    }
 }
