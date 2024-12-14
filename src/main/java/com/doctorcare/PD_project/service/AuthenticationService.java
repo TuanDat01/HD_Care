@@ -141,7 +141,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse outBoundAuthenticate(String code) throws AppException {
-        System.out.println(CLIENT_ID);
+        System.out.println(REDIRECT_URI);
         ExchangeTokenResponse exchangeTokenResponse =  outboundClient.exchangeToken(ExchangeTokenRequest.builder()
                         .code(code)
                         .clientId(CLIENT_ID)
