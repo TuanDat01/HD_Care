@@ -73,7 +73,7 @@ public class SendEmailService {
         String subject = "Review Doctor :" + appointmentRequest.getNameDoctor();
         String htmlContent = String.format("<h1>Thanks for your trust</h1>"
                 + "<p>Please leave review for doctor: <strong>%s</strong> </p>" +
-                "<p>Follow link : <a href = 'http://localhost:3000/home?evaluate=1&idAppointment=%s'>Link review</a></p>",
+                "<p>Follow link : <a href = 'https://hd-care-front-end.vercel.app/home?evaluate=1&idAppointment=%s'>Link review</a></p>",
                 appointmentRequest.getNameDoctor(),
                 appointmentRequest.getId());
         emailServiceImpl.sendSimpleMessage(appointmentRequest.getEmail(), subject, htmlContent, null);
@@ -81,7 +81,7 @@ public class SendEmailService {
 
     @Async
     public void sendActive(String token, OnRegisterEvent event) throws MessagingException {
-        String activationUrl = String.format("http://localhost:8082/api/v1/auth/verify?token=%s", token);
+        String activationUrl = String.format("http://powerful-motivation-production.up.railway.app/api/v1/auth/verify?token=%s", token);
         String subject = "Xác nhận tài khoản";
         String message = String.format(
                 "<p>Xin chào, <strong>%s</strong>!</p>" +
