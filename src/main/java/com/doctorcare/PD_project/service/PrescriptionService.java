@@ -36,6 +36,7 @@ public class PrescriptionService {
 
         prescription1.setResult(prescription.getResult());
         prescription1.setTimestamp(LocalDateTime.now());
+        System.out.println(prescription1.getTimestamp());
 
         CreatePrescriptionRequest createPrescriptionRequest = new CreatePrescriptionRequest();
         createPrescriptionRequest.setResult(prescription1.getResult());

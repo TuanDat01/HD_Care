@@ -27,18 +27,14 @@ public class Doctor extends User {
     double avgRating;
     long numberOfReviews;
     String address;
+    int count;
 
     @Lob
     String description;
-
     @OneToMany(cascade = CascadeType.ALL,fetch = FetchType.LAZY)
     @JoinColumn(name = "doctor_id")
     @JsonIgnore
     List<Schedule> schedules;
-
-//    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    @JoinColumn(name = "doctor_id")
-//    List<Review> reviews;
 
     public void addSchedule(Schedule schedule){
         if(schedules == null){

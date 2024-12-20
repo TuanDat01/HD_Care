@@ -23,12 +23,6 @@ import java.util.List;
 @Validated
 public class ScheduleController {
     ScheduleService scheduleService;
-//    @PostMapping
-//    public ApiResponse<DoctorResponse> createSchedule(@RequestParam(name = "idDoctor",required = true) String id, @Valid @RequestBody List<Schedule> schedule) throws AppException {
-//        DoctorResponse doctorResponse = scheduleService.createSchedule(schedule, id);
-//        return ApiResponse.<DoctorResponse>builder().result(doctorResponse).build();
-//    }
-
     @PostMapping
     public ApiResponse<DoctorResponse> createSchedule(@RequestParam(name = "idDoctor",required = true) String idDoctor,
                                                       @RequestBody CreateSchedule createSchedule) throws AppException {

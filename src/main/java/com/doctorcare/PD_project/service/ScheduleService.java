@@ -114,18 +114,19 @@ public class ScheduleService {
 
         List<Schedule> schedule = scheduleRequest.getScheduleList();
 
-        for (Schedule schedule1 : schedule){
-            Schedule schedule2 = scheduleRepository.findById(schedule1.getId()).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
+        for (Schedule scheduleItem : schedule) {
+            Schedule existingSchedule = scheduleRepository.findById(scheduleItem.getId())
+                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_SCHEDULE));
 
-            if (doctor.getSchedules().contains(schedule2))
-            {
-                List<Appointment> appointmentRequests =  appointmentRepository.findAppointmentBySchedule(schedule1);
-                for (Appointment appointmentRequest : appointmentRequests){
-                    appointmentRequest.setStatus(AppointmentStatus.CANCELLED.toString());
-                    appointmentRequest.setNote(scheduleRequest.getNote());
-                }
+            if (doctor.getSchedules().remove(existingSchedule)) {
+                appointmentRepository.findAppointmentBySchedule(scheduleItem).stream()
+                        .filter(appointment -> !AppointmentStatus.CANCELLED.toString().equals(appointment.getStatus())
+                                && !AppointmentStatus.COMPLETED.toString().equals(appointment.getStatus()))
+                        .forEach(appointment -> {
+                            appointment.setStatus(AppointmentStatus.CANCELLED.toString());
+                            appointment.setNote(scheduleRequest.getNote());
+                        });
             }
-            doctor.getSchedules().remove(schedule2);
         }
 
         return null;

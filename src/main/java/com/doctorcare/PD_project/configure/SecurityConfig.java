@@ -59,6 +59,8 @@ public class SecurityConfig {
             try {
                 request
                         .requestMatchers(DOCTOR_URL).hasRole("DOCTOR")
+                        .requestMatchers(HttpMethod.POST,"/doctor").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/doctor").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, PUBLIC_URL_POST).permitAll()
                         .requestMatchers(HttpMethod.GET,PUBLIC_URL_GET).permitAll()
                         .anyRequest().authenticated()

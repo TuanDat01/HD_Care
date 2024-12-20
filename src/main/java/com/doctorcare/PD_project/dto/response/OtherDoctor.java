@@ -14,4 +14,5 @@ public class OtherDoctor<T> {
    String id;
    String name;
    String img;
+   int count;
 }

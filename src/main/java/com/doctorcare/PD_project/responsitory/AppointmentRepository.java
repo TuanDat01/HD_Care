@@ -35,7 +35,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             " where d.id = :doctorId and" +
             " (:date IS NULL or FUNCTION('DATE', s.end) = :date)" +
             " and (:status is null or a.status=:status)" +
-            " and (:name is null or a.patient.name like %:name%)")
+            " and (:name is null or a.patient.name like %:name%) order by HOUR(s.start) desc")
     Page<Appointment> findByDoctor(@Param("doctorId") String doctorId,
                                          @Param("date") String date,
                                          @Param("status") String status,
@@ -50,8 +50,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             "where (:startDate is null and :endDate is null or FUNCTION('DATE', s.start) " +
             "between FUNCTION('DATE', :startDate) and FUNCTION('DATE', :endDate)) " +
             "and d.id = :doctorId " +
-            "and (:status is null or a.status = :status)" +
-            " and(:name is null or a.patient.name like %:name%)")
+            "and (:status is null or a.status = :status) " +
+            "and (:name is null or a.patient.name like %:name%) " +
+            "order by DATEDIFF(FUNCTION('DATE', s.start), CURRENT_DATE) desc ")
     Page<Appointment> filterAppointment(
             @Param("doctorId") String id,
             @Param("startDate") String startDate,
@@ -62,11 +63,13 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     );
 
 
+
+
     List<Appointment> findAppointmentBySchedule(Schedule schedule);
 
     Appointment findAppointmentByPrescription(Prescription prescription);
     @Query("SELECT new com.doctorcare.PD_project.dto.response.ManagePatient(" +
-            "p.id, p.name, p.dob, MAX(a.schedule.end) as maxDate, " +
+            "p.id, p.name, p.dob, MAX(a.schedule.end), " +
             "p.address, p.email, p.phone, COUNT(p.id)) " +
             "FROM Appointment a " +
             "JOIN a.patient p " +
@@ -77,6 +80,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     Page<ManagePatient> getPatientOfDoctor(@Param("doctorId") String id,
                                            @Param("keyword") String keyword,
                                            Pageable pageable);
+
 
     @Override
     long count();
