@@ -48,7 +48,7 @@ public class SendEmailService {
         String subject = savedAppointment
                 .getSchedule()
                 .getStart()
-                .format(DateTimeFormatter.ofPattern("hh:mm")) + "-" +savedAppointment.getSchedule().getEnd().format(DateTimeFormatter.ofPattern("hh:mm")) ;
+                .format(DateTimeFormatter.ofPattern("HH:mm")) + "-" +savedAppointment.getSchedule().getEnd().format(DateTimeFormatter.ofPattern("HH:mm")) ;
         System.out.println(savedAppointment.getPatient().getEmail());
         String htmlContent = String.format("<h1>%s : <strong>%s</strong></h1>"
                 + "<p>Information patient : <strong>%s</strong> </p>"
