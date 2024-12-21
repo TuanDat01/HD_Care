@@ -44,11 +44,11 @@ public class User {
     String img;
 
     String role;
-    boolean isEnable;
+    boolean enable;
 
 
 
-    boolean isBlocked;
+    boolean blocked;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<Post> posts;

@@ -50,6 +50,11 @@ public class DoctorController {
        return ApiResponse.<PageResponse>builder().result(doctorService.GetAll(district, name, city,page,order)).build();
     }
 
+    @GetMapping("/statistic")
+    public ApiResponse<List<OtherDoctor>> getStatistic() {
+        return ApiResponse.<List<OtherDoctor>>builder().result(doctorService.GetStatistic()).build();
+    }
+
     @GetMapping("{id}/review")
     public ApiResponse<ReviewResponse> getListReview(@PathVariable String id,
                                                      @RequestParam(name = "sort",required = false) String sort,

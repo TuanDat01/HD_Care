@@ -28,5 +28,7 @@ public class DoctorResponse {
     List<Review> reviews;
     String img;
     String address;
+    boolean enable;
+
 
 }

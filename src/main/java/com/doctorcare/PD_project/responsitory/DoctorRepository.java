@@ -55,4 +55,5 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
 //    @Query("SELECT r from Doctor d join d.reviews r where d.id = :doctorId ")
 //    Page<Review> findReviewsByDoctorId(@Param("doctorId") String doctorId,
 //                                       Pageable pageable);
+    Page<Doctor> findAll(Pageable pageable);
 }

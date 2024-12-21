@@ -7,6 +7,7 @@ import com.doctorcare.PD_project.dto.response.*;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.entity.Schedule;
+import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
@@ -32,6 +33,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import javax.print.Doc;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -118,6 +120,7 @@ public class DoctorService {
     }
 
     public PageResponse<DoctorResponse> GetAll(String district, String name, String city, int p,String order) throws AppException {
+        System.out.println("p : " + p);
         List<Doctor> doctors = null;
         DoctorPageRequest doctorPageRequest = new DoctorPageRequest(
                 4,
@@ -204,4 +207,12 @@ public class DoctorService {
         return doctors.stream().map(userMapper::toOtherDoctor).toList();
     }
 
+    public List<OtherDoctor> GetStatistic() {
+        Pageable pageable = PageRequest.of(0,3,
+                Sort.by(Sort.Direction.DESC, "count"));
+
+        List<Doctor> result = doctorRepository.findAll(pageable).getContent();
+
+        return result.stream().map(userMapper::toOtherDoctor).toList();
+    }
 }
