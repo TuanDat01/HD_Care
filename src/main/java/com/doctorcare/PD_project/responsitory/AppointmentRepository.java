@@ -22,7 +22,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             " where p.id = :idPatient " +
             "and (:startDate is null and :endDate is null or FUNCTION('DATE', s.start) between FUNCTION('DATE', :startDate) and FUNCTION('DATE', :endDate)) " +
             "and (:status is null or a.status = :status)" +
-            " order by s.start desc ")
+            "order by ABS(DATEDIFF(FUNCTION('DATE', s.start), CURRENT_DATE)) asc, HOUR(s.start) desc")
     Page<Appointment> findAllByPatientId(@Param("idPatient") String id,
                                          @Param("startDate") String startDate,
                                          @Param("endDate") String endDate,
@@ -52,7 +52,7 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
             "and d.id = :doctorId " +
             "and (:status is null or a.status = :status) " +
             "and (:name is null or a.patient.name like %:name%) " +
-            "order by DATEDIFF(FUNCTION('DATE', s.start), CURRENT_DATE) desc ")
+            "order by ABS(DATEDIFF(FUNCTION('DATE', s.start), CURRENT_DATE)) asc, HOUR(s.start) desc")
     Page<Appointment> filterAppointment(
             @Param("doctorId") String id,
             @Param("startDate") String startDate,
