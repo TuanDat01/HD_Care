@@ -23,9 +23,9 @@ public class CreateUserRequest {
     String password;
     @Size(min = 10,max = 10, message = "PHONE_NUMBER_PATTERN")
     String phone;
+    String city;
+    String district;
     String address;
     String gender;
-    boolean isEnable;
     String img;
-
 }

@@ -78,7 +78,7 @@ public class DoctorService {
 
         } catch (RuntimeException exception) {
                 System.out.println(exception.getMessage());
-            }
+        }
 
         return userMapper.toUserResponse(savedDoctor);
     }
@@ -214,5 +214,21 @@ public class DoctorService {
         List<Doctor> result = doctorRepository.findAll(pageable).getContent();
 
         return result.stream().map(userMapper::toOtherDoctor).toList();
+    }
+
+    public Page<DoctorGetByAdminResponse> getAllByAdmin(String district, String name, String city, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return doctorRepository.findAllForAdmin(district, name, city, pageable);
+    }
+
+    public Boolean updateEnable(String doctorId) throws AppException {
+        Doctor doctor = doctorRepository.findById(doctorId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
+
+        doctor.setEnable(!doctor.isEnable());
+        doctorRepository.save(doctor);
+
+        return true;
     }
 }

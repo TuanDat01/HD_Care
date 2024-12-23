@@ -30,8 +30,9 @@ public class SecurityConfig {
     private static final String[] PUBLIC_URL_POST = {
             "/auth/**",
             "/auth/refreshToken",
-            "/patient"
+            "/patient",
     };
+
     private static final String[] PUBLIC_URL_GET = {
             "/appointment/pdf2/",
             "/auth/**",
@@ -42,8 +43,6 @@ public class SecurityConfig {
             "/doctor",
             "/auth/verify",
             "/doctor-schedule",
-            "/doctor/**",
-
     };
 
     private static final String[] DOCTOR_URL = {
@@ -60,7 +59,12 @@ public class SecurityConfig {
                 request
                         .requestMatchers(DOCTOR_URL).hasRole("DOCTOR")
                         .requestMatchers(HttpMethod.POST,"/doctor").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.PUT,"/doctor").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT,"/doctor/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/patient/get-all-by-admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/patient/update-by-admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/doctor/get-all-by-admin").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/patient/active/*").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/doctor/active/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, PUBLIC_URL_POST).permitAll()
                         .requestMatchers(HttpMethod.GET,PUBLIC_URL_GET).permitAll()
                         .anyRequest().authenticated()

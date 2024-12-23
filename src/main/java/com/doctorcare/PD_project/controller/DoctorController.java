@@ -40,7 +40,6 @@ public class DoctorController {
         return ApiResponse.<DoctorResponse>builder().result(doctorService.UpdateInfo(id, doctorRequest)).build();
     }
 
-
     @GetMapping
     public ApiResponse<PageResponse> getAll(@RequestParam(name = "name", required = false) String name,
                                                     @RequestParam(name = "district", required = false) String district,
@@ -70,5 +69,23 @@ public class DoctorController {
     @GetMapping("/otherDoctor/{id}")
     public ApiResponse<List<OtherDoctor>> findOtherDoctor(@PathVariable String id) throws AppException {
         return ApiResponse.<List<OtherDoctor>>builder().result(doctorService.findDoctorByOther(id)).build();
+    }
+
+    @GetMapping("/get-all-by-admin")
+    public ApiResponse<Page<DoctorGetByAdminResponse>> getAllByAdmin(@RequestParam(name = "name", required = false) String name,
+                                                                     @RequestParam(name = "district", required = false) String district,
+                                                                     @RequestParam(name = "city",required = false) String city,
+                                                                     @RequestParam(name = "page",required = false) int page,
+                                                                     @RequestParam(name = "size", defaultValue = "4") int size) throws AppException {
+        return ApiResponse.<Page<DoctorGetByAdminResponse>>builder()
+                .result(doctorService.getAllByAdmin(district, name, city, page - 1, size))
+                .build();
+    }
+
+    @PostMapping("/active/{doctorId}")
+    public ApiResponse<Boolean> updateEnable(@PathVariable String doctorId) throws AppException {
+        return ApiResponse.<Boolean>builder()
+                .result(doctorService.updateEnable(doctorId))
+                .build();
     }
 }

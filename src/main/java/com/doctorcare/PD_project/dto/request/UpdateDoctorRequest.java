@@ -27,5 +27,4 @@ public class UpdateDoctorRequest {
     long price;
     String description;
     String clinicName;
-
 }
