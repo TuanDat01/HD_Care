@@ -1,6 +1,7 @@
 package com.doctorcare.PD_project.responsitory;
 
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
+import com.doctorcare.PD_project.dto.response.DoctorGetByAdminResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.dto.response.OtherDoctor;
 import com.doctorcare.PD_project.entity.Doctor;
@@ -56,4 +57,18 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
 //    Page<Review> findReviewsByDoctorId(@Param("doctorId") String doctorId,
 //                                       Pageable pageable);
     Page<Doctor> findAll(Pageable pageable);
+
+    @Query("SELECT " +
+            "new com.doctorcare.PD_project.dto.response.DoctorGetByAdminResponse(" +
+            "d.id, d.name, d.username, d.phone, d.clinicName, d.district, d.city, d.email, d.gender, " +
+            "d.specialization, d.experience, d.price, d.description, d.img, d.address, d.enable) " +
+            "From Doctor d where " +
+            "(:city is null or d.city = :city) " +
+            "AND (:district is null or d.district = :district) " +
+            "AND (:name is null or d.name like %:name%)")
+    Page<DoctorGetByAdminResponse> findAllForAdmin(
+            @Param("district") String district,
+            @Param("name") String name,
+            @Param("city") String city,
+            Pageable pageable);
 }

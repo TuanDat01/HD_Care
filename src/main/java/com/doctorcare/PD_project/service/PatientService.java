@@ -4,6 +4,7 @@ import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.request.CreatePasswordRequest;
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.PatientRequest;
+import com.doctorcare.PD_project.dto.response.PatientGetByAdminResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.entity.User;
@@ -18,10 +19,15 @@ import com.doctorcare.PD_project.responsitory.PatientRepository;
 import com.doctorcare.PD_project.responsitory.UserRepository;
 import io.netty.util.internal.StringUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.context.ApplicationContextException;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -92,7 +98,7 @@ public class PatientService {
 
         Patient patient  = patientRepository.findByUsername(username)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
-        if (!patient.getPhone().equals(patientRequest.getPhone())) {
+        if (patient.getPhone() != null && !patient.getPhone().equals(patientRequest.getPhone())) {
             if (patientRepository.findByPhone(patientRequest.getPhone()).isPresent()){
                 throw new AppException(ErrorCode.PHONE_EXISTS);
             }
@@ -132,5 +138,35 @@ public class PatientService {
 
     public Patient getPatientByUsername(String username) throws AppException {
         return patientRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+    }
+
+    public Page<PatientGetByAdminResponse> getAllByAdmin(String name, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size);
+
+        return patientRepository.findAllByAdmin(pageable, name);
+    }
+
+    public Boolean updateEnable(String patientId) throws AppException {
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+
+        patient.setEnable(!patient.isEnable());
+        patientRepository.save(patient);
+
+        return true;
+    }
+
+    public PatientRequest updatePatientForAdmin(@Valid PatientRequest patientRequest) throws AppException {
+        Patient patient  = patientRepository.findById(patientRequest.getId())
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+
+        if (patient.getPhone() != null && !patient.getPhone().equals(patientRequest.getPhone())) {
+            if (patientRepository.findByPhone(patientRequest.getPhone()).isPresent()){
+                throw new AppException(ErrorCode.PHONE_EXISTS);
+            }
+        }
+        userMapper.updatePatient(patient, patientRequest);
+
+        return userMapper.toPatientRequest(patientRepository.save(patient));
     }
 }

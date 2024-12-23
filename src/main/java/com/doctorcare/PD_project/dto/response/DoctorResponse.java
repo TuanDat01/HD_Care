@@ -29,6 +29,4 @@ public class DoctorResponse {
     String img;
     String address;
     boolean enable;
-
-
 }

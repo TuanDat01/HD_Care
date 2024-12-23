@@ -1,6 +1,5 @@
 package com.doctorcare.PD_project.entity;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -8,6 +7,7 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -46,9 +46,8 @@ public class User {
     String role;
     boolean enable;
 
-
-
-    boolean blocked;
+    @Builder.Default
+    boolean blocked = false;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<Post> posts;

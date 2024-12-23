@@ -2,7 +2,7 @@ spring:
   application:
     name: PD_project
   datasource:
-    url: jdbc:mysql://localhost:3306/doctor
+    url: jdbc:mysql://localhost:3306/doctor_test
     username: root
     password: 123456@
   jpa:
