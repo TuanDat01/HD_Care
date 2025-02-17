@@ -44,7 +44,7 @@ public enum ErrorCode {
     SCHEDULE_INVALID(1034, "Thời gian khám phải bắt đầu sau thời gian hiện tại", HttpStatus.BAD_REQUEST),
     USERNAME_NOT_FOUND(1035, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
     DOB_NOT_BLANK(1036, "Vui lòng cập nhật ngày sinh ở trang cá nhân", HttpStatus.BAD_REQUEST),
-    GENDER_NOT_BLANK(1037, "Giới tính không được để trống", HttpStatus.BAD_REQUEST),;
+    GENDER_NOT_BLANK(1037, "Giới tính không được để trống", HttpStatus.BAD_REQUEST), USER_BLOCKED(1038, "Tài khoản của bạn đã bị chặn vui lòng liên hệ admin ", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;

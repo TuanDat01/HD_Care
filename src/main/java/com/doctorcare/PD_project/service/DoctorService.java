@@ -226,7 +226,9 @@ public class DoctorService {
         Doctor doctor = doctorRepository.findById(doctorId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
 
-        doctor.setEnable(!doctor.isEnable());
+//        doctor.setEnable(!doctor.isEnable());
+        doctor.setBlocked(!doctor.isBlocked());
+        System.out.println(doctor.getName());
         doctorRepository.save(doctor);
 
         return true;

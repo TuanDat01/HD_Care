@@ -150,7 +150,8 @@ public class PatientService {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
 
-        patient.setEnable(!patient.isEnable());
+//        patient.setEnable(!patient.isEnable());
+        patient.setBlocked(!patient.isBlocked());
         patientRepository.save(patient);
 
         return true;

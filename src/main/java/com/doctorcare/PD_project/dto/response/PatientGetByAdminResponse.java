@@ -23,4 +23,5 @@ public class PatientGetByAdminResponse {
     String img;
     String address;
     boolean enable;
+    boolean blocked;
 }

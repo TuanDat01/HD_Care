@@ -30,7 +30,6 @@ public class ReviewService {
     ReviewMapper reviewMapper;
     PatientService patientService;
     DoctorService doctorService;
-    SendEmailService emailService;
     ReviewRepository reviewRepository;
     AppointmentService appointmentService;
     @Transactional
@@ -47,11 +46,11 @@ public class ReviewService {
         review.setDoctor(doctor);
 
         doctor.setNumberOfReviews(doctor.getNumberOfReviews() + 1);
-        System.out.println(doctor.getNumberOfReviews());
+
         double calculator = (doctor.getAvgRating() * (doctor.getNumberOfReviews() - 1 ) + createReview.getRating())/doctor.getNumberOfReviews();
         DecimalFormat df = new DecimalFormat("#.##");
         double result = Double.parseDouble(df.format(calculator));
-        System.out.println(result);
+
         doctor.setAvgRating(result);
 
         reviewRepository.save(review);
@@ -63,8 +62,10 @@ public class ReviewService {
 
     public CreateReview updateReview(String id, CreateReview createReview) {
         Review review = reviewRepository.findById(id).orElseThrow(() -> new RuntimeException("Khong tim thay review"));
+
         CreateReview changeReview = reviewMapper.toCreateReview(review);
         reviewMapper.updateReview(changeReview,createReview);
+
         return changeReview;
     }
 }

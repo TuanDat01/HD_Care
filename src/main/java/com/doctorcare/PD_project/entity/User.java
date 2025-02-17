@@ -7,7 +7,6 @@ import lombok.experimental.FieldDefaults;
 import java.time.LocalDate;
 import java.util.List;
 
-@Builder
 @Getter
 @Setter
 @AllArgsConstructor
@@ -46,8 +45,7 @@ public class User {
     String role;
     boolean enable;
 
-    @Builder.Default
-    boolean blocked = false;
+    boolean blocked;
 
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     List<Post> posts;

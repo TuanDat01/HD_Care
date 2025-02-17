@@ -85,6 +85,8 @@ public class AuthenticationService {
         boolean authenticate = passwordEncoder.matches(request.getPassword(), user.getPwd());
         if (!authenticate)
             throw new AppException(ErrorCode.INVALID_CREDENTIAL);
+        if (user.isBlocked())
+            throw new AppException(ErrorCode.USER_BLOCKED);
         if (!user.isEnable() ) {
             applicationEventPublisher.publishEvent(new OnRegisterEvent(user, "http://localhost:8082/api/v1/patient", Locale.ENGLISH));
             throw new AppException(ErrorCode.NO_ACTIVE);

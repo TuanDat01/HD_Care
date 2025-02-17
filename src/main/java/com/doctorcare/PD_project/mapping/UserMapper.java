@@ -23,6 +23,7 @@ public interface UserMapper {
     Doctor toDoctor(CreateUserRequest userRequest);
 
     @Mapping(target = "pwd",ignore = true)
+    @Mapping(target = "blocked", ignore = true)
     Patient toPatient(CreateUserRequest userRequest);
     @Mapping(source = "verifiedEmail", target = "enable")
     @Mapping(source = "picture", target = "img")

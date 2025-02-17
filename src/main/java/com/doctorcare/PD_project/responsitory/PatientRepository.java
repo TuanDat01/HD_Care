@@ -27,7 +27,7 @@ public interface PatientRepository extends JpaRepository<Patient, String> {
     Optional<Object> findByPhone(String phone);
 
     @Query("select new com.doctorcare.PD_project.dto.response.PatientGetByAdminResponse(" +
-            "p.id, p.name, p.dob, p.username, p.phone, p.email, p.gender, p.img, p.address, p.enable) " +
+            "p.id, p.name, p.dob, p.username, p.phone, p.email, p.gender, p.img, p.address, p.enable,p.blocked) " +
             "from Patient p where " +
             "(:name is null or p.name like %:name%)")
     Page<PatientGetByAdminResponse> findAllByAdmin(Pageable pageable, @Param("name") String name);

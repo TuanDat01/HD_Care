@@ -30,4 +30,5 @@ public class DoctorGetByAdminResponse {
     String img;
     String address;
     boolean enable;
+    boolean blocked;
 }

@@ -23,7 +23,8 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
     @Query("SELECT d From Doctor d where " +
             "(:city is null or d.city = :city) "+
             "AND (:district is null or d.district = :district) "+
-            "AND (:name is null or d.name like %:name%)")
+            "AND (:name is null or d.name like %:name%)" +
+            " AND d.blocked = false")
     Page<Doctor> filterDoctor(@Param("district") String district,
                               @Param("name") String name,
                               @Param("city") String city,
@@ -61,7 +62,7 @@ public interface DoctorRepository extends JpaRepository<Doctor,String> {
     @Query("SELECT " +
             "new com.doctorcare.PD_project.dto.response.DoctorGetByAdminResponse(" +
             "d.id, d.name, d.username, d.phone, d.clinicName, d.district, d.city, d.email, d.gender, " +
-            "d.specialization, d.experience, d.price, d.description, d.img, d.address, d.enable) " +
+            "d.specialization, d.experience, d.price, d.description, d.img, d.address, d.enable, d.blocked) " +
             "From Doctor d where " +
             "(:city is null or d.city = :city) " +
             "AND (:district is null or d.district = :district) " +
