@@ -7,9 +7,9 @@ import com.doctorcare.PD_project.entity.Prescription;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.exception.AppException;
-import com.doctorcare.PD_project.responsitory.AppointmentRepository;
-import com.doctorcare.PD_project.responsitory.MedicineResponsitory;
-import com.doctorcare.PD_project.responsitory.PrescriptionRepository;
+import com.doctorcare.PD_project.respository.AppointmentRepository;
+import com.doctorcare.PD_project.respository.MedicineRepository;
+import com.doctorcare.PD_project.respository.PrescriptionRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -24,7 +24,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class PrescriptionService {
     PrescriptionRepository prescriptionRepository;
-    MedicineResponsitory medicineResponsitory;
+    MedicineRepository medicineRepository;
     AppointmentRepository appointmentRepository;
     public CreatePrescriptionRequest createPrescription(Prescription prescription,String id) throws AppException {
         Prescription prescription1 = prescriptionRepository.findById(id)
@@ -42,7 +42,7 @@ public class PrescriptionService {
         createPrescriptionRequest.setResult(prescription1.getResult());
         createPrescriptionRequest.setTimestamp(prescription1.getTimestamp());
 
-        List<Medicine> medicines = medicineResponsitory.findByPrescriptionId(id);
+        List<Medicine> medicines = medicineRepository.findByPrescriptionId(id);
 
         createPrescriptionRequest.setMedicines(medicines);
         prescriptionRepository.save(prescription1);
@@ -50,7 +50,7 @@ public class PrescriptionService {
         return createPrescriptionRequest;
     }
     public List<Medicine> getMedicineByPrescription(String id) {
-        return medicineResponsitory.findByPrescriptionId(id);
+        return medicineRepository.findByPrescriptionId(id);
     }
 
 

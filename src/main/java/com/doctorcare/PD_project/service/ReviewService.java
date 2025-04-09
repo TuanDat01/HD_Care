@@ -2,26 +2,21 @@ package com.doctorcare.PD_project.service;
 
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.request.CreateReview;
-import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.ReviewMapper;
-import com.doctorcare.PD_project.responsitory.ReviewRepository;
+import com.doctorcare.PD_project.respository.ReviewRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)

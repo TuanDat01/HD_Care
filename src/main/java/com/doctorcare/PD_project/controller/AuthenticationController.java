@@ -12,6 +12,8 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -29,6 +31,12 @@ public class AuthenticationController {
     AuthenticationService authenticationService;
     VerifyTokenService verifyTokenService;
 
+    // Lấy userId từ JWT trong service
+    private String getCurrentUserId() {
+        Jwt jwt = (Jwt) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return jwt.getClaim("id");
+    }
+
     @PostMapping("/login")
     ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) throws AppException {
         AuthenticationResponse result = authenticationService.authenticate(request);
@@ -41,7 +49,7 @@ public class AuthenticationController {
 
     @PostMapping("/outbound/authentication")
     ApiResponse<AuthenticationResponse> outBoundAuthenticate(@RequestParam("code") String code) throws AppException {
-        System.out.println("Innn");
+        System.out.println("code: " + code);
         var result = authenticationService.outBoundAuthenticate(code);
         return ApiResponse.<AuthenticationResponse>builder().result(result).build();
     }

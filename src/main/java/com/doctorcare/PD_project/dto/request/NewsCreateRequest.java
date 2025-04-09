@@ -1,0 +1,12 @@
+package com.doctorcare.PD_project.dto.request;
+
+import lombok.Builder;
+import lombok.Data;
+
+@Data
+public class NewsCreateRequest {
+    private String title;
+    private String content;
+    private boolean isDraft = false;
+
+}

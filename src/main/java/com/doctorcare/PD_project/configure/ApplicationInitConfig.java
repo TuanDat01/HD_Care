@@ -2,7 +2,7 @@ package com.doctorcare.PD_project.configure;
 
 import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.Roles;
-import com.doctorcare.PD_project.responsitory.UserRepository;
+import com.doctorcare.PD_project.respository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;

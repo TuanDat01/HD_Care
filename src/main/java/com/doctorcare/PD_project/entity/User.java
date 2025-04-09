@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -44,10 +45,17 @@ public class User {
 
     String role;
     boolean enable;
-
     boolean blocked;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     List<Post> posts;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    List<UserSavedPost> savedPosts;
+
+    // Các trường count (có thể cập nhật thủ công)
+    private int followersCount;
+    private int followingCount;
 }

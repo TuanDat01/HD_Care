@@ -14,7 +14,7 @@ import org.springframework.security.web.access.AccessDeniedHandler;
 import java.io.IOException;
 
 @Configuration
-public class customerHandle implements AccessDeniedHandler {
+public class CustomerHandle implements AccessDeniedHandler {
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
         ErrorCode errorCode = ErrorCode.UNAUTHORIZED;

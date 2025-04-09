@@ -28,4 +28,5 @@ public class CreateUserRequest {
     String address;
     String gender;
     String img;
+    String dob;
 }

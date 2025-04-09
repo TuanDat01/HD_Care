@@ -4,7 +4,7 @@ import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.entity.VerifyToken;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.exception.AppException;
-import com.doctorcare.PD_project.responsitory.VerifyRepository;
+import com.doctorcare.PD_project.respository.VerifyRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class VerifyTokenService {
     VerifyRepository verifyRepository;
     public void saveVerifyToken(VerifyToken verifyToken) {
-        System.out.println("da luu");
+        System.out.println("Save verify token");
         verifyRepository.save(verifyToken);
     };
     public VerifyToken findByToken(String token) {
@@ -33,7 +33,7 @@ public class VerifyTokenService {
             throw new AppException(ErrorCode.TOKEN_EXPIRED);
         }
         User user = verifyToken.getUser();
-        System.out.println("user la:" + user);
+        System.out.println("User: " + user);
         user.setEnable(true);
         System.out.println(user.isEnable());
         verifyRepository.delete(verifyToken);

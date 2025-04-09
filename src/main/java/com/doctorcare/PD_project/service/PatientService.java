@@ -7,40 +7,30 @@ import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.dto.response.PatientGetByAdminResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
 import com.doctorcare.PD_project.entity.Patient;
-import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
 import com.doctorcare.PD_project.exception.AppException;
-import com.doctorcare.PD_project.mail.EmailService;
-import com.doctorcare.PD_project.mapping.AppointmentMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
-import com.doctorcare.PD_project.responsitory.PatientRepository;
-import com.doctorcare.PD_project.responsitory.UserRepository;
-import io.netty.util.internal.StringUtil;
+import com.doctorcare.PD_project.respository.PatientRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.context.ApplicationContextException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.access.prepost.PostAuthorize;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.net.http.HttpRequest;
-import java.util.Collections;
-import java.util.List;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -69,6 +59,8 @@ public class PatientService {
         Patient patient = userMapper.toPatient(userRequest);
         patient.setRole(Roles.PATIENT.name());
         patient.setPwd(passwordEncoder.encode(userRequest.getPassword()));
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        patient.setDob(LocalDate.parse(userRequest.getDob(), formatter));
         Patient patientSaved = patientRepository.save(patient);
 
         System.out.println(patientSaved);

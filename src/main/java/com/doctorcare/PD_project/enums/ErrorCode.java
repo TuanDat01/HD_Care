@@ -32,10 +32,10 @@ public enum ErrorCode {
     NOT_FOUND_PRESCRIPTION(1024, "Không tìm thấy đơn thuốc",HttpStatus.NOT_FOUND),
     EMAIL_EXISTED(1025, "Email đã tồn tại", HttpStatus.CONFLICT),
     INVALID_FORMAT(1030, "Định dạng email không hợp lệ", HttpStatus.CONFLICT),
-    TOKEN_EXPIRED(1026, "Token expired", HttpStatus.UNAUTHORIZED),
-    UNAUTHORIZED(1033, "you do not permission to access", HttpStatus.FORBIDDEN),
+    TOKEN_EXPIRED(1026, "Token đã hết hạn", HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED(1033, "Bạn không có quyền truy cập", HttpStatus.FORBIDDEN),
     PASSWORD_EXIST(1027, "Mật khẩu đã tồn tại", HttpStatus.BAD_REQUEST),
-    NO_ACTIVE(1028,"Vui lòng kiểm tra email để kích hoạt tài khoản" ,HttpStatus.OK),
+    NO_ACTIVE(1000,"Vui lòng kiểm tra email để kích hoạt tài khoản" ,HttpStatus.OK),
     UPDATE_STATUS(1029, "Vui lòng cập nhật trạng thái là đã xác nhận cho đơn thuốc", HttpStatus.BAD_REQUEST),
     PAGE_VALID(1030,"Giá trị của trang không hợp lệ" ,HttpStatus.BAD_REQUEST ),
     START_TIME_EXISTED(1031,"Giờ bắt đầu đã tồn tại" , HttpStatus.BAD_REQUEST),
@@ -44,7 +44,15 @@ public enum ErrorCode {
     SCHEDULE_INVALID(1034, "Thời gian khám phải bắt đầu sau thời gian hiện tại", HttpStatus.BAD_REQUEST),
     USERNAME_NOT_FOUND(1035, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
     DOB_NOT_BLANK(1036, "Vui lòng cập nhật ngày sinh ở trang cá nhân", HttpStatus.BAD_REQUEST),
-    GENDER_NOT_BLANK(1037, "Giới tính không được để trống", HttpStatus.BAD_REQUEST), USER_BLOCKED(1038, "Tài khoản của bạn đã bị chặn vui lòng liên hệ admin ", HttpStatus.BAD_REQUEST);
+    GENDER_NOT_BLANK(1037, "Giới tính không được để trống", HttpStatus.BAD_REQUEST),
+    USER_BLOCKED(1038, "Tài khoản của bạn đã bị chặn vui lòng liên hệ admin ", HttpStatus.BAD_REQUEST),
+    USER_NOT_FOUND(1039, "Người dùng không tồn tại", HttpStatus.NOT_FOUND),
+    POST_NOT_FOUND(1040, "Bài viết không tồn tại", HttpStatus.NOT_FOUND),
+    COMMENT_NOT_FOUND(1041, "Bình luận không tồn tại", HttpStatus.NOT_FOUND),
+    FOLLOW_REQUEST_EXIST(1042, "Follow request already sent", HttpStatus.BAD_REQUEST),
+    NEWS_NOT_FOUND(1043, "Tin tức không tồn tại", HttpStatus.NOT_FOUND),
+    SAVED_NEWS_NOT_FOUND(1044, "Tin tức đã lưu không tồn tại", HttpStatus.NOT_FOUND),
+    FOLLOW_REQUEST_NOT_FOUND(1045, "Follow request không tồn tại", HttpStatus.NOT_FOUND),;
 
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;

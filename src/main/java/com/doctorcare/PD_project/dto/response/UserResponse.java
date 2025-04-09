@@ -25,4 +25,6 @@ public class UserResponse {
     LocalDate dob;
     String gender;
     String clinicName;
+    private int followersCount;
+    private int followingCount;
 }

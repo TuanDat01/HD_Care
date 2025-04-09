@@ -7,17 +7,15 @@ import com.doctorcare.PD_project.dto.response.*;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Review;
 import com.doctorcare.PD_project.entity.Schedule;
-import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
-import com.doctorcare.PD_project.responsitory.DoctorRepository;
-import com.doctorcare.PD_project.responsitory.ReviewRepository;
-import com.doctorcare.PD_project.responsitory.ScheduleRepository;
-import com.itextpdf.text.PageSize;
+import com.doctorcare.PD_project.respository.DoctorRepository;
+import com.doctorcare.PD_project.respository.ReviewRepository;
+import com.doctorcare.PD_project.respository.ScheduleRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -33,12 +31,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import javax.print.Doc;
-import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 @Service

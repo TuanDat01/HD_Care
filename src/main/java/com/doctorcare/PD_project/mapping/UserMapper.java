@@ -4,10 +4,7 @@ import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
-import com.doctorcare.PD_project.dto.response.DoctorResponse;
-import com.doctorcare.PD_project.dto.response.OtherDoctor;
-import com.doctorcare.PD_project.dto.response.UserGoogleResponse;
-import com.doctorcare.PD_project.dto.response.UserResponse;
+import com.doctorcare.PD_project.dto.response.*;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.entity.User;
@@ -55,4 +52,5 @@ public interface UserMapper {
 
     OtherDoctor toOtherDoctor(Doctor doctor);
 
+    BasicInfoUserResponse toBasicInfoUserResponse(User user);
 }

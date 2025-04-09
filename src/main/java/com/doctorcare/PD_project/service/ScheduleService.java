@@ -7,7 +7,6 @@ import com.doctorcare.PD_project.dto.request.DoctorScheduleRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
 import com.doctorcare.PD_project.dto.response.DoctorResponse;
 import com.doctorcare.PD_project.dto.response.ScheduleResponse;
-import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
@@ -15,15 +14,14 @@ import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.ScheduleMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
-import com.doctorcare.PD_project.responsitory.AppointmentRepository;
-import com.doctorcare.PD_project.responsitory.DoctorRepository;
-import com.doctorcare.PD_project.responsitory.ScheduleRepository;
+import com.doctorcare.PD_project.respository.AppointmentRepository;
+import com.doctorcare.PD_project.respository.DoctorRepository;
+import com.doctorcare.PD_project.respository.ScheduleRepository;
 import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -32,10 +30,8 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 @Slf4j

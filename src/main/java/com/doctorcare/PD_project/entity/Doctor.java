@@ -42,6 +42,7 @@ public class Doctor extends User {
         }
         schedules.add(schedule);
     }
+}
 
 //    public void addReview(Review review){
 //        if(reviews == null){
@@ -49,4 +50,3 @@ public class Doctor extends User {
 //        }
 //        reviews.add(review);
 //    }
-}

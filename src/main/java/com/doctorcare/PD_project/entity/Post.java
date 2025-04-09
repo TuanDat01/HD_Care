@@ -1,16 +1,18 @@
 package com.doctorcare.PD_project.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Post {
     @Id
@@ -19,19 +21,26 @@ public class Post {
 
     String content;
 
-    @ElementCollection
-    List<String> image;
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    List<PostImage> images;
 
-    @OneToMany
-    @JoinColumn(name = "comment_id")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     List<Comment> comments;
 
-    @OneToMany
-    @JoinColumn(name = "like_id")
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     List<Like> likes;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
     User user;
 
+    int countLikes = 0;
+    int countComments = 0;
+
+    boolean isHidden;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

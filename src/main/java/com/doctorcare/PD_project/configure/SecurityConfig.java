@@ -67,6 +67,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/doctor/active/*").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.POST, PUBLIC_URL_POST).permitAll()
                         .requestMatchers(HttpMethod.GET,PUBLIC_URL_GET).permitAll()
+                        .requestMatchers("/social/**").permitAll()
+                        .requestMatchers("/news/**").permitAll()
                         .anyRequest().authenticated()
                 ;
             } catch (Exception e) {

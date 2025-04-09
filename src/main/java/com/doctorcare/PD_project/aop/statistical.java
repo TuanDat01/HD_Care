@@ -2,7 +2,7 @@ package com.doctorcare.PD_project.aop;
 
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.entity.Doctor;
-import com.doctorcare.PD_project.responsitory.DoctorRepository;
+import com.doctorcare.PD_project.respository.DoctorRepository;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
