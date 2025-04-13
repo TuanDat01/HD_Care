@@ -15,10 +15,7 @@ import com.doctorcare.PD_project.respository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
@@ -75,7 +72,7 @@ public class SocialNetworkService {
         }
 
         postRepository.save(post);
-        return postMapper.toPostResponse(post);
+        return toPostResponseWithFlags(post);
     }
 
     @Transactional
@@ -106,7 +103,7 @@ public class SocialNetworkService {
         }
 
         postRepository.save(post);
-        return postMapper.toPostResponse(post);
+        return toPostResponseWithFlags(post);
     }
 
     public PostResponse getPostById(String postId) throws AppException {
@@ -132,9 +129,9 @@ public class SocialNetworkService {
             }
         }
 
-        PostResponse response = postMapper.toPostResponse(post);
-        response.setUser(userMapper.toBasicInfoUserResponse(post.getUser()));
-        return response;
+//        PostResponse response = postMapper.toPostResponse(post);
+//        response.setUser(userMapper.toBasicInfoUserResponse(post.getUser()));
+        return toPostResponseWithFlags(post);
     }
 
     public List<PostResponse> getAllPostsByUser(String targetUserId, int page, int size) throws AppException {
@@ -142,26 +139,38 @@ public class SocialNetworkService {
         User targetUser = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        // Tạo Pageable có sort theo createdAt DESC
+        Sort sortByCreatedDesc = Sort.by(Sort.Direction.DESC, "createdAt");
+        Pageable pageable = PageRequest.of(page, size, sortByCreatedDesc);
+
         Page<Post> postPage;
         if (targetUserId.equals(currentUserId)) {
-            postPage = postRepository.findAllByUser(targetUser, PageRequest.of(page, size));
+            // Xem trang của chính mình: lấy tất cả bài (công khai & riêng tư)
+            postPage = postRepository.findAllByUser(targetUser, pageable);
         } else {
+            // Xem trang người khác: kiểm tra private/follow
             if (targetUser instanceof Patient && ((Patient) targetUser).isPrivate()) {
                 User currentUser = userRepository.findById(currentUserId)
                         .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-                Optional<UserFollow> followOpt = userFollowRepository.findByFollowerAndFollowing(currentUser, targetUser);
+                Optional<UserFollow> followOpt = userFollowRepository
+                        .findByFollowerAndFollowing(currentUser, targetUser);
                 if (followOpt.isEmpty()) {
                     return Collections.emptyList();
                 }
             }
-            postPage = postRepository.findAllByUserAndIsHiddenFalse(targetUser, PageRequest.of(page, size));
+            // Chỉ lấy bài công khai, đã sort ở DB
+            postPage = postRepository.findAllByUserAndIsHiddenFalse(targetUser, pageable);
         }
 
-        return postPage.stream().map(p -> {
-            PostResponse res = postMapper.toPostResponse(p);
-            res.setUser(userMapper.toBasicInfoUserResponse(p.getUser()));
-            return res;
-        }).collect(Collectors.toList());
+        return postPage.stream()
+                .map(p -> {
+                    try {
+                        return toPostResponseWithFlags(p);
+                    } catch (AppException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
     }
 
     @Transactional
@@ -181,93 +190,133 @@ public class SocialNetworkService {
         User currentUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // 1. Bài viết từ người follow
+        // --- Nhóm 0: Bài viết mới nhất (công khai), sắp xếp theo createdAt desc ---
+        List<Post> group0 = postRepository
+                .findAllByIsHiddenFalseOrderByCreatedAtDesc(Pageable.unpaged())
+                .getContent();
+
+        // --- Nhóm 1: Bài viết từ người đang follow (công khai), sắp xếp theo createdAt desc ---
         List<User> followings = userFollowRepository.findByFollower(currentUser, Pageable.unpaged())
                 .getContent().stream().map(UserFollow::getFollowing).toList();
-        List<Post> group1 = new ArrayList<>();
-        for (User u : followings) {
-            group1.addAll(postRepository.findAllByUserAndIsHiddenFalse(u, Pageable.unpaged()).getContent());
-        }
+        List<Post> group1 = followings.stream()
+                .flatMap(u -> postRepository.findAllByUserAndIsHiddenFalse(u, Pageable.unpaged())
+                        .getContent().stream())
+                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+                .toList();
 
-        // 2. Bài viết tương tác cao
+        // --- Nhóm 2: Bài viết tương tác cao (công khai), sắp xếp theo tổng tương tác desc ---
         List<Post> group2 = postRepository
-                .findAllByIsHiddenFalseOrderByCountLikesDescCountCommentsDesc(PageRequest.of(0, size))
+                .findAllByIsHiddenFalseOrderByCountLikesDescCountCommentsDesc(Pageable.unpaged())
                 .getContent().stream()
                 .filter(p -> !followings.contains(p.getUser()))
                 .toList();
 
-        // 3. Các bài viết còn lại
-        List<Post> group3 = postRepository.findAllByIsHiddenFalse(Pageable.unpaged())
-                .getContent().stream()
-                .filter(p -> !followings.contains(p.getUser()) && !group2.contains(p))
+        // --- Nhóm 3: Các bài viết công khai còn lại ---
+        List<Post> allPublic = postRepository.findAllByIsHiddenFalse(Pageable.unpaged()).getContent();
+        List<Post> group3 = allPublic.stream()
+                .filter(p -> !group0.contains(p)
+                        && !group1.contains(p)
+                        && !group2.contains(p))
+                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
                 .toList();
 
-        // Kết hợp theo thứ tự ưu tiên
-        List<Post> combined = new ArrayList<>(group1);
-        if (combined.size() < size) {
-            for (Post p : group2) {
-                if (combined.size() >= size) break;
-                combined.add(p);
-            }
-        }
-        if (combined.size() < size) {
-            for (Post p : group3) {
-                if (combined.size() >= size) break;
-                combined.add(p);
-            }
-        }
+        // --- Ghép các nhóm, loại bỏ trùng lặp ---
+        List<Post> combined = new ArrayList<>();
+        combined.addAll(group0);
+        combined.addAll(group1.stream().filter(p -> !combined.contains(p)).toList());
+        combined.addAll(group2.stream().filter(p -> !combined.contains(p)).toList());
+        combined.addAll(group3.stream().filter(p -> !combined.contains(p)).toList());
 
-        // Sắp xếp theo thời gian
-        combined.sort(Comparator.comparing(Post::getCreatedAt).reversed());
-
-        // Phân trang thủ công
+        // --- Phân trang thủ công với guard (không giới hạn combined trước) ---
+        int total = combined.size();
         int start = page * size;
-        int end = Math.min(start + size, combined.size());
-        List<PostResponse> result = combined.subList(start, end).stream().map(p -> {
-            PostResponse r = postMapper.toPostResponse(p);
-            r.setUser(userMapper.toBasicInfoUserResponse(p.getUser()));
-            return r;
-        }).collect(Collectors.toList());
+        if (start >= total) {
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), total);
+        }
+        int end = Math.min(start + size, total);
 
-        return new PageImpl<>(result, PageRequest.of(page, size), combined.size());
+        List<PostResponse> content = combined.subList(start, end).stream()
+                .map(p -> {
+                    try {
+                        return toPostResponseWithFlags(p);
+                    } catch (AppException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+        return new PageImpl<>(content, PageRequest.of(page, size), total);
     }
 
     // **** NEW: Get Latest Posts ****
     public Page<PostResponse> getLatestPosts(int page, int size) throws AppException {
-        // Tái sử dụng discover logic nhưng chỉ sort theo thời gian toàn cục
-        Page<PostResponse> discovered = discoverPosts(page, size);
-        List<PostResponse> sorted = discovered.getContent().stream()
-                .sorted(Comparator.comparing(PostResponse::getCreatedAt).reversed())
-                .collect(Collectors.toList());
-        return new PageImpl<>(sorted, discovered.getPageable(), discovered.getTotalElements());
+        List<Post> allPublicPosts = postRepository
+                .findAllByIsHiddenFalseOrderByCreatedAtDesc(Pageable.unpaged())
+                .getContent();
+
+        int total = allPublicPosts.size();
+        int start = page * size;
+        if (start >= total) {
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), total);
+        }
+        int end = Math.min(start + size, total);
+
+        List<PostResponse> result = allPublicPosts.subList(start, end).stream()
+                .map(post -> {
+                    try {
+                        return toPostResponseWithFlags(post);
+                    } catch (AppException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+        return new PageImpl<>(result, PageRequest.of(page, size), total);
     }
 
-    // **** NEW: Posts From Followers ****
-    public Page<PostResponse> getPostsFromFollowers(int page, int size) throws AppException {
+    // **** NEW: Posts From Following ****
+    public Page<PostResponse> getPostsFromFollowing(int page, int size) throws AppException {
         String currentUserId = getCurrentUserId();
         User currentUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // Lấy danh sách followers
-        Page<UserFollow> followersPage = userFollowRepository.findByFollowing(currentUser, PageRequest.of(page, size));
-        List<Post> allPosts = new ArrayList<>();
-        for (UserFollow uf : followersPage.getContent()) {
-            allPosts.addAll(
-                    postRepository.findAllByUserAndIsHiddenFalse(uf.getFollower(), Pageable.unpaged()).getContent()
-            );
-        }
-        allPosts.sort(Comparator.comparing(Post::getCreatedAt).reversed());
+        // 1. Lấy danh sách những người mà currentUser đang follow
+        List<UserFollow> allFollowing = userFollowRepository
+                .findByFollower(currentUser, Pageable.unpaged())
+                .getContent();
 
-        // Phân trang thủ công
+        // 2. Lấy tất cả bài viết công khai của họ
+        List<Post> allPosts = allFollowing.stream()
+                // Thay f.getFollower() bằng f.getFollowing()
+                .flatMap(f -> postRepository
+                        .findAllByUserAndIsHiddenFalse(f.getFollowing(), Pageable.unpaged())
+                        .getContent().stream())
+                // Sắp xếp giảm dần theo thời gian tạo
+                .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
+                .toList();
+
+        // 3. Phân trang thủ công với guard
+        int total = allPosts.size();
         int start = page * size;
-        int end = Math.min(start + size, allPosts.size());
-        List<PostResponse> result = allPosts.subList(start, end).stream().map(p -> {
-            PostResponse r = postMapper.toPostResponse(p);
-            r.setUser(userMapper.toBasicInfoUserResponse(p.getUser()));
-            return r;
-        }).collect(Collectors.toList());
+        if (start >= total) {
+            // Nếu bắt đầu vượt quá tổng số phần tử, trả về trang rỗng
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), total);
+        }
+        int end = Math.min(start + size, total);
 
-        return new PageImpl<>(result, PageRequest.of(page, size), allPosts.size());
+        // 4. Chuyển thành PostResponse (có cả liked & saved)
+        List<PostResponse> result = allPosts.subList(start, end).stream()
+                .map(post -> {
+                    try {
+                        return toPostResponseWithFlags(post);
+                    } catch (AppException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+        // 5. Trả về PageImpl với đúng pageable và total
+        return new PageImpl<>(result, PageRequest.of(page, size), total);
     }
 
     // **** LIKE **** //
@@ -305,13 +354,13 @@ public class SocialNetworkService {
     }
 
     // **** COMMENT **** //
-    public CommentResponse commentOnPost(CreateCommentRequest request) throws AppException {
+    public CommentResponse commentOnPost(CreateCommentRequest request, String postId) throws AppException {
         String userId = getCurrentUserId();
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        Post post = postRepository.findById(request.getPostId())
+        Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new AppException(ErrorCode.POST_NOT_FOUND));
 
         Comment comment = commentMapper.toComment(request);
@@ -459,29 +508,52 @@ public class SocialNetworkService {
         userRepository.save(targetUser);
     }
 
-    // **** NEW: Suggest Users To Follow ****
+    // **** NEW: Suggest Users To Follow (no duplicates across pages) ****
     public Page<BasicInfoUserResponse> suggestUsersToFollow(int page, int size) throws AppException {
         String currentUserId = getCurrentUserId();
         User currentUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        // 1. Lấy tất cả user (trừ chính mình)
         List<User> allUsers = userRepository.findAll().stream()
                 .filter(u -> !u.getId().equals(currentUserId))
                 .toList();
+
+        // 2. Lọc ra những user đã follow
         List<User> alreadyFollowed = userFollowRepository.findByFollower(currentUser, Pageable.unpaged())
-                .getContent().stream().map(UserFollow::getFollowing).toList();
+                .getContent().stream()
+                .map(UserFollow::getFollowing)
+                .toList();
+
+        // 3. Chỉ giữ lại user chưa follow
         List<User> notFollowed = allUsers.stream()
                 .filter(u -> !alreadyFollowed.contains(u))
-                .collect(Collectors.toList());
-        Collections.shuffle(notFollowed);
+                .toList();
 
+        // 4. Tạo seed từ currentUserId
+        int seed = currentUserId.hashCode();
+
+        // 5. Sort theo key = userId.hashCode() XOR seed
+        List<User> sorted = notFollowed.stream()
+                .sorted(Comparator
+                        .comparingInt((User u) -> u.getId().hashCode() ^ seed)
+                        // nếu key trùng, break tie bằng chính ID để ổn định
+                        .thenComparing(User::getId))
+                .toList();
+
+        // 6. Phân trang thủ công
+        int total = sorted.size();
         int start = page * size;
-        int end = Math.min(start + size, notFollowed.size());
-        List<BasicInfoUserResponse> result = notFollowed.subList(start, end).stream()
-                .map(userMapper::toBasicInfoUserResponse)
-                .collect(Collectors.toList());
+        if (start >= total) {
+            return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), total);
+        }
+        int end = Math.min(start + size, total);
 
-        return new PageImpl<>(result, PageRequest.of(page, size), notFollowed.size());
+        List<BasicInfoUserResponse> content = sorted.subList(start, end).stream()
+                .map(userMapper::toBasicInfoUserResponse)
+                .toList();
+
+        return new PageImpl<>(content, PageRequest.of(page, size), total);
     }
 
     // **** UPDATED: getAllFollowingUsers ****
@@ -490,19 +562,34 @@ public class SocialNetworkService {
         User targetUser = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        if (!targetUserId.equals(currentUserId) && targetUser instanceof Patient && ((Patient) targetUser).isPrivate()) {
-            Optional<UserFollow> followOpt = userFollowRepository.findByFollowerAndFollowing(
-                    userRepository.findById(currentUserId)
-                            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)),
-                    targetUser);
+        // Quyền truy cập
+        if (!targetUserId.equals(currentUserId)
+                && targetUser instanceof Patient patient
+                && patient.isPrivate()) {
+            User currentUser = userRepository.findById(currentUserId)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            Optional<UserFollow> followOpt = userFollowRepository
+                    .findByFollowerAndFollowing(currentUser, targetUser);
             if (followOpt.isEmpty()) {
                 return Collections.emptyList();
             }
         }
-        Page<UserFollow> pageResult = userFollowRepository.findByFollower(targetUser, PageRequest.of(page, size));
+
+        // Phân trang
+        Page<UserFollow> pageResult = userFollowRepository
+                .findByFollower(targetUser, PageRequest.of(page, size));
+
+        // Load set các ID mà currentUser đang follow
+        Set<String> currentFollowingIds = loadCurrentUserFollowingIds();
+
+        // Ánh xạ và set flag
         return pageResult.stream()
-                .map(uf -> userMapper.toBasicInfoUserResponse(uf.getFollowing()))
-                .collect(Collectors.toList());
+                .map(uf -> {
+                    BasicInfoUserResponse resp = userMapper.toBasicInfoUserResponse(uf.getFollowing());
+                    resp.setFollowed(currentFollowingIds.contains(resp.getId()));
+                    return resp;
+                })
+                .toList();
     }
 
     // **** UPDATED: getAllFollowers ****
@@ -511,19 +598,34 @@ public class SocialNetworkService {
         User targetUser = userRepository.findById(targetUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        if (!targetUserId.equals(currentUserId) && targetUser instanceof Patient && ((Patient) targetUser).isPrivate()) {
-            Optional<UserFollow> followOpt = userFollowRepository.findByFollowerAndFollowing(
-                    userRepository.findById(currentUserId)
-                            .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)),
-                    targetUser);
+        // Quyền truy cập
+        if (!targetUserId.equals(currentUserId)
+                && targetUser instanceof Patient patient
+                && patient.isPrivate()) {
+            User currentUser = userRepository.findById(currentUserId)
+                    .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+            Optional<UserFollow> followOpt = userFollowRepository
+                    .findByFollowerAndFollowing(currentUser, targetUser);
             if (followOpt.isEmpty()) {
                 return Collections.emptyList();
             }
         }
-        Page<UserFollow> pageResult = userFollowRepository.findByFollowing(targetUser, PageRequest.of(page, size));
+
+        // Phân trang
+        Page<UserFollow> pageResult = userFollowRepository
+                .findByFollowing(targetUser, PageRequest.of(page, size));
+
+        // Load set các ID mà currentUser đang follow
+        Set<String> currentFollowingIds = loadCurrentUserFollowingIds();
+
+        // Ánh xạ và set flag
         return pageResult.stream()
-                .map(uf -> userMapper.toBasicInfoUserResponse(uf.getFollower()))
-                .collect(Collectors.toList());
+                .map(uf -> {
+                    BasicInfoUserResponse resp = userMapper.toBasicInfoUserResponse(uf.getFollower());
+                    resp.setFollowed(currentFollowingIds.contains(resp.getId()));
+                    return resp;
+                })
+                .toList();
     }
 
     public void acceptFollowRequest(String followRequestId) throws AppException {
@@ -615,5 +717,40 @@ public class SocialNetworkService {
 
         patient.setPrivate(!patient.isPrivate());
         userRepository.save(patient);
+    }
+
+    /**
+     * Ánh xạ Post → PostResponse, kèm flags liked & saved
+     */
+    private PostResponse toPostResponseWithFlags(Post post) throws AppException {
+        PostResponse res = postMapper.toPostResponse(post);
+        res.setUser(userMapper.toBasicInfoUserResponse(post.getUser()));
+
+        // Lấy current user
+        String currentUserId = getCurrentUserId();
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Kiểm tra liked
+        boolean liked = likeRepository.findByUserAndPost(currentUser, post).isPresent();
+        res.setLiked(liked);
+
+        // Kiểm tra saved
+        boolean saved = userSavedPostRepository.findByUserAndPost(currentUser, post).isPresent();
+        res.setSaved(saved);
+
+        return res;
+    }
+
+    // trong class SocialNetworkService, trước các method
+    private Set<String> loadCurrentUserFollowingIds() throws AppException {
+        String currentUserId = getCurrentUserId();
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        // Lấy tất cả quan hệ follow của currentUser (unpaged)
+        List<UserFollow> ufList = userFollowRepository.findByFollower(currentUser, Pageable.unpaged()).getContent();
+        return ufList.stream()
+                .map(uf -> uf.getFollowing().getId())
+                .collect(Collectors.toSet());
     }
 }

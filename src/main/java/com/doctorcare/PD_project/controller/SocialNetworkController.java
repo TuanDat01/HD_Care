@@ -103,11 +103,11 @@ public class SocialNetworkController {
                 .build());
     }
 
-    @GetMapping("/posts/from-followers")
-    public ResponseEntity<ApiResponse<List<PostResponse>>> getPostsFromFollowers(
+    @GetMapping("/posts/from-following")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> getPostsFromFollowing(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) throws AppException {
-        Page<PostResponse> pageResult = socialNetworkService.getPostsFromFollowers(page, size);
+        Page<PostResponse> pageResult = socialNetworkService.getPostsFromFollowing(page, size);
         return ResponseEntity.ok(ApiResponse.<List<PostResponse>>builder()
                 .code(1000)
                 .message("Followers' posts fetched successfully")
@@ -117,8 +117,9 @@ public class SocialNetworkController {
 
     // **** COMMENT **** //
     @PostMapping("/posts/{postId}/comments")
-    public ResponseEntity<ApiResponse<CommentResponse>> commentOnPost(@RequestBody CreateCommentRequest request) throws AppException {
-        CommentResponse result = socialNetworkService.commentOnPost(request);
+    public ResponseEntity<ApiResponse<CommentResponse>> commentOnPost(@RequestBody CreateCommentRequest request,
+                                                                      @PathVariable String postId) throws AppException {
+        CommentResponse result = socialNetworkService.commentOnPost(request, postId);
         return ResponseEntity.ok(ApiResponse.<CommentResponse>builder()
                 .code(1000)
                 .message("Comment added")

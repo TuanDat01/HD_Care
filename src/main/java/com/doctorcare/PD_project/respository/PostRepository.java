@@ -14,4 +14,6 @@ public interface PostRepository extends JpaRepository<Post, String> {
     Page<Post> findAllByIsHiddenFalse(Pageable pageable);
 
     Page<Post> findAllByIsHiddenFalseOrderByCountLikesDescCountCommentsDesc(Pageable pageable);
+
+    Page<Post> findAllByIsHiddenFalseOrderByCreatedAtDesc(Pageable pageable);
 }

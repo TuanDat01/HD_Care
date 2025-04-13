@@ -9,4 +9,7 @@ public class BasicInfoUserResponse {
     private String username;
     private String avatar;
     private String role;
+
+    /** true nếu current user đang follow user này */
+    private boolean followed;
 }

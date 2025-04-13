@@ -52,5 +52,6 @@ public interface UserMapper {
 
     OtherDoctor toOtherDoctor(Doctor doctor);
 
+    @Mapping(target = "followed", ignore = true)
     BasicInfoUserResponse toBasicInfoUserResponse(User user);
 }

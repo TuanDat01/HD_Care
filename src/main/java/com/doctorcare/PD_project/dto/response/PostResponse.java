@@ -13,7 +13,7 @@ import java.util.List;
 public class PostResponse {
     private String id;
     private String content;
-    private List<PostImage> images;
+    private List<String> imageUrls;
     private boolean isHidden;
 
     private LocalDateTime createdAt;
@@ -23,4 +23,6 @@ public class PostResponse {
     private int countComments;
 
     private BasicInfoUserResponse user;
+    private boolean liked;
+    private boolean saved;
 }
