@@ -52,7 +52,9 @@ public enum ErrorCode {
     FOLLOW_REQUEST_EXIST(1042, "Follow request already sent", HttpStatus.BAD_REQUEST),
     NEWS_NOT_FOUND(1043, "Tin tức không tồn tại", HttpStatus.NOT_FOUND),
     SAVED_NEWS_NOT_FOUND(1044, "Tin tức đã lưu không tồn tại", HttpStatus.NOT_FOUND),
-    FOLLOW_REQUEST_NOT_FOUND(1045, "Follow request không tồn tại", HttpStatus.NOT_FOUND),;
+    FOLLOW_REQUEST_NOT_FOUND(1045, "Yêu cầu theo dõi không tồn tại", HttpStatus.NOT_FOUND),
+    NEWS_NOT_DRAFT(1046, "Bạn chỉ có thể sửa tin tức nháp", HttpStatus.BAD_REQUEST),
+    INVALID_FILTER_DOCTOR_NEWS(1047, "Trạng thái lọc tin tức không hợp lệ", HttpStatus.BAD_REQUEST),;
 
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;

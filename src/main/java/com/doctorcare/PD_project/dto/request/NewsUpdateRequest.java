@@ -7,4 +7,6 @@ public class NewsUpdateRequest {
     private String title;
     private String content;
     private String category;
+    private String coverImageUrl;
+    private boolean isDraft;
 }

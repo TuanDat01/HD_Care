@@ -30,20 +30,18 @@ public class News {
 
     @Lob
     @Column(columnDefinition = "LONGTEXT")
-    String content;  // Lưu trữ HTML rich text (bao gồm định dạng, hình ảnh, …)
+    String content;
 
-    // THÊM: trường category để phân loại tin tức
     String category;
 
-    @OneToMany(mappedBy = "news", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<NewsImage> images;
+    // COVER IMAGE URL
+    String coverImageUrl;
 
     @ManyToOne
     @JoinColumn(name = "approved_by")
     @Builder.Default
     User approvedBy = null;
 
-    // THÊM: trường assignedTo (để phân công bác sĩ duyệt)
     @ManyToOne
     @JoinColumn(name = "assigned_to")
     User assignedTo;

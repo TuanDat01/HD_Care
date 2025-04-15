@@ -7,6 +7,7 @@ import lombok.Data;
 public class NewsCreateRequest {
     private String title;
     private String content;
+    private String category;
+    private String coverImageUrl;
     private boolean isDraft = false;
-
 }

@@ -21,8 +21,8 @@ public class NewsController {
 
     // Tạo một tin tức mới
     @PostMapping
-    public ResponseEntity<ApiResponse<NewsResponse>> createNews(@RequestBody NewsCreateRequest newsCreateRequest) throws AppException {
-        NewsResponse result = newsService.createNews(newsCreateRequest);
+    public ResponseEntity<ApiResponse<NewsResponse>> createNews(@RequestBody NewsCreateRequest req) throws AppException {
+        NewsResponse result = newsService.createNews(req);
         return ResponseEntity.ok(ApiResponse.<NewsResponse>builder()
                 .code(1000)
                 .message("News created successfully")
@@ -106,6 +106,34 @@ public class NewsController {
                 .build());
     }
 
+    // Lấy tin tức theo bác sĩ và trạng thái (chỉ dành cho bác sĩ)
+    @GetMapping("/doctor")
+    public ResponseEntity<ApiResponse<List<NewsResponse>>> getDoctorNewsByStatus(
+            @RequestParam String status,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws AppException {
+        List<NewsResponse> result = newsService.getNewsByDoctorAndStatus(status, page, size);
+        return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
+                .code(1000)
+                .message("Doctor news fetched successfully for status: " + status)
+                .result(result)
+                .build());
+    }
+
+    // Lấy tin tức theo bác sĩ và trạng thái (chỉ dành cho bác sĩ)
+    @GetMapping("/doctor/{doctorId}")
+    public ResponseEntity<ApiResponse<List<NewsResponse>>> getDoctorNewsByDoctorId(
+            @PathVariable String doctorId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws AppException {
+        List<NewsResponse> result = newsService.getDoctorNewsByDoctorId(doctorId, page, size);
+        return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
+                .code(1000)
+                .message("Doctor news fetched successfully for doctorId: " + doctorId)
+                .result(result)
+                .build());
+    }
+
     // Cập nhật tin tức (dành cho tin nháp)
     @PutMapping("/{newsId}")
     public ResponseEntity<ApiResponse<NewsResponse>> updateNews(
@@ -134,6 +162,46 @@ public class NewsController {
         return ResponseEntity.ok(ApiResponse.<NewsResponse>builder()
                 .code(1000)
                 .message("News approved successfully")
+                .result(result)
+                .build());
+    }
+
+    // Lấy danh sách tin tức đã duyệt của bác sĩ (dành cho admin hoặc bác sĩ)
+    @GetMapping("/doctor/assigned")
+    public ResponseEntity<ApiResponse<List<NewsResponse>>> getDoctorAssignedNews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws AppException {
+        List<NewsResponse> result = newsService.getAssignedNewsToDoctor(page, size);
+        return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
+                .code(1000)
+                .message("Assigned news fetched successfully")
+                .result(result)
+                .build());
+    }
+
+    // Lấy danh sách tin tức đã duyệt của bác sĩ (dành cho admin hoặc bác sĩ)
+    @GetMapping("/doctor/reviewed")
+    public ResponseEntity<ApiResponse<List<NewsResponse>>> getDoctorReviewedNews(
+            @RequestParam boolean approved,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws AppException {
+        List<NewsResponse> result = newsService.getNewsReviewedByDoctor(approved, page, size);
+        String msg = approved ? "Approved news fetched" : "Rejected news fetched";
+        return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
+                .code(1000)
+                .message(msg + " successfully")
+                .result(result)
+                .build());
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<ApiResponse<List<NewsResponse>>> getPendingNews(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws AppException {
+        List<NewsResponse> result = newsService.getPendingNews(page, size);
+        return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
+                .code(1000)
+                .message("Pending news fetched successfully")
                 .result(result)
                 .build());
     }
