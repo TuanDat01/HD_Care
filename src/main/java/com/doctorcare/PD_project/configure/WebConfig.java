@@ -12,7 +12,7 @@ public class WebConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
-        config.addAllowedOrigin("http://localhost:3000"); // Allow requests from your frontend origin
+        config.addAllowedOrigin("https://hd-care-front-end.vercel.app/"); // Allow requests from your frontend origin
         config.addAllowedOrigin("http://localhost:3001");
         config.addAllowedHeader("*"); // Allow all headers
         config.addAllowedMethod("*"); // Allow all HTTP methods

@@ -55,10 +55,17 @@ server:
     context-path: "/api/v1"
 outbound:
   identity:
+<<<<<<< HEAD
     client-id : ${ID}
     client_secret : ${SECRET}
     redirect-uri: ${URI}
     grant-type : ${TYPE}
+=======
+    client-id : "1065779364851-u3g3011gttldhdvmbchtpha59j9vv5df.apps.googleusercontent.com"
+    client_secret : "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"
+    redirect-uri: "https://hd-care-front-end.vercel.app/authenticate"
+    grant-type : "authorization_code"
+>>>>>>> e846cc4f864c5cd3d81bb7dabd8d7a3526d2f802
 
 jwt:
   signerKey: ${KEYJWT}

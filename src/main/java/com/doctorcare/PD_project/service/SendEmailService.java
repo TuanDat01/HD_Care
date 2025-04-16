@@ -110,6 +110,7 @@ public class SendEmailService {
 
     @Async
     public void sendReview(AppointmentRequest appointmentRequest) throws MessagingException {
+<<<<<<< HEAD
         String subject = "Đánh giá bác sĩ: " + appointmentRequest.getNameDoctor();
 
         String htmlContent = String.format(
@@ -136,15 +137,28 @@ public class SendEmailService {
                 appointmentRequest.getNameDoctor(), // Tên bác sĩ
                 appointmentRequest.getId() // ID lịch hẹn
         );
+=======
+        String subject = "Review Doctor :" + appointmentRequest.getNameDoctor();
+        String htmlContent = String.format("<h1>Thanks for your trust</h1>"
+                + "<p>Please leave review for doctor: <strong>%s</strong> </p>" +
+                "<p>Follow link : <a href = 'https://hd-care-front-end.vercel.app/home?evaluate=1&idAppointment=%s'>Link review</a></p>",
+                appointmentRequest.getNameDoctor(),
+                appointmentRequest.getId());
+>>>>>>> e846cc4f864c5cd3d81bb7dabd8d7a3526d2f802
         emailServiceImpl.sendSimpleMessage(appointmentRequest.getEmail(), subject, htmlContent, null);
     }
 
 
     @Async
     public void sendActive(String token, OnRegisterEvent event) throws MessagingException {
+<<<<<<< HEAD
         String activationUrl = String.format("http://localhost:8082/api/v1/auth/verify?token=%s", token);
         String subject = "Xác nhận tài khoản HD_CARE";
 
+=======
+        String activationUrl = String.format("http://powerful-motivation-production.up.railway.app/api/v1/auth/verify?token=%s", token);
+        String subject = "Xác nhận tài khoản";
+>>>>>>> e846cc4f864c5cd3d81bb7dabd8d7a3526d2f802
         String message = String.format(
                 "<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\">" +
                         "    <div style=\"background-color: #28a745; color: #fff; padding: 20px; border-top-left-radius: 8px; border-top-right-radius: 8px; text-align: center;\">" +

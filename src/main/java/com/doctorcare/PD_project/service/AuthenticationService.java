@@ -88,7 +88,7 @@ public class AuthenticationService {
         if (user.isBlocked())
             throw new AppException(ErrorCode.USER_BLOCKED);
         if (!user.isEnable() ) {
-            applicationEventPublisher.publishEvent(new OnRegisterEvent(user, "http://localhost:8082/api/v1/patient", Locale.ENGLISH));
+            applicationEventPublisher.publishEvent(new OnRegisterEvent(user, "https://powerful-motivation-production.up.railway.app/api/v1/patient", Locale.ENGLISH));
             throw new AppException(ErrorCode.NO_ACTIVE);
         }
         var accessToken = generateAccess(user);
@@ -143,7 +143,7 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse outBoundAuthenticate(String code) throws AppException {
-        System.out.println(CLIENT_ID);
+        System.out.println(REDIRECT_URI);
         ExchangeTokenResponse exchangeTokenResponse =  outboundClient.exchangeToken(ExchangeTokenRequest.builder()
                         .code(code)
                         .clientId(CLIENT_ID)
