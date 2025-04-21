@@ -3,6 +3,7 @@ package com.doctorcare.PD_project.controller;
 import com.doctorcare.PD_project.dto.request.NewsCreateRequest;
 import com.doctorcare.PD_project.dto.request.NewsUpdateRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
+import com.doctorcare.PD_project.dto.response.DoctorSummaryResponse;
 import com.doctorcare.PD_project.dto.response.NewsResponse;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.NewsService;
@@ -120,7 +121,7 @@ public class NewsController {
                 .build());
     }
 
-    // Lấy tin tức theo bác sĩ và trạng thái (chỉ dành cho bác sĩ)
+    // Lấy tin tức theo bác sĩ (dành cho người dùng)
     @GetMapping("/doctor/{doctorId}")
     public ResponseEntity<ApiResponse<List<NewsResponse>>> getDoctorNewsByDoctorId(
             @PathVariable String doctorId,
@@ -147,13 +148,6 @@ public class NewsController {
                 .build());
     }
 
-    // Xóa tin tức
-    @DeleteMapping("/{newsId}")
-    public ResponseEntity<ApiResponse<Void>> deleteNews(@PathVariable String newsId) throws AppException {
-        newsService.deleteNews(newsId);
-        return ResponseEntity.noContent().build();
-    }
-
     // Duyệt tin tức (admin hoặc bác sĩ)
     @PostMapping("/{newsId}")
     public ResponseEntity<ApiResponse<NewsResponse>> approveNews(@PathVariable String newsId,
@@ -166,7 +160,7 @@ public class NewsController {
                 .build());
     }
 
-    // Lấy danh sách tin tức đã duyệt của bác sĩ (dành cho admin hoặc bác sĩ)
+    // Lấy danh sách tin tức đã được phân công cho bác sĩ
     @GetMapping("/doctor/assigned")
     public ResponseEntity<ApiResponse<List<NewsResponse>>> getDoctorAssignedNews(
             @RequestParam(defaultValue = "0") int page,
@@ -179,7 +173,7 @@ public class NewsController {
                 .build());
     }
 
-    // Lấy danh sách tin tức đã duyệt của bác sĩ (dành cho admin hoặc bác sĩ)
+    // Lấy danh sách tin tức đã được bác sĩ duyệt (đã duyệt hoặc chưa duyệt)
     @GetMapping("/doctor/reviewed")
     public ResponseEntity<ApiResponse<List<NewsResponse>>> getDoctorReviewedNews(
             @RequestParam boolean approved,
@@ -194,6 +188,7 @@ public class NewsController {
                 .build());
     }
 
+    // Lấy danh sách tin tức chưa được phân công duyệt (dành cho admin)
     @GetMapping("/pending")
     public ResponseEntity<ApiResponse<List<NewsResponse>>> getPendingNews(
             @RequestParam(defaultValue = "0") int page,
@@ -213,6 +208,37 @@ public class NewsController {
         return ResponseEntity.ok(ApiResponse.<NewsResponse>builder()
                 .code(1000)
                 .message("News assigned to doctor successfully")
+                .result(result)
+                .build());
+    }
+
+    // Xem bài viết bất chấp trạng thái
+    @GetMapping("/review/{newsId}")
+    public ResponseEntity<ApiResponse<NewsResponse>> getNewsUnrestricted(
+            @PathVariable String newsId) throws AppException {
+        NewsResponse result = newsService.getAnyNewsById(newsId);
+        return ResponseEntity.ok(ApiResponse.<NewsResponse>builder()
+                .code(1000)
+                .message("News fetched successfully (unrestricted)")
+                .result(result)
+                .build());
+    }
+
+    // Xóa bài viết nháp hoặc chưa duyệt
+    @DeleteMapping("/{newsId}")
+    public ResponseEntity<ApiResponse<Void>> deleteDraftOrPending(@PathVariable String newsId) throws AppException {
+        newsService.deleteDraftOrPending(newsId);
+        return ResponseEntity.noContent().build();
+    }
+
+    // Lấy danh sách bác sĩ (không phân trang, hỗ trợ tìm kiếm không dấu)
+    @GetMapping("/doctors")
+    public ResponseEntity<ApiResponse<List<DoctorSummaryResponse>>> getAllDoctors(
+            @RequestParam(required = false) String keyword) {
+        List<DoctorSummaryResponse> result = newsService.getAllDoctors(keyword);
+        return ResponseEntity.ok(ApiResponse.<List<DoctorSummaryResponse>>builder()
+                .code(1000)
+                .message("Doctor list fetched successfully")
                 .result(result)
                 .build());
     }

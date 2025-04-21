@@ -20,4 +20,6 @@ public interface UserSavedNewsRepository extends JpaRepository<UserSavedNews, St
     Optional<UserSavedNews> findByUserAndNews(User user, News news);
 
     List<UserSavedNews> findAllByUser(User user);
+
+    void deleteAllByNews(News news);
 }

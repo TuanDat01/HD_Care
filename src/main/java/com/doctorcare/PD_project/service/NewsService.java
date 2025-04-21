@@ -2,12 +2,14 @@ package com.doctorcare.PD_project.service;
 
 import com.doctorcare.PD_project.dto.request.NewsCreateRequest;
 import com.doctorcare.PD_project.dto.request.NewsUpdateRequest;
+import com.doctorcare.PD_project.dto.response.DoctorSummaryResponse;
 import com.doctorcare.PD_project.dto.response.NewsResponse;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.NewsMapper;
+import com.doctorcare.PD_project.respository.DoctorRepository;
 import com.doctorcare.PD_project.respository.NewsRepository;
 import com.doctorcare.PD_project.respository.UserRepository;
 import com.doctorcare.PD_project.respository.UserSavedNewsRepository;
@@ -23,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.apache.commons.lang3.StringUtils.stripAccents;
+
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
@@ -33,6 +37,7 @@ public class NewsService {
     UserSavedNewsRepository userSavedNewsRepository;
 
     NewsMapper newsMapper;
+    DoctorRepository doctorRepository;
 
     // Lấy userId từ JWT trong service
     private String getCurrentUserId() {
@@ -181,20 +186,11 @@ public class NewsService {
         return newsMapper.toNewsResponse(news);
     }
 
-    // Xóa tin tức
-    public void deleteNews(String newsId) throws AppException {
-        News news = newsRepository.findById(newsId)
-                .orElseThrow(() -> new AppException(ErrorCode.NEWS_NOT_FOUND));
-
-        if (!isAdministrator() && !news.getAuthor().getId().equals(getCurrentUserId())) {
-            throw new AppException(ErrorCode.UNAUTHORIZED);
-        }
-
-        newsRepository.delete(news);
-    }
-
     // Duyệt tin tức (admin hoặc bác sĩ)
     public NewsResponse approveNews(String newsId, boolean approve) throws AppException {
+        User user = userRepository.findById(getCurrentUserId())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
         News news = newsRepository.findById(newsId)
                 .orElseThrow(() -> new AppException(ErrorCode.NEWS_NOT_FOUND));
 
@@ -203,24 +199,25 @@ public class NewsService {
         }
 
         news.setApproved(approve);
+        news.setApprovedBy(user);
         newsRepository.save(news);
 
         return newsMapper.toNewsResponse(news);
     }
 
-    // API pending (chưa duyệt & không nháp) chỉ Admin
+    // API pending lấy tất cả tin tức chưa được giao duyệt (chưa duyệt & không nháp) chỉ Admin
     public List<NewsResponse> getPendingNews(int page, int size) throws AppException {
         if (!isAdministrator()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
-        return newsRepository.findByIsApprovedFalseAndIsDraftFalse(PageRequest.of(page, size))
-                .stream().map(this::enrichResponse)
-                .toList();
+        return newsRepository.findByAssignedToIsNullAndIsDraftFalse(PageRequest.of(page, size))
+                .stream().map(this::enrichResponse).
+                toList();
     }
 
     // Phân công tin tức cho bác sĩ duyệt (dành cho admin)
     public NewsResponse assignNewsToDoctor(String newsId, String doctorId) throws AppException {
-        if (isAdministrator()) {
+        if (!isAdministrator()) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
@@ -243,8 +240,52 @@ public class NewsService {
         if (!(doctor instanceof Doctor)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
-        return newsRepository.findByAssignedTo(doctor, PageRequest.of(page, size))
-                .stream().map(this::enrichResponse).toList();
+        // Chỉ lấy các tin đã được phân công và đang chờ duyệt (approvedBy = null, không phải nháp)
+        return newsRepository.findByAssignedToAndApprovedByIsNullAndIsDraftFalse(doctor, PageRequest.of(page, size))
+                .stream()
+                .map(this::enrichResponse)
+                .toList();
+    }
+
+    // Lấy 1 tin tức bất kỳ theo ID (Không quan tâm trạng thái - dành cho admin hoặc chủ sở hữu)
+    public NewsResponse getAnyNewsById(String newsId) throws AppException {
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new AppException(ErrorCode.NEWS_NOT_FOUND));
+        String uid = getCurrentUserId();
+        User user = userRepository.findById(uid)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (!isAdministrator() && !news.getAuthor().getId().equals(uid)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        return enrichResponse(news);
+    }
+
+    // Lấy danh sách tất cả bác sĩ (dùng cho option)
+    public List<DoctorSummaryResponse> getAllDoctors(String keyword) {
+        List<Doctor> doctors = doctorRepository.findAll();
+        String kw = keyword == null ? "" : stripAccents(keyword).toLowerCase();
+        return doctors.stream()
+                .filter(d -> d.isEnable() && !d.isBlocked()) // chỉ bác sĩ active
+                .filter(d -> stripAccents(d.getName()).toLowerCase().contains(kw))
+                .map(d -> new DoctorSummaryResponse(d.getId(), d.getName(), d.getUsername()))
+                .toList();
+    }
+
+    // Xóa tin tức nháp hoặc chưa duyệt (dành cho admin hoăc chủ sở hữu)
+    public void deleteDraftOrPending(String newsId) throws AppException {
+        String currentUserId = getCurrentUserId();
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new AppException(ErrorCode.NEWS_NOT_FOUND));
+
+        if (!isAdministrator() && !news.getAuthor().getId().equals(currentUserId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        if (!(news.isDraft() || !news.isApproved())) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+        userSavedNewsRepository.deleteAllByNews(news);
+        newsRepository.delete(news);
     }
 
     // Lấy danh sách tin tức đã được bác sĩ duyệt (đã duyệt hoặc chưa duyệt)
@@ -254,12 +295,9 @@ public class NewsService {
         if (!(doctor instanceof Doctor)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
-        Page<News> pageRes;
-        if (approved) {
-            pageRes = newsRepository.findByApprovedByAndIsApprovedTrue(doctor, PageRequest.of(page, size));
-        } else {
-            pageRes = newsRepository.findByApprovedByAndIsApprovedFalse(doctor, PageRequest.of(page, size));
-        }
+        Page<News> pageRes = approved
+                ? newsRepository.findByApprovedByAndIsApprovedTrue(doctor, PageRequest.of(page, size))
+                : newsRepository.findByApprovedByAndIsApprovedFalse(doctor, PageRequest.of(page, size));
         return pageRes.stream().map(this::enrichResponse).toList();
     }
 
