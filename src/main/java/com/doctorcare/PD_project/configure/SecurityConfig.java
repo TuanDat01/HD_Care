@@ -31,6 +31,7 @@ public class SecurityConfig {
             "/auth/**",
             "/auth/refreshToken",
             "/patient",
+            "/webhook/receive"
     };
 
     private static final String[] PUBLIC_URL_GET = {
@@ -43,6 +44,7 @@ public class SecurityConfig {
             "/doctor",
             "/auth/verify",
             "/doctor-schedule",
+            "/sse/subscribe"
     };
 
     private static final String[] DOCTOR_URL = {

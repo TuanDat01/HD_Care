@@ -1,5 +1,8 @@
 package com.doctorcare.PD_project.event.listen;
 
+import com.doctorcare.PD_project.annotation.EventTrigger;
+import com.doctorcare.PD_project.dto.request.AppointmentRequest;
+import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.event.create.AppointmentStatusChange;
 import com.doctorcare.PD_project.service.SendEmailService;
@@ -18,8 +21,10 @@ import java.util.Objects;
 public class AppointmentStatusListen {
     SendEmailService sendEmailService;
     @EventListener
-    public void sendMailForChange(AppointmentStatusChange appointmentStatusChange) throws MessagingException {
+    @EventTrigger(event = "STATUS")
+    public Appointment sendMailForChange(AppointmentStatusChange appointmentStatusChange) throws MessagingException {
         sendEmailService.sendAppointmentConfirmation(appointmentStatusChange.getAppointment(),appointmentStatusChange.isCancel(),appointmentStatusChange.getNote());
+        return appointmentStatusChange.getAppointment();
     }
 
 }

@@ -16,6 +16,7 @@ import java.util.List;
 public class DoctorResponse {
     String id;
     String name;
+    String username;
     String clinicName;
     String district;
     String city;

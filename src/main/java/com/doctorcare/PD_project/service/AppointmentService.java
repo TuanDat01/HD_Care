@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.service;
 
+import com.doctorcare.PD_project.annotation.EventTrigger;
 import com.doctorcare.PD_project.dto.request.*;
 import com.doctorcare.PD_project.dto.response.ManagePatient;
 import com.doctorcare.PD_project.entity.*;
@@ -66,6 +67,7 @@ public class AppointmentService {
         return appointmentV2Request;
     }
 
+    @EventTrigger(event = "MAKE_APPOINT")
     @Transactional
     public AppointmentRequest createAppointment(AppointmentRequest appointmentRequest) throws AppException, MessagingException {
 
