@@ -23,7 +23,8 @@ public interface NewsRepository extends JpaRepository<News, String> {
     Page<News> findByAuthorAndIsDraftFalseAndApprovedByIsNotNullAndIsApprovedFalse(User doctor, Pageable pageable);
     Page<News> findByAuthorAndIsDraftFalseAndApprovedByIsNull(User doctor, Pageable pageable);
 
-    Page<News> findByAssignedTo(User assignedTo, Pageable pageable);
+    Page<News> findByAssignedToAndApprovedByIsNullAndIsDraftFalse(User assignedTo, Pageable pageable);
     Page<News> findByApprovedByAndIsApprovedTrue(User approvedBy, Pageable pageable);
     Page<News> findByApprovedByAndIsApprovedFalse(User approvedBy, Pageable pageable);
+    Page<News> findByAssignedToIsNullAndIsDraftFalse(Pageable pageable);
 }
