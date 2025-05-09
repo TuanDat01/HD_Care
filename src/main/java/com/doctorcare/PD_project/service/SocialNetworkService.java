@@ -1,5 +1,6 @@
 package com.doctorcare.PD_project.service;
 
+import com.doctorcare.PD_project.annotation.EventTrigger;
 import com.doctorcare.PD_project.dto.request.CreateCommentRequest;
 import com.doctorcare.PD_project.dto.request.CreatePostRequest;
 import com.doctorcare.PD_project.dto.request.UpdateCommentRequest;
@@ -7,6 +8,7 @@ import com.doctorcare.PD_project.dto.request.UpdatePostRequest;
 import com.doctorcare.PD_project.dto.response.*;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.ErrorCode;
+import com.doctorcare.PD_project.enums.NotificationType;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.CommentMapper;
 import com.doctorcare.PD_project.mapping.PostMapper;
@@ -320,7 +322,8 @@ public class SocialNetworkService {
     }
 
     // **** LIKE **** //
-    public void interactPost(String postId) throws AppException {
+    @EventTrigger(event = NotificationType.LIKE_POST)
+    public Post interactPost(String postId) throws AppException {
         String userId = getCurrentUserId();
 
         User user = userRepository.findById(userId)
@@ -350,10 +353,14 @@ public class SocialNetworkService {
 
             post.setCountLikes(post.getCountLikes() + 1);
             postRepository.save(post);
+            return post;
         }
+
+        return null;
     }
 
     // **** COMMENT **** //
+    @EventTrigger(event = NotificationType.COMMENT_POST)
     public CommentResponse commentOnPost(CreateCommentRequest request, String postId) throws AppException {
         String userId = getCurrentUserId();
 

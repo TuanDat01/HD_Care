@@ -31,7 +31,6 @@ public class SecurityConfig {
             "/auth/**",
             "/auth/refreshToken",
             "/patient",
-            "/webhook/receive"
     };
 
     private static final String[] PUBLIC_URL_GET = {
@@ -70,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, PUBLIC_URL_POST).permitAll()
                         .requestMatchers(HttpMethod.GET,PUBLIC_URL_GET).permitAll()
                         .requestMatchers("/social/**").permitAll()
+                        .requestMatchers("/notification/webhook/receive").permitAll()
                         .requestMatchers("/news/**").permitAll()
                         .anyRequest().authenticated()
                 ;

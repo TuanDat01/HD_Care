@@ -75,5 +75,6 @@ token:
 
 app:
   webhook:
-    uri: http://localhost:8082/api/v1/webhook/receive
+    uri: http://localhost:8082/api/v1/notification/webhook/receive
+
 

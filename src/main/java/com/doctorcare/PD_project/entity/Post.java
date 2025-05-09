@@ -1,5 +1,7 @@
 package com.doctorcare.PD_project.entity;
 
+import com.doctorcare.PD_project.dto.response.BasicInfoUserResponse;
+import com.doctorcare.PD_project.mapping.HasUser;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class Post {
+public class Post implements HasUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
@@ -43,4 +45,19 @@ public class Post {
 
     LocalDateTime createdAt;
     LocalDateTime updatedAt;
+
+    @Override
+    public BasicInfoUserResponse getUserResponse() {
+        return null;
+    }
+
+    @Override
+    public Patient getPatient() {
+        return null;
+    }
+
+    @Override
+    public Post getPost() {
+        return null;
+    }
 }

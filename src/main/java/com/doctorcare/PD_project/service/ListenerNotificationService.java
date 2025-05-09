@@ -21,6 +21,7 @@ public class ListenerNotificationService {
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_NAME)
     public void consume(NotificationMessage payload ) {
+        System.out.println("In consumer " + payload.getUsername());
         try {
             webClient.post()
                     .uri(webhookurl)
