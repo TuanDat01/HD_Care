@@ -56,7 +56,7 @@ public enum ErrorCode {
     NEWS_NOT_DRAFT(1046, "Bạn chỉ có thể sửa tin tức nháp", HttpStatus.BAD_REQUEST),
     INVALID_FILTER_DOCTOR_NEWS(1047, "Trạng thái lọc tin tức không hợp lệ", HttpStatus.BAD_REQUEST),
     INVALID_NOTIFICATION_TYPE(1048, "Loại thông báo không hợp lệ", HttpStatus.BAD_REQUEST),
-    ;
+    NOT_FOUND_USER(1049, "Không tìm thấy user đang online", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;

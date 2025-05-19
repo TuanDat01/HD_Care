@@ -53,9 +53,7 @@ public class WebhookAspect {
             }
         }
         else if (NotificationType.COMMENT_FOLLOW.contains(notificationType)) {
-            System.out.println("eventType2: " + notificationType);
             NotificateDTO notificateDTO = notificateMap.toNotificateDTO(hasUser);
-            System.out.println(notificateDTO);
             params.put("{user}", receiver_user);
             notification.setReceiver(notificateDTO.getPost().getUser());
             notification.setIdReference(notificateDTO.getPost().getId());

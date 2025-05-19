@@ -42,6 +42,7 @@ public class AppointmentStatusListen {
         notification.setMessage(replacePlaceholders(NotificationType.CHANGE_STATUS.getMessage(), params));
         notification.setEvent_type(NotificationType.CHANGE_STATUS.getType());
         notification.setReceiver(appointmentStatusChange.getAppointment().getPatient());
+        notification.setIdReference(appointmentStatusChange.getAppointment().getId());
         notification.setRead(false);
         notificationService.saveNotification(notification);
 
