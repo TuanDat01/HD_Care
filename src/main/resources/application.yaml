@@ -2,9 +2,9 @@ spring:
   application:
     name: PD_project
   datasource:
-    url: jdbc:mysql://localhost:3306/final_doctor
+    url: jdbc:mysql://localhost:3306/hdcare
     username: root
-    password: 123456@
+    password: 12022003b
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,6 +16,11 @@ spring:
       enabled: true
       max-file-size: 10MB
       max-request-size: 10MB
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
 
 #    lazy-initialization: true
   mail:
@@ -66,3 +71,10 @@ jwt:
 token:
   accessToken : "20"
   refreshToken : "6"
+# application.yml
+
+app:
+  webhook:
+    uri: http://localhost:8082/api/v1/notification/webhook/receive
+
+

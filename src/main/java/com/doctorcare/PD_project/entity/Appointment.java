@@ -1,7 +1,9 @@
 package com.doctorcare.PD_project.entity;
 
+import com.doctorcare.PD_project.dto.response.BasicInfoUserResponse;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.event.listen.EntityListener;
+import com.doctorcare.PD_project.mapping.HasUser;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Data;
@@ -18,7 +20,7 @@ import java.util.List;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "Appointment")
 @EntityListeners(EntityListener.class)
-public class Appointment {
+public class Appointment implements HasUser {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "appointment_id")
@@ -62,5 +64,20 @@ public class Appointment {
                 ", createdAt=" + createdAt +
                 ", prescription=" + prescription +
                 '}';
+    }
+
+    @Override
+    public User getUser() {
+        return null;
+    }
+
+    @Override
+    public BasicInfoUserResponse getUserResponse() {
+        return null;
+    }
+
+    @Override
+    public Post getPost() {
+        return null;
     }
 }

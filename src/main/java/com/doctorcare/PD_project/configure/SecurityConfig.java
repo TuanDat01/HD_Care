@@ -43,6 +43,7 @@ public class SecurityConfig {
             "/doctor",
             "/auth/verify",
             "/doctor-schedule",
+            "/sse/subscribe"
     };
 
     private static final String[] DOCTOR_URL = {
@@ -68,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, PUBLIC_URL_POST).permitAll()
                         .requestMatchers(HttpMethod.GET,PUBLIC_URL_GET).permitAll()
                         .requestMatchers("/social/**").permitAll()
+                        .requestMatchers("/notification/webhook/receive").permitAll()
                         .requestMatchers("/news/**").permitAll()
                         .requestMatchers("/payment/**").permitAll()
                         .requestMatchers("/complaint/**").permitAll()

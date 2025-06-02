@@ -1,11 +1,13 @@
 package com.doctorcare.PD_project.dto.request;
 
+import com.doctorcare.PD_project.entity.Patient;
 import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
 @Getter
@@ -24,6 +26,8 @@ public class AppointmentRequest {
 
     @NotBlank(message = "GENDER_NOT_BLANK")
     String gender;
+
+    Patient patient;
 
     @NotBlank(message = "Địa chỉ không được để trống.")
     @Size(max = 255, message = "Địa chỉ không được vượt quá 255 ký tự.")

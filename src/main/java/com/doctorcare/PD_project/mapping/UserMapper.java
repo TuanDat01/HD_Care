@@ -5,6 +5,7 @@ import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.dto.request.UpdateDoctorRequest;
 import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.response.*;
+import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.entity.User;
@@ -55,4 +56,7 @@ public interface UserMapper {
     @Mapping(target = "followed", ignore = true)
     @Mapping(source = "img",target = "avatar")
     BasicInfoUserResponse toBasicInfoUserResponse(User user);
+
+    @InheritInverseConfiguration
+    User toUser(BasicInfoUserResponse basicInfoUserResponse);
 }

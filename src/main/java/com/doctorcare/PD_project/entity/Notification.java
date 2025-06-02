@@ -28,9 +28,11 @@ public class Notification {
     User sender; // Người gửi thông báo (nếu có)
 
     String message; // Nội dung thông báo
+    String event_type;
 
     boolean isRead = false; // Trạng thái đọc
 
     @Column(nullable = false, updatable = false)
     LocalDateTime createdAt = LocalDateTime.now();
+    String idReference;
 }

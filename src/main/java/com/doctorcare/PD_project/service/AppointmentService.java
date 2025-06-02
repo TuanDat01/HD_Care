@@ -1,10 +1,12 @@
 package com.doctorcare.PD_project.service;
 
+import com.doctorcare.PD_project.annotation.EventTrigger;
 import com.doctorcare.PD_project.dto.request.*;
 import com.doctorcare.PD_project.dto.response.ManagePatient;
 import com.doctorcare.PD_project.entity.*;
 import com.doctorcare.PD_project.enums.AppointmentStatus;
 import com.doctorcare.PD_project.enums.ErrorCode;
+import com.doctorcare.PD_project.enums.NotificationType;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.AppointmentMapper;
 import com.doctorcare.PD_project.mapping.UserMapper;
@@ -66,6 +68,7 @@ public class AppointmentService {
         return appointmentV2Request;
     }
 
+    @EventTrigger(event = NotificationType.MAKE_APPOINTMENT)
     @Transactional
     public AppointmentRequest createAppointment(AppointmentRequest appointmentRequest) throws AppException, MessagingException {
 

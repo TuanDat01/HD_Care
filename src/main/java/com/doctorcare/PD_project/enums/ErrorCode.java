@@ -55,7 +55,9 @@ public enum ErrorCode {
     FOLLOW_REQUEST_NOT_FOUND(1045, "Yêu cầu theo dõi không tồn tại", HttpStatus.NOT_FOUND),
     NEWS_NOT_DRAFT(1046, "Bạn chỉ có thể sửa tin tức nháp", HttpStatus.BAD_REQUEST),
     INVALID_FILTER_DOCTOR_NEWS(1047, "Trạng thái lọc tin tức không hợp lệ", HttpStatus.BAD_REQUEST),
-    DOCTOR_NOT_FOUND(1048, "Bác sĩ không tồn tại", HttpStatus.NOT_FOUND),;
+    DOCTOR_NOT_FOUND(1048, "Bác sĩ không tồn tại", HttpStatus.NOT_FOUND),
+    INVALID_NOTIFICATION_TYPE(1049, "Loại thông báo không hợp lệ", HttpStatus.BAD_REQUEST),
+    NOT_FOUND_USER(1050, "Không tìm thấy user đang online", HttpStatus.NOT_FOUND);
 
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;
