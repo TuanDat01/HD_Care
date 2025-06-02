@@ -36,6 +36,10 @@ public class Post {
     @JoinColumn(name = "user_id")
     User user;
 
+    @ManyToOne
+    @JoinColumn(name = "doctor_id")
+    User doctor;
+
     int countLikes = 0;
     int countComments = 0;
 

@@ -3,6 +3,7 @@ package com.doctorcare.PD_project.controller;
 import com.doctorcare.PD_project.dto.request.NewsCreateRequest;
 import com.doctorcare.PD_project.dto.request.NewsUpdateRequest;
 import com.doctorcare.PD_project.dto.response.ApiResponse;
+import com.doctorcare.PD_project.dto.response.BasicInfoUserResponse;
 import com.doctorcare.PD_project.dto.response.DoctorSummaryResponse;
 import com.doctorcare.PD_project.dto.response.NewsResponse;
 import com.doctorcare.PD_project.exception.AppException;
@@ -89,20 +90,6 @@ public class NewsController {
         return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
                 .code(1000)
                 .message("News by category fetched successfully")
-                .result(result)
-                .build());
-    }
-
-    // Tìm tin tức theo từ khóa với phân trang
-    @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<NewsResponse>>> searchNews(
-            @RequestParam String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) throws AppException {
-        List<NewsResponse> result = newsService.searchNews(keyword, page, size);
-        return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
-                .code(1000)
-                .message("Search news fetched successfully")
                 .result(result)
                 .build());
     }
@@ -233,10 +220,10 @@ public class NewsController {
 
     // Lấy danh sách bác sĩ (không phân trang, hỗ trợ tìm kiếm không dấu)
     @GetMapping("/doctors")
-    public ResponseEntity<ApiResponse<List<DoctorSummaryResponse>>> getAllDoctors(
+    public ResponseEntity<ApiResponse<List<BasicInfoUserResponse>>> getAllDoctors(
             @RequestParam(required = false) String keyword) {
-        List<DoctorSummaryResponse> result = newsService.getAllDoctors(keyword);
-        return ResponseEntity.ok(ApiResponse.<List<DoctorSummaryResponse>>builder()
+        List<BasicInfoUserResponse> result = newsService.getAllDoctors(keyword);
+        return ResponseEntity.ok(ApiResponse.<List<BasicInfoUserResponse>>builder()
                 .code(1000)
                 .message("Doctor list fetched successfully")
                 .result(result)
@@ -271,6 +258,19 @@ public class NewsController {
         return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
                 .code(1000)
                 .message("Favorite news fetched successfully")
+                .result(result)
+                .build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<List<NewsResponse>>> searchNewsByKeyword(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws AppException {
+        List<NewsResponse> result = newsService.searchNewsByKeyword(keyword, page, size);
+        return ResponseEntity.ok(ApiResponse.<List<NewsResponse>>builder()
+                .code(1000)
+                .message("Search results fetched successfully")
                 .result(result)
                 .build());
     }

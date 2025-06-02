@@ -115,6 +115,19 @@ public class SocialNetworkController {
                 .build());
     }
 
+    @GetMapping("/posts/search")
+    public ResponseEntity<ApiResponse<List<PostResponse>>> searchPosts(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws AppException {
+        Page<PostResponse> pageResult = socialNetworkService.searchPosts(keyword, page, size);
+        return ResponseEntity.ok(ApiResponse.<List<PostResponse>>builder()
+                .code(1000)
+                .message("Search results fetched successfully")
+                .result(pageResult.getContent())
+                .build());
+    }
+
     // **** COMMENT **** //
     @PostMapping("/posts/{postId}/comments")
     public ResponseEntity<ApiResponse<CommentResponse>> commentOnPost(@RequestBody CreateCommentRequest request,
@@ -246,6 +259,7 @@ public class SocialNetworkController {
                 .build());
     }
 
+    // Lấy danh sách follow request đã nhận
     @GetMapping("/users/follow-requests")
     public ResponseEntity<ApiResponse<List<BasicInfoUserResponse>>> getAllFollowRequests(
             @RequestParam(defaultValue = "0") int page,
@@ -258,12 +272,74 @@ public class SocialNetworkController {
                 .build());
     }
 
+    // Lấy danh sách follow request đã gửi
+    @GetMapping("/users/send-follow-request")
+    public ResponseEntity<ApiResponse<List<BasicInfoUserResponse>>> sendFollowRequest(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) throws AppException {
+        List<BasicInfoUserResponse> result = socialNetworkService.getAllSendFollowRequest(page, size);
+        return ResponseEntity.ok(ApiResponse.<List<BasicInfoUserResponse>>builder()
+                .code(1000)
+                .message("Follow request sent")
+                .result(result)
+                .build());
+    }
+
+    @DeleteMapping("/users/delete-follow-request/{targetUserId}")
+    public ResponseEntity<ApiResponse<Void>> deleteFollowRequest(@PathVariable String targetUserId) throws AppException {
+        socialNetworkService.deleteFollowRequest(targetUserId);
+        return ResponseEntity.ok(ApiResponse.<Void>builder()
+                .code(1000)
+                .message("Follow request deleted")
+                .build());
+    }
+
     @PostMapping("/users/private")
     public ResponseEntity<ApiResponse<Void>> setPrivate() throws AppException {
         socialNetworkService.setPrivate();
         return ResponseEntity.ok(ApiResponse.<Void>builder()
                 .code(1000)
                 .message("Privacy setting toggled")
+                .build());
+    }
+
+    @GetMapping("users/check-private/{userId}")
+    public ResponseEntity<ApiResponse<Boolean>> checkPrivate(@PathVariable String userId) throws AppException {
+        boolean isPrivate = socialNetworkService.checkPrivate(userId);
+        return ResponseEntity.ok(ApiResponse.<Boolean>builder()
+                .code(1000)
+                .message("Privacy status checked")
+                .result(isPrivate)
+                .build());
+    }
+
+    @GetMapping("/users/count-follow-requests")
+    public ResponseEntity<ApiResponse<Integer>> countFollowRequests() throws AppException {
+        int count = socialNetworkService.countFollowRequests();
+        return ResponseEntity.ok(ApiResponse.<Integer>builder()
+                .code(1000)
+                .message("Count of follow requests fetched successfully")
+                .result(count)
+                .build());
+    }
+
+    @GetMapping("/users/count-send-follow-requests")
+    public ResponseEntity<ApiResponse<Integer>> countSendFollowRequests() throws AppException {
+        int count = socialNetworkService.countSendFollowRequests();
+        return ResponseEntity.ok(ApiResponse.<Integer>builder()
+                .code(1000)
+                .message("Count of sent follow requests fetched successfully")
+                .result(count)
+                .build());
+    }
+
+    @GetMapping("users/count-posts/{userId}")
+    public ResponseEntity<ApiResponse<Integer>> countPosts(@PathVariable String userId) throws AppException {
+        int count = socialNetworkService.countPosts(userId);
+        return ResponseEntity.ok(ApiResponse.<Integer>builder()
+                .code(1000)
+                .message("Count of posts fetched successfully")
+                .result(count)
                 .build());
     }
 }

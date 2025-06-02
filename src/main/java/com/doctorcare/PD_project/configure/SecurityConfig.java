@@ -69,6 +69,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,PUBLIC_URL_GET).permitAll()
                         .requestMatchers("/social/**").permitAll()
                         .requestMatchers("/news/**").permitAll()
+                        .requestMatchers("/payment/**").permitAll()
+                        .requestMatchers("/complaint/**").permitAll()
                         .anyRequest().authenticated()
                 ;
             } catch (Exception e) {

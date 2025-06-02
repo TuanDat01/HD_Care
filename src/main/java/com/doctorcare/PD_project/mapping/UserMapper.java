@@ -53,5 +53,6 @@ public interface UserMapper {
     OtherDoctor toOtherDoctor(Doctor doctor);
 
     @Mapping(target = "followed", ignore = true)
+    @Mapping(source = "img",target = "avatar")
     BasicInfoUserResponse toBasicInfoUserResponse(User user);
 }

@@ -84,6 +84,7 @@ public class AppointmentService {
 
         Prescription prescription = new Prescription();
 
+        appointment.setAmount(doctor.getPrice());
         appointment.setPatient(patient);
         appointment.setSchedule(schedule);
         appointment.setDoctor(doctor);

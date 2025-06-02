@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface NewsRepository extends JpaRepository<News, String> {
+public interface NewsRepository extends JpaRepository<News, String>,NewsRepositoryCustom {
     Page<News> findByIsApprovedTrueAndIsDraftFalse(Pageable pageable);
     Page<News> findByCategoryAndIsApprovedTrueAndIsDraftFalse(String category, Pageable pageable);
     Page<News> findByIsApprovedFalseAndIsDraftFalse(Pageable pageable);  // pending

@@ -82,8 +82,4 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     @Override
     long count();
 
-    //    @Query("select a from Appointment a where" +
-//            " a.doctor = :doctor and" +
-//            " a.status = :status")
-//    List<Appointment> findAppointmentByStatus(@Param("status") String status, @Param("doctor")Doctor doctor);
 }

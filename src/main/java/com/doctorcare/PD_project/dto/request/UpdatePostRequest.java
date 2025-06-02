@@ -8,6 +8,7 @@ import java.util.List;
 @Data
 public class UpdatePostRequest {
     private String content;
+    private String doctorId;
     private List<PostImage> images;
     private boolean isHidden;
 }

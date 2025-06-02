@@ -23,6 +23,7 @@ public class PostResponse {
     private int countComments;
 
     private BasicInfoUserResponse user;
+    private BasicInfoUserResponse doctor;
     private boolean liked;
     private boolean saved;
 }

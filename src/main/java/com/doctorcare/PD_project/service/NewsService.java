@@ -2,6 +2,7 @@ package com.doctorcare.PD_project.service;
 
 import com.doctorcare.PD_project.dto.request.NewsCreateRequest;
 import com.doctorcare.PD_project.dto.request.NewsUpdateRequest;
+import com.doctorcare.PD_project.dto.response.BasicInfoUserResponse;
 import com.doctorcare.PD_project.dto.response.DoctorSummaryResponse;
 import com.doctorcare.PD_project.dto.response.NewsResponse;
 import com.doctorcare.PD_project.entity.*;
@@ -83,7 +84,7 @@ public class NewsService {
         Page<News> newsPage = newsRepository
                 .findByIsApprovedTrueAndIsDraftFalse(pageRequest);
 
-        return newsPage.stream().map(newsMapper::toNewsResponse).toList();
+        return newsPage.stream().map(this::enrichResponse).toList();
     }
 
     // Lấy tin tức mới nhất
@@ -93,7 +94,7 @@ public class NewsService {
         Page<News> newsPage = newsRepository
                 .findByIsApprovedTrueAndIsDraftFalse(pageRequest);
 
-        return newsPage.stream().map(newsMapper::toNewsResponse).toList();
+        return newsPage.stream().map(this::enrichResponse).toList();
     }
 
     // Lấy tin tức nổi bật (theo lượt interactUseful)
@@ -103,7 +104,7 @@ public class NewsService {
         Page<News> newsPage = newsRepository
                 .findByIsApprovedTrueAndIsDraftFalse(pageRequest);
 
-        return newsPage.stream().map(newsMapper::toNewsResponse).toList();
+        return newsPage.stream().map(this::enrichResponse).toList();
     }
 
     // Lấy tin tức theo danh mục với phân trang
@@ -181,6 +182,7 @@ public class NewsService {
         news.setContent(newsUpdateRequest.getContent());
         news.setCategory(newsUpdateRequest.getCategory());
         news.setDraft(newsUpdateRequest.isDraft());
+        news.setCoverImageUrl(newsUpdateRequest.getCoverImageUrl());
         newsRepository.save(news);
 
         return newsMapper.toNewsResponse(news);
@@ -254,20 +256,28 @@ public class NewsService {
         String uid = getCurrentUserId();
         User user = userRepository.findById(uid)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        if (!isAdministrator() && !news.getAuthor().getId().equals(uid)) {
+        if (!isAdministrator() && !news.getAuthor().getId().equals(uid) && !news.getAssignedTo().getId().equals(uid)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
         return enrichResponse(news);
     }
 
     // Lấy danh sách tất cả bác sĩ (dùng cho option)
-    public List<DoctorSummaryResponse> getAllDoctors(String keyword) {
+    public List<BasicInfoUserResponse> getAllDoctors(String keyword) {
         List<Doctor> doctors = doctorRepository.findAll();
         String kw = keyword == null ? "" : stripAccents(keyword).toLowerCase();
         return doctors.stream()
                 .filter(d -> d.isEnable() && !d.isBlocked()) // chỉ bác sĩ active
                 .filter(d -> stripAccents(d.getName()).toLowerCase().contains(kw))
-                .map(d -> new DoctorSummaryResponse(d.getId(), d.getName(), d.getUsername()))
+                .map(d -> {
+                    BasicInfoUserResponse result = new BasicInfoUserResponse();
+                    result.setId(d.getId());
+                    result.setName(d.getName());
+                    result.setUsername(d.getUsername());
+                    result.setAvatar(d.getImg());
+                    result.setRole(d.getRole());
+                    return  result;
+                })
                 .toList();
     }
 
@@ -398,7 +408,7 @@ public class NewsService {
 
         return savedPage.stream()
                 .map(UserSavedNews::getNews)
-                .map(newsMapper::toNewsResponse)
+                .map(this::enrichResponse)
                 .toList();
     }
 
@@ -422,4 +432,14 @@ public class NewsService {
         resp.setFavorited(fav);
         return resp;
     }
+
+    public List<NewsResponse> searchNewsByKeyword(String keyword, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<News> newsPage = newsRepository.searchByKeywordWhole(keyword, pageable);
+
+        return newsPage.stream()
+                .map(this::enrichResponse)
+                .toList();
+    }
+
 }

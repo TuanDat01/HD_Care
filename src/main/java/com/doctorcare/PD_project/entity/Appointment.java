@@ -37,7 +37,6 @@ public class Appointment {
     @JoinColumn(name = "doctor_id", nullable = false)
     Doctor doctor;
     @ManyToOne
-
     @JoinColumn(name = "patient_id", nullable = false)
     Patient patient;
 
@@ -49,6 +48,9 @@ public class Appointment {
     @JoinColumn(name = "prescription_id")
     Prescription prescription;
 
+    double amount; // Số tiền thanh toán (lấy từ Doctor.price)
+    LocalDateTime createdAt; // Thời gian tạo lịch hẹn
+
     @Override
     public String toString() {
         return "Appointment{" +
@@ -56,6 +58,8 @@ public class Appointment {
                 ", title='" + title + '\'' +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +
+                ", amount=" + amount +
+                ", createdAt=" + createdAt +
                 ", prescription=" + prescription +
                 '}';
     }

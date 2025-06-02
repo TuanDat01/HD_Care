@@ -14,6 +14,7 @@ import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.respository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.experimental.FieldDefaults;
 import org.springframework.data.domain.*;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,6 +41,7 @@ public class SocialNetworkService {
     UserMapper userMapper;
     PostMapper postMapper;
     CommentMapper commentMapper;
+    private final DoctorRepository doctorRepository;
 
     // Lấy userId từ JWT trong service
     private String getCurrentUserId() {
@@ -57,7 +59,16 @@ public class SocialNetworkService {
         // Tạo entity Post
         Post post = postMapper.toPost(request);
         post.setCreatedAt(LocalDateTime.now());
+        post.setHidden(request.isHidden());
         post.setUser(user);
+
+        if (request.getDoctorId() == null || request.getDoctorId().isEmpty()) {
+            post.setDoctor(null); // Xóa bác sĩ nếu không có ID
+        } else {
+            Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                    .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+            post.setDoctor(doctor);
+        }
 
         // Xử lý ảnh
         if (request.getImages() != null) {
@@ -90,6 +101,14 @@ public class SocialNetworkService {
         post.setContent(request.getContent());
         post.setHidden(request.isHidden());
         post.setUpdatedAt(LocalDateTime.now());
+
+        if (request.getDoctorId() == null || request.getDoctorId().isEmpty()) {
+            post.setDoctor(null); // Xóa bác sĩ nếu không có ID
+        } else {
+            Doctor doctor = doctorRepository.findById(request.getDoctorId())
+                    .orElseThrow(() -> new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+            post.setDoctor(doctor);
+        }
 
         // Cập nhật ảnh: xóa cũ và thêm mới
         post.getImages().clear();
@@ -129,8 +148,6 @@ public class SocialNetworkService {
             }
         }
 
-//        PostResponse response = postMapper.toPostResponse(post);
-//        response.setUser(userMapper.toBasicInfoUserResponse(post.getUser()));
         return toPostResponseWithFlags(post);
     }
 
@@ -525,15 +542,22 @@ public class SocialNetworkService {
                 .map(UserFollow::getFollowing)
                 .toList();
 
-        // 3. Chỉ giữ lại user chưa follow
-        List<User> notFollowed = allUsers.stream()
-                .filter(u -> !alreadyFollowed.contains(u))
+        // 3. Lọc ra những user đã gửi yêu cầu theo dõi
+        List<User> alreadyRequested = followRequestRepository.findByFollower(currentUser, Pageable.unpaged())
+                .getContent().stream()
+                .map(FollowRequest::getUser)
                 .toList();
 
-        // 4. Tạo seed từ currentUserId
+        // 4. Chỉ giữ lại user chưa follow
+        List<User> notFollowed = allUsers.stream()
+                .filter(u -> !alreadyFollowed.contains(u))
+                .filter(u -> !alreadyRequested.contains(u))
+                .toList();
+
+        // 5. Tạo seed từ currentUserId
         int seed = currentUserId.hashCode();
 
-        // 5. Sort theo key = userId.hashCode() XOR seed
+        // 6. Sort theo key = userId.hashCode() XOR seed
         List<User> sorted = notFollowed.stream()
                 .sorted(Comparator
                         .comparingInt((User u) -> u.getId().hashCode() ^ seed)
@@ -541,7 +565,7 @@ public class SocialNetworkService {
                         .thenComparing(User::getId))
                 .toList();
 
-        // 6. Phân trang thủ công
+        // 7. Phân trang thủ công
         int total = sorted.size();
         int start = page * size;
         if (start >= total) {
@@ -554,6 +578,25 @@ public class SocialNetworkService {
                 .toList();
 
         return new PageImpl<>(content, PageRequest.of(page, size), total);
+    }
+
+    public Page<PostResponse> searchPosts(String keyword, int page, int size) {
+        String currentUserId = getCurrentUserId();
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "createdAt"));
+
+        Page<Post> postPage = postRepository.searchByMultipleKeywords(keyword, currentUserId, pageable);
+
+        List<PostResponse> content = postPage.stream()
+                .map(post -> {
+                    try {
+                        return toPostResponseWithFlags(post);
+                    } catch (AppException e) {
+                        throw new RuntimeException(e);
+                    }
+                })
+                .toList();
+
+        return new PageImpl<>(content, pageable, postPage.getTotalElements());
     }
 
     // **** UPDATED: getAllFollowingUsers ****
@@ -634,14 +677,16 @@ public class SocialNetworkService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        FollowRequest followRequest = followRequestRepository.findById(followRequestId)
+        User follower = userRepository.findById(followRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        FollowRequest followRequest = (FollowRequest) followRequestRepository.findByUserAndFollower(user, follower)
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_KEY));
 
         if (!followRequest.getUser().getId().equals(userId)) {
             throw new AppException(ErrorCode.UNAUTHORIZED);
         }
 
-        User follower = followRequest.getFollower();
         UserFollow userFollow = new UserFollow();
 
         userFollow.setFollower(follower);
@@ -666,10 +711,13 @@ public class SocialNetworkService {
     public void rejectFollowRequest(String followRequestId) throws AppException {
         String userId = getCurrentUserId();
 
-        userRepository.findById(userId)
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        FollowRequest followRequest = followRequestRepository.findById(followRequestId)
+        User follower = userRepository.findById(followRequestId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        FollowRequest followRequest = (FollowRequest) followRequestRepository.findByUserAndFollower(user, follower)
                 .orElseThrow(() -> new AppException(ErrorCode.INVALID_KEY));
 
         if (!followRequest.getUser().getId().equals(userId)) {
@@ -725,6 +773,7 @@ public class SocialNetworkService {
     private PostResponse toPostResponseWithFlags(Post post) throws AppException {
         PostResponse res = postMapper.toPostResponse(post);
         res.setUser(userMapper.toBasicInfoUserResponse(post.getUser()));
+        res.setDoctor(userMapper.toBasicInfoUserResponse(post.getDoctor()));
 
         // Lấy current user
         String currentUserId = getCurrentUserId();
@@ -752,5 +801,86 @@ public class SocialNetworkService {
         return ufList.stream()
                 .map(uf -> uf.getFollowing().getId())
                 .collect(Collectors.toSet());
+    }
+
+    public boolean checkPrivate(String userId) throws AppException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (user instanceof Patient patient) {
+            return patient.isPrivate();
+        }
+        return false;
+    }
+
+    public List<BasicInfoUserResponse> getAllSendFollowRequest(int page, int size) throws AppException {
+        String userId = getCurrentUserId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (!(user instanceof Patient patient)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        List<FollowRequest> followRequests = followRequestRepository
+                .findByFollower(user, PageRequest.of(page, size))
+                .getContent();
+
+        return followRequests.stream().map(
+                fr -> userMapper.toBasicInfoUserResponse(fr.getUser()))
+                .toList();
+    }
+
+    public void deleteFollowRequest(String targetUserId) throws AppException {
+        String userId = getCurrentUserId();
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        User targetUser = userRepository.findById(targetUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        FollowRequest followRequest = followRequestRepository
+                .findByUserAndFollower(targetUser, user)
+                .orElseThrow(() -> new AppException(ErrorCode.FOLLOW_REQUEST_NOT_FOUND));
+
+        if (!followRequest.getFollower().getId().equals(userId)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        followRequestRepository.delete(followRequest);
+    }
+
+    public int countFollowRequests() throws AppException {
+        String userId = getCurrentUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (!(user instanceof Patient patient)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        return patient.getFollowRequests().size();
+    }
+
+    public int countSendFollowRequests() throws AppException {
+        String userId = getCurrentUserId();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (!(user instanceof Patient patient)) {
+            throw new AppException(ErrorCode.UNAUTHORIZED);
+        }
+
+        // Trả về số lượng yêu cầu theo dõi đã gửi
+        return followRequestRepository.findByFollower(user, Pageable.unpaged()).getSize();
+    }
+
+    public int countPosts(String userId) throws AppException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        // Trả về số lượng bài viết của người dùng
+        return postRepository.countByUserAndIsHiddenFalse(user);
     }
 }
