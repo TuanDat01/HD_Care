@@ -29,7 +29,8 @@ public class NotificationController {
     }
 
     @GetMapping
-    public ApiResponse<Page<Notification>> getAllNotification(@PageableDefault(size = 5,page = 0)Pageable pageable)  {
+    public ApiResponse<Page<Notification>> getAllNotification(@PageableDefault(size = 5,page = 0)Pageable pageable) throws AppException {
+        System.out.println(notificationService.getPageNotification(pageable));
         return ApiResponse.<Page<Notification>>builder()
                 .message("Get all notification success")
                 .result(notificationService.getPageNotification(pageable))
