@@ -73,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers("/news/**").permitAll()
                         .requestMatchers("/payment/**").permitAll()
                         .requestMatchers("/complaint/**").permitAll()
+                        .requestMatchers("/stats/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 ;
             } catch (Exception e) {

@@ -9,7 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.sql.Date;
 import java.util.List;
+
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, String> {
@@ -82,4 +84,37 @@ public interface AppointmentRepository extends JpaRepository<Appointment, String
     @Override
     long count();
 
+    @Query("SELECT d.id, d.name, FUNCTION('DATE', s.start), COUNT(a) " +
+            "FROM Appointment a JOIN a.doctor d JOIN a.schedule s " +
+            "WHERE a.status = 'COMPLETED' " +
+            "AND (:doctorId IS NULL OR d.id = :doctorId) " +
+            "AND (:from IS NULL OR FUNCTION('DATE', s.start) >= :from) " +
+            "AND (:to IS NULL OR FUNCTION('DATE', s.start) <= :to) " +
+            "GROUP BY d.id, d.name, FUNCTION('DATE', s.start) " +
+            "ORDER BY FUNCTION('DATE', s.start) DESC")
+    List<Object[]> statsVisits(@Param("doctorId") String doctorId,
+                               @Param("from") Date from,
+                               @Param("to") Date to);
+
+    @Query("SELECT d.id, d.name, FUNCTION('DATE', s.start), SUM(a.amount) " +
+            "FROM Appointment a JOIN a.doctor d JOIN a.schedule s " +
+            "WHERE a.status = 'COMPLETED' " +
+            "AND (:doctorId IS NULL OR d.id = :doctorId) " +
+            "AND (:from IS NULL OR FUNCTION('DATE', s.start) >= :from) " +
+            "AND (:to IS NULL OR FUNCTION('DATE', s.start) <= :to) " +
+            "GROUP BY d.id, d.name, FUNCTION('DATE', s.start) " +
+            "ORDER BY FUNCTION('DATE', s.start) DESC")
+    List<Object[]> statsRevenue(@Param("doctorId") String doctorId,
+                                @Param("from") Date from,
+                                @Param("to") Date to);
+
+    @Query("SELECT d.id, d.name, a.status, COUNT(a) " +
+            "FROM Appointment a JOIN a.doctor d JOIN a.schedule s " +
+            "WHERE (:doctorId IS NULL OR d.id = :doctorId) " +
+            "AND (:from IS NULL OR FUNCTION('DATE', s.start) >= :from) " +
+            "AND (:to IS NULL OR FUNCTION('DATE', s.start) <= :to) " +
+            "GROUP BY d.id, d.name, a.status")
+    List<Object[]> statsByStatus(@Param("doctorId") String doctorId,
+                                 @Param("from") Date from,
+                                 @Param("to") Date to);
 }

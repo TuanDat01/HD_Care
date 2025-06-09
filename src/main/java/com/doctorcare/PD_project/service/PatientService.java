@@ -30,6 +30,7 @@ import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Service
@@ -59,6 +60,7 @@ public class PatientService {
         Patient patient = userMapper.toPatient(userRequest);
         patient.setRole(Roles.PATIENT.name());
         patient.setPwd(passwordEncoder.encode(userRequest.getPassword()));
+        patient.setCreatedAt(LocalDateTime.now());
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 //        patient.setDob(LocalDate.parse(userRequest.getDob(), formatter));
         Patient patientSaved = patientRepository.save(patient);

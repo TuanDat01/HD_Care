@@ -6,6 +6,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -58,4 +59,7 @@ public class User {
     // Các trường count (có thể cập nhật thủ công)
     private int followersCount;
     private int followingCount;
+
+    LocalDateTime createdAt;
+    LocalDateTime updatedAt;
 }

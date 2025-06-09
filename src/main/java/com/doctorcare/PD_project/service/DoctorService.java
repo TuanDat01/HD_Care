@@ -32,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -64,6 +65,7 @@ public class DoctorService {
         Doctor doctor = userMapper.toDoctor(userRequest);
         doctor.setRole(Roles.DOCTOR.name());
         doctor.setPwd(passwordEncoder.encode(userRequest.getPassword()));
+        doctor.setCreatedAt(LocalDateTime.now());
         Doctor savedDoctor = doctorRepository.save(doctor);
 
         String appUrl = request.getRequestURL().toString();
