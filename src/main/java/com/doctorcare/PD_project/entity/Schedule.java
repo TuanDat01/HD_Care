@@ -5,6 +5,7 @@ import com.doctorcare.PD_project.validation.TimeConstraint;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 
@@ -31,4 +32,10 @@ public class Schedule {
 
     @Column(name = "is_available")
     boolean available;
+
+    @Column(name = "quantity_patient")
+    Integer quantityPatient;
+
+    @Column(name = "quantity_current")
+    int quantityCurrent;
 }

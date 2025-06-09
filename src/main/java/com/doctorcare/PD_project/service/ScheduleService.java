@@ -49,7 +49,7 @@ public class ScheduleService {
         Doctor doctor = doctorRepository.findById(id).orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_DOCTOR));
         scheduleRequest.forEach((schedule -> {
             schedule.setAvailable(true);
-            System.out.println(schedule);
+            schedule.setQuantityCurrent(0);
             doctor.addSchedule(schedule);
             doctorRepository.save(doctor);
         }));
@@ -65,7 +65,7 @@ public class ScheduleService {
                 ).toList();
 
         doctorResponse.setSchedules(scheduleResponse);
-        
+
         return doctorResponse;
     }
 
@@ -132,11 +132,10 @@ public class ScheduleService {
         List<Schedule> schedules = scheduleRepository.findScheduleByDate(createSchedule.getDate());
         Doctor doctor = doctorRepository.findById(createSchedule.getIdDoctor())
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_DOCTOR));
-        System.out.println(doctor.getUsername());
-// Danh sách lịch từ Doctor
+
+        // Danh sách lịch từ Doctor
         List<Schedule> filter = doctor.getSchedules();
-        System.out.println(filter.toString());
-// Giữ lại các phần tử trong filter nếu chúng tồn tại trong schedules
+        // Giữ lại các phần tử trong filter nếu chúng tồn tại trong schedules
         List<Schedule> filteredSchedules = schedules.stream()
                 .filter(schedule -> filter.stream().anyMatch(schedule1 -> schedule1.equals(schedule)))
                 .toList();
@@ -159,8 +158,7 @@ public class ScheduleService {
                     if ((Duration.between(startDateTime, endDateTime).toHours() != 1)) {
                         throw new RuntimeException("START_TIME_EXISTED");
                     }
-                    System.out.println(Schedule.builder().end(endDateTime).start(startDateTime).build().toString());
-                    return Schedule.builder().end(endDateTime).start(startDateTime).build();
+                    return Schedule.builder().quantityCurrent(0).quantityPatient(createSchedule.getQuantityPatient()).end(endDateTime).start(startDateTime).build();
                 } else {
                     System.out.println("Input format is incorrect");
                 }
@@ -171,5 +169,9 @@ public class ScheduleService {
 
     public DoctorResponse saveSchedule(CreateSchedule createSchedule,String idDoctor) throws AppException {
         return createSchedule(convertToSaveSchedule(createSchedule),idDoctor);
+    }
+
+    public void saveSchedule(Schedule schedule){
+        scheduleRepository.save(schedule);
     }
 }

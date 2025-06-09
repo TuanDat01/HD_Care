@@ -57,7 +57,8 @@ public enum ErrorCode {
     INVALID_FILTER_DOCTOR_NEWS(1047, "Trạng thái lọc tin tức không hợp lệ", HttpStatus.BAD_REQUEST),
     DOCTOR_NOT_FOUND(1048, "Bác sĩ không tồn tại", HttpStatus.NOT_FOUND),
     INVALID_NOTIFICATION_TYPE(1049, "Loại thông báo không hợp lệ", HttpStatus.BAD_REQUEST),
-    NOT_FOUND_USER(1050, "Không tìm thấy user đang online", HttpStatus.NOT_FOUND);
+    NOT_FOUND_USER(1050, "Không tìm thấy user đang online", HttpStatus.NOT_FOUND),
+    OVER_QUANTITY_SCHEDULE(1051,"Vượt quá số lượng bệnh nhân đăng ký khám", HttpStatus.BAD_REQUEST);
 
     ErrorCode(int code, String message, HttpStatus status) {
         this.code = code;

@@ -4,9 +4,12 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.entity.Appointment;
+import com.doctorcare.PD_project.entity.Schedule;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
 import com.doctorcare.PD_project.mail.EmailServiceImpl;
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,17 +23,26 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@RequiredArgsConstructor
 public class SendEmailService {
     private final EmailServiceImpl emailServiceImpl;
+    private final ScheduleService scheduleService;
+//    private final
 
-    public SendEmailService(EmailServiceImpl emailServiceImpl) {
-        this.emailServiceImpl = emailServiceImpl;
-    }
 
     @Async
     public void sendAppointmentConfirmation(Appointment savedAppointment, boolean isCancel, String note) throws MessagingException {
         String title = isCancel ? "Thông báo hủy lịch hẹn" : "Thông báo xác nhận lịch hẹn thành công";
         String reason = (note != null && !note.isEmpty()) ? "<p style=\"margin-top: 10px; color: #d9534f; font-weight: bold;\">Lý do thay đổi lịch hẹn: " + note + "</p>" : "";
+
+        Schedule schedule = savedAppointment.getSchedule();
+        int quantityCurrent = schedule.getQuantityCurrent();
+        if (isCancel){
+            quantityCurrent = quantityCurrent - 1;
+        }
+        schedule.setQuantityCurrent(quantityCurrent);
+
+        scheduleService.saveSchedule(schedule);
 
         String subjectTime = savedAppointment.getSchedule().getStart().format(DateTimeFormatter.ofPattern("HH:mm"))
                 + " - " + savedAppointment.getSchedule().getEnd().format(DateTimeFormatter.ofPattern("HH:mm"));

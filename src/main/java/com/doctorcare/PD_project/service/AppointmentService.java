@@ -82,22 +82,29 @@ public class AppointmentService {
         if (!schedule.getStart().isAfter(LocalDateTime.now()))
             throw new AppException(ErrorCode.SCHEDULE_INVALID);
 
-        Appointment appointment = appointmentMapper.toAppointment(appointmentRequest);
-        Doctor doctor = doctorService.findDoctorBySchedules(schedule.getId());
+        if (schedule.getQuantityCurrent() < schedule.getQuantityPatient()){
 
-        Prescription prescription = new Prescription();
+            schedule.setQuantityCurrent(schedule.getQuantityCurrent() + 1);
+            scheduleService.saveSchedule(schedule);
 
-        appointment.setAmount(doctor.getPrice());
-        appointment.setPatient(patient);
-        appointment.setSchedule(schedule);
-        appointment.setDoctor(doctor);
-        appointment.setStatus(AppointmentStatus.PENDING.toString());
-        appointment.setPrescription(prescription);
+            Appointment appointment = appointmentMapper.toAppointment(appointmentRequest);
+            Doctor doctor = doctorService.findDoctorBySchedules(schedule.getId());
 
-        Appointment savedAppointment = appointmentRepository.save(appointment);
+            Prescription prescription = new Prescription();
 
-        //        emailService.sendAppointmentConfirmation(savedAppointment);
-        return appointmentMapper.toAppointmentRequest(savedAppointment);
+            appointment.setAmount(doctor.getPrice());
+            appointment.setPatient(patient);
+            appointment.setSchedule(schedule);
+            appointment.setDoctor(doctor);
+            appointment.setStatus(AppointmentStatus.PENDING.toString());
+            appointment.setPrescription(prescription);
+
+            Appointment savedAppointment = appointmentRepository.save(appointment);
+
+            //        emailService.sendAppointmentConfirmation(savedAppointment);
+            return appointmentMapper.toAppointmentRequest(savedAppointment);
+        }
+        else throw new AppException(ErrorCode.OVER_QUANTITY_SCHEDULE);
     }
 
     public Map<String,String> convertDate(String date, String month){
