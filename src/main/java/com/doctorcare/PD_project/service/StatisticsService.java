@@ -38,7 +38,7 @@ public class StatisticsService {
                         (String) r[0],
                         (String) r[1],
                         (Date) r[2],
-                        (Long) r[3]
+                        ((Number) r[3]).doubleValue()
                 ))
                 .collect(Collectors.toList());
     }

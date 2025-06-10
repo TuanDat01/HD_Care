@@ -12,9 +12,9 @@ public class RevenueStatsResponse {
     private String doctorId;
     private String doctorName;
     private LocalDate date;
-    private Long revenue;
+    private Double revenue;
 
-    public RevenueStatsResponse(String doctorId, String doctorName, Date date, Long revenue) {
+    public RevenueStatsResponse(String doctorId, String doctorName, Date date, Double revenue) {
         this.doctorId = doctorId;
         this.doctorName = doctorName;
         this.date = date.toLocalDate();
