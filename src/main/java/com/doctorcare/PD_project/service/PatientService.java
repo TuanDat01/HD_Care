@@ -6,12 +6,14 @@ import com.doctorcare.PD_project.dto.request.CreateUserRequest;
 import com.doctorcare.PD_project.dto.request.PatientRequest;
 import com.doctorcare.PD_project.dto.response.PatientGetByAdminResponse;
 import com.doctorcare.PD_project.dto.response.UserResponse;
+import com.doctorcare.PD_project.entity.Doctor;
 import com.doctorcare.PD_project.entity.Patient;
 import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.Roles;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.UserMapper;
+import com.doctorcare.PD_project.respository.DoctorRepository;
 import com.doctorcare.PD_project.respository.PatientRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -22,6 +24,7 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -32,6 +35,8 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Collection;
+import java.util.List;
 
 @Service
 @FieldDefaults(level = AccessLevel.PRIVATE,makeFinal = true)
@@ -42,6 +47,7 @@ public class PatientService {
     PasswordEncoder passwordEncoder;
     UserMapper userMapper;
     SendEmailService sendEmailService;
+    DoctorService doctorService;
 
     @Transactional
     public void CreatePatient(CreateUserRequest userRequest, HttpServletRequest request) throws AppException {
@@ -108,13 +114,25 @@ public class PatientService {
     }
 
     public UserResponse getPatient() throws AppException {
+        UserResponse userResponse = null;
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        System.out.println("username" + username);
+        Collection<? extends GrantedAuthority> roles = SecurityContextHolder.getContext().getAuthentication().getAuthorities();
+        boolean isDoctor = roles.stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_DOCTOR"));
+        if (isDoctor){
+            System.out.println("in doctor");
+            Doctor doctor = doctorService.findDoctorByUserName(username);
 
-        Patient patient  = patientRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+            userResponse = userMapper.toUserResponse(doctor);
+            userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
 
-        UserResponse userResponse = userMapper.toUserResponse(patient);
-        userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
+        }
+        else {
+            Patient patient  = patientRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+
+            userResponse = userMapper.toUserResponse(patient);
+            userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
+        }
 
         return userResponse;
     }

@@ -165,6 +165,11 @@ public class DoctorService {
 
     }
 
+    public Doctor findDoctorByUserName(String name) throws AppException {
+        return doctorRepository.findDoctorByUsername(name).orElseThrow(() ->
+                new AppException(ErrorCode.DOCTOR_NOT_FOUND));
+    }
+
     public UserResponse getDoctor() throws AppException {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
 

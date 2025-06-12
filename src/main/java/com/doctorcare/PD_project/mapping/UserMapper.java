@@ -34,6 +34,8 @@ public interface UserMapper {
     @Mapping(target = "schedules",ignore = true)
     DoctorResponse toDoctorResponse(Doctor doctor);
 
+
+
     @InheritInverseConfiguration
     Doctor toDoctor(DoctorResponse doctorResponse);
 
@@ -47,6 +49,7 @@ public interface UserMapper {
     PatientRequest toPatientRequest(Patient patient);
     @Mapping(source = "pwd",target = "password")
     UserResponse toUserResponse(Patient patient);
+
 
     @Mapping(source = "pwd",target = "password")
     UserResponse toUserResponse(Doctor doctor);
