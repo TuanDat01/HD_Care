@@ -20,6 +20,7 @@ import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -28,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,7 +47,8 @@ public class AuthenticationService {
     PasswordEncoder passwordEncoder;
     OutboundClient outboundClient;
     OnboardUserClient onboardUserClient;
-    PatientService patientService;
+
+    SendEmailService sendEmailService;
     UserMapper userMapper;
     @NonFinal
     @Value("${jwt.signerKey}")
@@ -218,5 +221,29 @@ public class AuthenticationService {
         return signedJWT.getJWTClaimsSet();
     }
 
+
+    public void resetPassword(String username) throws MessagingException, AppException {
+        User user = userRepository.findByUsername(username).orElseThrow(() ->
+                new AppException(ErrorCode.NOT_FOUND_PATIENT));
+        sendEmailService.sendChangePassword(user);
+    }
+
+    public void processReset(Map<String, String> password) throws AppException {
+        System.out.println("in change");
+        System.out.println(password.get("username"));
+        User user = userRepository.findByUsername(password.get("username"))
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
+
+        String newPassword = password.get("newPassword");
+        String confirmPassword = password.get("confirmPassword");
+
+
+        if (!newPassword.equals(confirmPassword)) {
+            throw new AppException(ErrorCode.PASSWORDS_DO_NOT_MATCH); // Bạn cũng có thể định nghĩa mã lỗi này
+        }
+
+        user.setPwd(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+    }
 
 }

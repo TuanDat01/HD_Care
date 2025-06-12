@@ -3,21 +3,23 @@ package com.doctorcare.PD_project.controller;
 import com.doctorcare.PD_project.dto.request.AuthenticationRequest;
 import com.doctorcare.PD_project.dto.request.IntrospectRequest;
 import com.doctorcare.PD_project.dto.response.*;
-import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.service.AuthenticationService;
 import com.doctorcare.PD_project.service.VerifyTokenService;
 import com.nimbusds.jose.JOSEException;
+import jakarta.mail.MessagingException;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.text.ParseException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
@@ -45,6 +47,18 @@ public class AuthenticationController {
                 .result(result)
                 .message("Login successfully")
                 .build();
+    }
+
+    @GetMapping("/resetPassword")
+    ApiResponse<Object> resetPassword(@RequestParam("username") String username) throws MessagingException, AppException {
+        authenticationService.resetPassword(username);
+        return ApiResponse.builder().result("Đã gửi về email").build();
+    }
+
+    @PostMapping("/resetPassword")
+    ApiResponse<Object> processReset(@RequestBody Map<String, String> password) throws AppException {
+        authenticationService.processReset(password);
+        return ApiResponse.builder().result("Cập nhật mật khẩu thành công").build();
     }
 
     @PostMapping("/outbound/authentication")

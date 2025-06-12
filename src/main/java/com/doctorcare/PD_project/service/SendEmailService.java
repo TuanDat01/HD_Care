@@ -5,6 +5,7 @@ import com.cloudinary.utils.ObjectUtils;
 import com.doctorcare.PD_project.dto.request.AppointmentRequest;
 import com.doctorcare.PD_project.entity.Appointment;
 import com.doctorcare.PD_project.entity.Schedule;
+import com.doctorcare.PD_project.entity.User;
 import com.doctorcare.PD_project.event.create.OnRegisterEvent;
 import com.doctorcare.PD_project.mail.EmailServiceImpl;
 import io.github.cdimascio.dotenv.Dotenv;
@@ -149,6 +150,36 @@ public class SendEmailService {
                 appointmentRequest.getId() // ID lịch hẹn
         );
         emailServiceImpl.sendSimpleMessage(appointmentRequest.getEmail(), subject, htmlContent, null);
+    }
+
+    @Async
+    public void sendChangePassword(User user) throws MessagingException {
+        System.out.println("in change password");
+        String subject = "Đổi mật khẩu cho tài khoản có username " + user.getUsername();
+
+        String htmlContent = String.format(
+                "<div style=\"font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);\">" +
+                        "    <div style=\"background-color: #007bff; color: #fff; padding: 20px; border-top-left-radius: 8px; border-top-right-radius: 8px; text-align: center;\">" +
+                        "        <img src=\"https://res.cloudinary.com/dlokeyspj/image/upload/v1734713330/2024-12-20T23:48:46.7449537000.png\" alt=\"HD_CARE Logo\" style=\"width: 100px; margin-bottom: 10px;\">" +
+                        "        <h1 style=\"margin: 0; font-size: 24px;\">Đổi mật khẩu</h1>" +
+                        "    </div>" +
+                        "    <div style=\"padding: 20px;\">" +
+                        "        <p style=\"font-size: 16px; margin: 10px 0;\">Kính gửi <strong>%s</strong>,</p>" + // Sửa đúng format
+                        "        <p style=\"font-size: 16px; margin: 10px 0;\">Đây là thông báo riêng tư cá nhân vui lòng bảo mật thông tin sau khi đổi mật khẩu</p>" +
+                        "        <div style=\"background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin: 20px 0; text-align: center;\">" +
+                        "            <p style=\"margin: 0; font-size: 16px;\">Vui lòng truy cập liên kết dưới đây để để lại đổi mật khẩu:</p>" +
+                        "            <a href=\"http://localhost:3000/auth/resetPassword/%s\" style=\"display: inline-block; margin-top: 10px; padding: 10px 20px; background-color: #007bff; color: #fff; text-decoration: none; border-radius: 5px; font-size: 16px;\">Đổi mật khẩu ngay</a>" +
+                        "        </div>" +
+                        "        <p style=\"margin: 20px 0; font-size: 16px;\">Cảm ơn bạn đã đồng hành cùng HD_CARE. Chúc bạn một ngày tốt lành!</p>" +
+                        "    </div>" +
+                        "    <div style=\"background-color: #f1f1f1; text-align: center; padding: 10px; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;\">" +
+                        "        <p style=\"margin: 0; font-size: 12px; color: #6c757d;\">&copy; 2024 HD_CARE. Tất cả các quyền được bảo lưu.</p>" +
+                        "    </div>" +
+                        "</div>",
+                user.getUsername(),
+                user.getUsername()
+        );
+        emailServiceImpl.sendSimpleMessage(user.getEmail(), subject, htmlContent, null);
     }
 
 
