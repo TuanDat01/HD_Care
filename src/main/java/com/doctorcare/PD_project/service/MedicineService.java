@@ -49,4 +49,9 @@ public class MedicineService {
     public List<MedicineDetail> findAll() {
         return medicineDetailRepository.findAll();
     }
+
+    @Transactional
+    public MedicineDetail CreateMedicineDetail(MedicineDetail medicineDetail) {
+        return medicineDetailRepository.save(medicineDetail);
+    }
 }

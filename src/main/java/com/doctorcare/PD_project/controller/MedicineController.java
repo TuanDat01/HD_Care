@@ -19,10 +19,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class MedicineController {
     MedicineService medicineService;
-//    @PostMapping
-//    public ApiResponse<MedicineDetail> CreateMedicine(@RequestBody MedicineDetail medicineDetail) {
-//        return ApiResponse.<MedicineDetail>builder().result(medicineService.CreateMedicine(medicineDetail)).build();
-//    }
+    @PostMapping
+    public ApiResponse<MedicineDetail> CreateMedicine(@RequestBody MedicineDetail medicineDetail){
+        return ApiResponse.<MedicineDetail>builder().result(medicineService.CreateMedicineDetail(medicineDetail)).build();
+    }
     @PutMapping("/{id}")
     public ApiResponse<Medicine> UpdateMedicine(@PathVariable String id, @RequestBody Medicine medicine) throws AppException {
         return ApiResponse.<Medicine>builder().result(medicineService.updateMedicine(id, medicine)).build();

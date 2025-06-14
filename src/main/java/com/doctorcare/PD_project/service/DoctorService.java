@@ -124,13 +124,16 @@ public class DoctorService {
                 (p-1) * 4,
                 order != null ?
                         ("asc".equalsIgnoreCase(order) ?
-                               Sort.by(Sort.Direction.ASC,"price") : Sort.by(Sort.Direction.DESC, "price"))
+                                Sort.by(Sort.Direction.ASC,"price") : Sort.by(Sort.Direction.DESC, "price"))
                         : Sort.unsorted() // No sorting if `order` is null
         );
         Page<Doctor> doctorPage = doctorRepository.filterDoctor(district, name, city, doctorPageRequest);
 
         doctors = doctorPage.getContent().stream().peek(doctor -> {
             List<Schedule> schedule = scheduleRepository.findSchedule(doctor.getId(), LocalDate.now().toString());
+            for (Schedule s : schedule) {
+                s.setAvailable(s.getQuantityPatient() > s.getQuantityCurrent());
+            }
             doctor.setSchedules(schedule);
         }).toList();
 

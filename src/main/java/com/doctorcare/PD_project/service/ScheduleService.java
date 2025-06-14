@@ -76,6 +76,7 @@ public class ScheduleService {
             ScheduleResponse scheduleResponse = scheduleMapper.toScheduleResponse(schedule);
 
             scheduleResponse.setDate(schedule.getStart().toLocalDate());
+            scheduleResponse.setAvailable(schedule.getQuantityPatient() > schedule.getQuantityCurrent());
 
             return scheduleResponse;
         }).toList();
