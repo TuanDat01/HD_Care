@@ -27,4 +27,6 @@ public class UserResponse {
     String clinicName;
     private int followersCount;
     private int followingCount;
+    String role;
+    Boolean privateAccount;
 }

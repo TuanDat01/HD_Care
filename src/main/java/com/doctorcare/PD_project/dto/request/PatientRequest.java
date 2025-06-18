@@ -15,7 +15,6 @@ import java.time.LocalDateTime;
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
 @JsonInclude(JsonInclude.Include.NON_NULL)
-
 public class PatientRequest {
     String id;
     String name;

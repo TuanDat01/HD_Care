@@ -125,13 +125,16 @@ public class PatientService {
 
             userResponse = userMapper.toUserResponse(doctor);
             userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
-
+            userResponse.setRole(doctor.getRole());
+            userResponse.setPrivateAccount(true);
         }
         else {
             Patient patient  = patientRepository.findByUsername(username).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PATIENT));
 
             userResponse = userMapper.toUserResponse(patient);
             userResponse.setNoPassword(!StringUtils.hasText(userResponse.getPassword()));
+            userResponse.setRole(patient.getRole());
+            userResponse.setPrivateAccount(patient.isPrivate());
         }
 
         return userResponse;
