@@ -66,4 +66,9 @@ public class NotificationService {
     public List<Notification> getAllNotification() {
         return notificationRepository.findAllByReceiverUsernameOrderByCreatedAtDesc(SecurityContextHolder.getContext().getAuthentication().getName());
     }
+
+    public List<Notification> getCancelNotification(String idDoctor) {
+        System.out.println("innnn" + notificationRepository.findAllByReceiverId(idDoctor));
+        return notificationRepository.findAllByReceiverId(idDoctor);
+    }
 }

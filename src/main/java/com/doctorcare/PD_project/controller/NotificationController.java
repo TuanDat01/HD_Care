@@ -61,4 +61,12 @@ public class NotificationController {
                 .build();
     }
 
+    @GetMapping("/type-cancel")
+    public ApiResponse<List<Notification>> getNotification(@RequestParam String idDoctor){
+        System.out.println("vao r");
+        return ApiResponse.<List<Notification>>builder()
+                .result(notificationService.getCancelNotification(idDoctor))
+                .build();
+    }
+
 }
