@@ -47,6 +47,7 @@ public class AppointmentStatusListen {
         notificationService.saveNotification(notification);
 
         sendNotificationService.sendNotification(notificateMap.toNotificationMessage(notification));
+
         return appointmentStatusChange.getAppointment();
     }
 

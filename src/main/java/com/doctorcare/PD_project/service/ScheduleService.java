@@ -120,6 +120,7 @@ public class ScheduleService {
                         .filter(appointment -> !AppointmentStatus.CANCELLED.toString().equals(appointment.getStatus())
                                 && !AppointmentStatus.COMPLETED.toString().equals(appointment.getStatus()))
                         .forEach(appointment -> {
+                            System.out.println("des" + appointment.getDescription());
                             appointment.setStatus(AppointmentStatus.CANCELLED.toString());
                             appointment.setNote(scheduleRequest.getNote());
                         });

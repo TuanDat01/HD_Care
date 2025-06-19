@@ -67,4 +67,5 @@ public class AppointmentRequest {
     String result;
 
     String img;
+    String note;
 }

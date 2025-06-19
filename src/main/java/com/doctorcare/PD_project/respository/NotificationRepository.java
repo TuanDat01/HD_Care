@@ -14,4 +14,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Stri
     List<Notification> findAllByReceiverUsernameOrderByCreatedAtDesc(String username);
 
     Page<Notification> findAllByReceiverOrderByCreatedAtDesc(User user, Pageable pageable);
+    List<Notification> findAllByReceiverId(String idDoctor);
 }

@@ -9,6 +9,7 @@ import com.doctorcare.PD_project.enums.ErrorCode;
 import com.doctorcare.PD_project.enums.NotificationType;
 import com.doctorcare.PD_project.exception.AppException;
 import com.doctorcare.PD_project.mapping.AppointmentMapper;
+import com.doctorcare.PD_project.mapping.NotificateMap;
 import com.doctorcare.PD_project.mapping.UserMapper;
 import com.doctorcare.PD_project.respository.AppointmentRepository;
 import com.doctorcare.PD_project.respository.DoctorRepository;
@@ -49,8 +50,11 @@ public class AppointmentService {
     UserMapper userMapper;
     PatientService patientService;
     SendEmailService emailService;
+    NotificateMap notificateMap;
+    NotificationService notificationService;
     PrescriptionService prescriptionService;
     DoctorRepository doctorRepository;
+    SendNotificationService sendNotificationService;
 
     public List<AppointmentRequest> changeToListRequest(List<Appointment> appointments) {
         return appointments.stream().map(appointmentMapper::toAppointmentRequest).toList();
@@ -167,6 +171,23 @@ public class AppointmentService {
         Appointment appointment = appointmentRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_APPOINTMENT));
         if (!appointment.getDoctor().getId().equals(updateStatusAppointment.getIdDoctor())) {
             throw new AppException(ErrorCode.NOT_FOUND_DOCTOR);
+        }
+
+        if (appointment.getStatus().equals(AppointmentStatus.CONFIRMED.toString())){
+            System.out.println("Innnnnnnnnnnnnnnnnnnnnnnnnnnn");
+            Notification notification = new Notification();
+            notification.setIdReference(appointment.getId());
+            notification.setMessage(updateStatusAppointment.getNote());
+            notification.setReceiver(appointment.getDoctor());
+            notification.setEvent_type("Request_Cancel");
+            notification.setSender(appointment.getPatient());
+
+            notificationService.saveNotification(notification);
+
+
+            NotificationMessage notificationMessage = notificateMap.toNotificationMessage(notification);
+            notificationMessage.setData(appointment);
+            sendNotificationService.sendNotification(notificationMessage);
         }
         appointment.setStatus(updateStatusAppointment.getStatus());
         appointment.setNote(updateStatusAppointment.getNote());
