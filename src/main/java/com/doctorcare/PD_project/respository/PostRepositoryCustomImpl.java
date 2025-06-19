@@ -20,52 +20,53 @@ public class PostRepositoryCustomImpl implements PostRepositoryCustom {
     public Page<Post> searchByMultipleKeywords(String keyword, String currentUserId, Pageable pageable) {
         String[] keywords = keyword.trim().toLowerCase().split("\\s+");
 
-        // 1. Xây dựng phần chung (FROM…WHERE…)
+        // 1. Xây dựng phần FROM…WHERE… chung
         StringBuilder base = new StringBuilder()
                 .append("FROM Post p ")
                 .append("WHERE p.isHidden = false ")
                 .append("AND (");
         for (int i = 0; i < keywords.length; i++) {
             if (i > 0) base.append(" OR ");
-            base.append("(LOWER(p.content) LIKE :kw").append(i)
+            base.append("(")
+                    .append("LOWER(p.content) LIKE :kw").append(i)
                     .append(" OR LOWER(p.user.name) LIKE :kw").append(i)
-                    .append(")");
+                    .append(" OR (p.doctor IS NOT NULL AND LOWER(p.doctor.name) LIKE :kw").append(i).append("))");
         }
         base.append(") ")
-                // lọc privacy:
+                // Lọc privacy: public hoặc đã follow
                 .append("AND (")
                 .append("p.user.isPrivate = false ")
-                .append("OR ")
-                .append("EXISTS (")
-                .append("SELECT uf FROM UserFollow uf ")
-                .append("WHERE uf.follower.id = :currentUserId ")
-                .append("AND uf.following.id = p.user.id")
+                .append("OR EXISTS (")
+                .append("  SELECT uf FROM UserFollow uf ")
+                .append("  WHERE uf.follower.id = :currentUserId ")
+                .append("    AND uf.following.id = p.user.id")
                 .append(")")
                 .append(")");
 
-        // 2. Chuẩn bị JPQL cho data và count
-        String select       = "SELECT p "       + base.toString() + " ORDER BY p.createdAt DESC";
-        String countSelect  = "SELECT COUNT(p) " + base.toString();
+        // 2. JPQL cho data & count
+        String select      = "SELECT p "       + base.toString() + " ORDER BY p.createdAt DESC";
+        String countSelect = "SELECT COUNT(p) " + base.toString();
 
         TypedQuery<Post> query      = entityManager.createQuery(select, Post.class);
-        TypedQuery<Long> countQuery = entityManager.createQuery(countSelect, Long.class);
+        TypedQuery<Long>   countQ   = entityManager.createQuery(countSelect, Long.class);
 
-        // 3. Set param keywords
+        // 3. Set các keyword params
         for (int i = 0; i < keywords.length; i++) {
             String val = "%" + keywords[i] + "%";
             query.setParameter("kw" + i, val);
-            countQuery.setParameter("kw" + i, val);
+            countQ.setParameter("kw" + i, val);
         }
-        // 4. Set param currentUserId
+        // 4. Set currentUserId
         query.setParameter("currentUserId", currentUserId);
-        countQuery.setParameter("currentUserId", currentUserId);
+        countQ.setParameter("currentUserId", currentUserId);
 
         // 5. Phân trang
         query.setFirstResult((int) pageable.getOffset());
         query.setMaxResults(pageable.getPageSize());
 
         List<Post> posts = query.getResultList();
-        Long total       = countQuery.getSingleResult();
+        Long total       = countQ.getSingleResult();
+
         return new PageImpl<>(posts, pageable, total);
     }
 }

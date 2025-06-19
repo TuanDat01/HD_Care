@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
@@ -113,8 +114,8 @@ public class SocialNetworkService {
         }
 
         // Cập nhật ảnh: xóa cũ và thêm mới
-        post.getImages().clear();
-        if (request.getImages() != null) {
+        if (request.getImages() != null || request.getImages().isEmpty()) {
+            post.getImages().clear();
             for (PostImage imgReq : request.getImages()) {
                 PostImage img = new PostImage();
                 img.setImageUrl(imgReq.getImageUrl());
@@ -209,51 +210,68 @@ public class SocialNetworkService {
         User currentUser = userRepository.findById(currentUserId)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        // --- Nhóm 0: Bài viết mới nhất (công khai), sắp xếp theo createdAt desc ---
+        // Lấy danh sách ID của những người currentUser đang follow
+        Set<String> followingIds = userFollowRepository
+                .findByFollower(currentUser, Pageable.unpaged())
+                .getContent().stream()
+                .map(uf -> uf.getFollowing().getId())
+                .collect(Collectors.toSet());
+
+        // Predicate kiểm tra quyền xem post public
+        Predicate<Post> canView = p -> {
+            User owner = p.getUser();
+            // Nếu owner là Patient private và currentUser không follow hoặc không phải owner
+            if (owner instanceof Patient patient && patient.isPrivate()) {
+                return followingIds.contains(owner.getId())
+                        || owner.getId().equals(currentUserId);
+            }
+            return true;
+        };
+
+        // --- Nhóm 0: Bài công khai mới nhất, filter private ---
         List<Post> group0 = postRepository
                 .findAllByIsHiddenFalseOrderByCreatedAtDesc(Pageable.unpaged())
-                .getContent();
+                .getContent().stream()
+                .filter(canView)
+                .toList();
 
-        // --- Nhóm 1: Bài viết từ người đang follow (công khai), sắp xếp theo createdAt desc ---
-        List<User> followings = userFollowRepository.findByFollower(currentUser, Pageable.unpaged())
-                .getContent().stream().map(UserFollow::getFollowing).toList();
+        // --- Nhóm 1: Bài từ người đang follow (đã là follow nên ko cần kiểm tra private) ---
+        List<User> followings = userRepository.findAllById(followingIds);
         List<Post> group1 = followings.stream()
                 .flatMap(u -> postRepository.findAllByUserAndIsHiddenFalse(u, Pageable.unpaged())
                         .getContent().stream())
                 .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
                 .toList();
 
-        // --- Nhóm 2: Bài viết tương tác cao (công khai), sắp xếp theo tổng tương tác desc ---
+        // --- Nhóm 2: Bài tương tác cao, công khai, không của followings, filter private ---
         List<Post> group2 = postRepository
                 .findAllByIsHiddenFalseOrderByCountLikesDescCountCommentsDesc(Pageable.unpaged())
                 .getContent().stream()
-                .filter(p -> !followings.contains(p.getUser()))
+                .filter(p -> !followingIds.contains(p.getUser().getId()))
+                .filter(canView)
                 .toList();
 
-        // --- Nhóm 3: Các bài viết công khai còn lại ---
+        // --- Nhóm 3: Các bài công khai còn lại, filter private ---
         List<Post> allPublic = postRepository.findAllByIsHiddenFalse(Pageable.unpaged()).getContent();
         List<Post> group3 = allPublic.stream()
-                .filter(p -> !group0.contains(p)
-                        && !group1.contains(p)
-                        && !group2.contains(p))
+                .filter(canView)
+                .filter(p -> !group0.contains(p) && !group1.contains(p) && !group2.contains(p))
                 .sorted(Comparator.comparing(Post::getCreatedAt).reversed())
                 .toList();
 
-        // --- Ghép các nhóm, loại bỏ trùng lặp ---
+        // --- Ghép và phân trang như cũ ---
         List<Post> combined = new ArrayList<>();
         combined.addAll(group0);
         combined.addAll(group1.stream().filter(p -> !combined.contains(p)).toList());
         combined.addAll(group2.stream().filter(p -> !combined.contains(p)).toList());
         combined.addAll(group3.stream().filter(p -> !combined.contains(p)).toList());
 
-        // --- Phân trang thủ công với guard (không giới hạn combined trước) ---
         int total = combined.size();
         int start = page * size;
         if (start >= total) {
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), total);
         }
         int end = Math.min(start + size, total);
-
         List<PostResponse> content = combined.subList(start, end).stream()
                 .map(p -> {
                     try {
@@ -269,18 +287,39 @@ public class SocialNetworkService {
 
     // **** NEW: Get Latest Posts ****
     public Page<PostResponse> getLatestPosts(int page, int size) throws AppException {
-        List<Post> allPublicPosts = postRepository
-                .findAllByIsHiddenFalseOrderByCreatedAtDesc(Pageable.unpaged())
-                .getContent();
+        String currentUserId = getCurrentUserId();
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        int total = allPublicPosts.size();
+        // Lấy danh sách ID follow để check private
+        Set<String> followingIds = userFollowRepository
+                .findByFollower(currentUser, Pageable.unpaged())
+                .getContent().stream()
+                .map(uf -> uf.getFollowing().getId())
+                .collect(Collectors.toSet());
+
+        Predicate<Post> canView = p -> {
+            User owner = p.getUser();
+            if (owner instanceof Patient patient && patient.isPrivate()) {
+                return followingIds.contains(owner.getId())
+                        || owner.getId().equals(currentUserId);
+            }
+            return true;
+        };
+
+        List<Post> all = postRepository
+                .findAllByIsHiddenFalseOrderByCreatedAtDesc(Pageable.unpaged())
+                .getContent().stream()
+                .filter(canView)
+                .toList();
+
+        int total = all.size();
         int start = page * size;
         if (start >= total) {
             return new PageImpl<>(Collections.emptyList(), PageRequest.of(page, size), total);
         }
         int end = Math.min(start + size, total);
-
-        List<PostResponse> result = allPublicPosts.subList(start, end).stream()
+        List<PostResponse> result = all.subList(start, end).stream()
                 .map(post -> {
                     try {
                         return toPostResponseWithFlags(post);
